@@ -8,9 +8,11 @@ for all XCache resource ( docker container, docs, k8s deployment)
 ## Instructions
 ### How to build
 
+```
 git clone https://github.com/slateci/XCache.git
 cd Xcache
 docker build --tag xcache:latest .
+```
 
 ### How to run
 
