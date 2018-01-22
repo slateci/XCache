@@ -1,0 +1,5 @@
+site_name: XCache
+pages:
+    - Home: index.md
+    - Instructions: instructions.md
+    - About: about.md

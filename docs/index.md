@@ -1,7 +1,6 @@
 # XCache
-This repository contains all all XCache resources ( docker container, docs, k8s deployment).
 
-# What is it? 
+## What is it? 
 
     XCache is a service that provides caching of data accessed using [xrootd protocol](here link).
     It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested.
@@ -15,3 +14,29 @@ This repository contains all all XCache resources ( docker container, docs, k8s 
 *   [GitHub](https://github.com/slateci/XCache)
 *   [Documentation](http://slateci.io/XCache/)
 *   [Monitoring](http://atlas-kibana.mwt2.org)
+
+## Configuration
+
+### Mandatory variables
+*   Sitename
+*   Certificate 
+
+### Optional variables
+Option | Default | Meaning
+----------------------
+Rucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
+Monitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
+Port | 1094 |
+Subfile caching | True |
+Prefetching | False |
+Block size | 1M | 
+Disk usage high watermark | 95% | 
+Disk usage low watermark | 80% |
+
+#### To Do
+
+*   Ilija - create a pod deployment
+*   Create config file generator
+*   Test
+
+
