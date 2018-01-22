@@ -1,9 +1,13 @@
 # XCache
-for all XCache resource ( docker container, docs, k8s deployment)
+This repository contains all all XCache resources ( docker container, docs, k8s deployment).
+[Documentation](http://slateci.io/XCache/)
+[DockerHub auto-build](https://hub.docker.com/r/slateci/xcache/)
 
 ## To Do
 
-*   Ilija - make dockerhub autobuild
+*   Ilija - create simple k8s pod for testing
+*   Ilija - deploy at UC and CERN
+
 
 ## Instructions
 ### How to build
