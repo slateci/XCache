@@ -1,0 +1,24 @@
+{
+    "docs": [
+        {
+            "location": "/",
+            "text": "XCache",
+            "title": "Home"
+        },
+        {
+            "location": "/#xcache",
+            "text": "",
+            "title": "XCache"
+        },
+        {
+            "location": "/about/",
+            "text": "XCache docs v.01",
+            "title": "About"
+        },
+        {
+            "location": "/about/#xcache-docs-v01",
+            "text": "",
+            "title": "XCache docs v.01"
+        }
+    ]
+}
