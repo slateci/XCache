@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>About - XCache</title>
+        <title>Instructions - XCache</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -48,11 +48,11 @@
                     <li >
                         <a href="..">Home</a>
                     </li>
-                    <li >
-                        <a href="../instructions/">Instructions</a>
-                    </li>
                     <li class="active">
-                        <a href="./">About</a>
+                        <a href="./">Instructions</a>
+                    </li>
+                    <li >
+                        <a href="../about/">About</a>
                     </li>
                 </ul>
 
@@ -63,12 +63,12 @@
                     </a>
                 </li>
                     <li >
-                        <a rel="next" href="../instructions/">
+                        <a rel="next" href="..">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="prev" >
+                    <li >
+                        <a rel="prev" href="../about/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -80,13 +80,33 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#xcache-docs-v01">XCache docs v.01</a></li>
+        <li class="main active"><a href="#instructions">Instructions</a></li>
+            <li><a href="#how-to-build">How to build</a></li>
+            <li><a href="#how-to-run">How to run</a></li>
+            <li><a href="#to-stop">To stop</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="xcache-docs-v01">XCache docs v.01</h1>
-<p>Ilija Vukotic (ivukotic@cern.ch)</p></div>
+<h1 id="instructions">Instructions</h1>
+<h2 id="how-to-build">How to build</h2>
+<pre><code>git clone https://github.com/slateci/XCache.git
+cd Xcache
+docker build --tag xcache:latest .
+</code></pre>
+
+<h2 id="how-to-run">How to run</h2>
+<p><code>docker run -dt -v /tmp/data:/data -v /tmp/x509up_u`id -u`:/var/run/x509up \
+  -v /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/etc/grid-security-emi/certificates:/etc/grid-security/certificates \
+  --rm --net=host -e "UIDGID=`id -u`:`id -g`" xcache</code></p>
+<p>Note:
+1. UIDGID (in the form of uid:gid) is needed and will be used to run the xrootd process.
+2. A the disk space for cache is bind mounted to /data. It should be owned by "uid".
+3. To access ATLAS data sources, bind mount to /etc/grid-secrity/certificates is needed. Also
+   needed is a x509 proxy bind mounted to /var/run/x509up. It should be owned by "uid", have 
+   ATLAS voms attributes and should be continously updated.</p>
+<h2 id="to-stop">To stop</h2>
+<p><code>pkill xrootd</code></p></div>
         </div>
 
         <footer class="col-md-12">

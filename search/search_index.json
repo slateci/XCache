@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/",
-            "text": "XCache",
+            "text": "XCache\n\n\nWhat is it?\n\n\nXCache is a service that provides caching of data accessed using [xrootd protocol](here link).\nIt sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested.\nTo use it to cache file that is at \n```root://origin.org:1094/my_file.txt``` simply prepend name of the caching server:\n```root://caching_server.org:1094//root://origin.org:1094/my_file.txt```\nWhen deployed using kubernetes all relevant parameters are configured throught the container environment variables.\n\n\n\nLinks\n\n\n\n\nDocker\n\n\nGitHub\n\n\nDocumentation\n\n\nMonitoring\n\n\n\n\nConfiguration\n\n\nMandatory variables\n\n\n\n\nSitename\n\n\nCertificate \n\n\n\n\nOptional variables\n\n\nOption | Default | Meaning\n\n\nRucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.\nMonitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.\nPort | 1094 |\nSubfile caching | True |\nPrefetching | False |\nBlock size | 1M | \nDisk usage high watermark | 95% | \nDisk usage low watermark | 80% |\n\n\nTo Do\n\n\n\n\nIlija - create a pod deployment\n\n\nCreate config file generator\n\n\nTest",
             "title": "Home"
         },
         {
@@ -11,13 +11,73 @@
             "title": "XCache"
         },
         {
+            "location": "/#what-is-it",
+            "text": "XCache is a service that provides caching of data accessed using [xrootd protocol](here link).\nIt sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested.\nTo use it to cache file that is at \n```root://origin.org:1094/my_file.txt``` simply prepend name of the caching server:\n```root://caching_server.org:1094//root://origin.org:1094/my_file.txt```\nWhen deployed using kubernetes all relevant parameters are configured throught the container environment variables.",
+            "title": "What is it?"
+        },
+        {
+            "location": "/#links",
+            "text": "Docker  GitHub  Documentation  Monitoring",
+            "title": "Links"
+        },
+        {
+            "location": "/#configuration",
+            "text": "",
+            "title": "Configuration"
+        },
+        {
+            "location": "/#mandatory-variables",
+            "text": "Sitename  Certificate",
+            "title": "Mandatory variables"
+        },
+        {
+            "location": "/#optional-variables",
+            "text": "",
+            "title": "Optional variables"
+        },
+        {
+            "location": "/#option-default-meaning",
+            "text": "Rucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.\nMonitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.\nPort | 1094 |\nSubfile caching | True |\nPrefetching | False |\nBlock size | 1M | \nDisk usage high watermark | 95% | \nDisk usage low watermark | 80% |",
+            "title": "Option | Default | Meaning"
+        },
+        {
+            "location": "/#to-do",
+            "text": "Ilija - create a pod deployment  Create config file generator  Test",
+            "title": "To Do"
+        },
+        {
+            "location": "/instructions/",
+            "text": "Instructions\n\n\nHow to build\n\n\ngit clone https://github.com/slateci/XCache.git\ncd Xcache\ndocker build --tag xcache:latest .\n\n\n\n\nHow to run\n\n\ndocker run -dt -v /tmp/data:/data -v /tmp/x509up_u`id -u`:/var/run/x509up \\\n  -v /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/etc/grid-security-emi/certificates:/etc/grid-security/certificates \\\n  --rm --net=host -e \"UIDGID=`id -u`:`id -g`\" xcache\n\n\nNote:\n1. UIDGID (in the form of uid:gid) is needed and will be used to run the xrootd process.\n2. A the disk space for cache is bind mounted to /data. It should be owned by \"uid\".\n3. To access ATLAS data sources, bind mount to /etc/grid-secrity/certificates is needed. Also\n   needed is a x509 proxy bind mounted to /var/run/x509up. It should be owned by \"uid\", have \n   ATLAS voms attributes and should be continously updated.\n\n\nTo stop\n\n\npkill xrootd",
+            "title": "Instructions"
+        },
+        {
+            "location": "/instructions/#instructions",
+            "text": "",
+            "title": "Instructions"
+        },
+        {
+            "location": "/instructions/#how-to-build",
+            "text": "git clone https://github.com/slateci/XCache.git\ncd Xcache\ndocker build --tag xcache:latest .",
+            "title": "How to build"
+        },
+        {
+            "location": "/instructions/#how-to-run",
+            "text": "docker run -dt -v /tmp/data:/data -v /tmp/x509up_u`id -u`:/var/run/x509up \\\n  -v /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/etc/grid-security-emi/certificates:/etc/grid-security/certificates \\\n  --rm --net=host -e \"UIDGID=`id -u`:`id -g`\" xcache  Note:\n1. UIDGID (in the form of uid:gid) is needed and will be used to run the xrootd process.\n2. A the disk space for cache is bind mounted to /data. It should be owned by \"uid\".\n3. To access ATLAS data sources, bind mount to /etc/grid-secrity/certificates is needed. Also\n   needed is a x509 proxy bind mounted to /var/run/x509up. It should be owned by \"uid\", have \n   ATLAS voms attributes and should be continously updated.",
+            "title": "How to run"
+        },
+        {
+            "location": "/instructions/#to-stop",
+            "text": "pkill xrootd",
+            "title": "To stop"
+        },
+        {
             "location": "/about/",
-            "text": "XCache docs v.01",
+            "text": "XCache docs v.01\n\n\nIlija Vukotic (ivukotic@cern.ch)",
             "title": "About"
         },
         {
             "location": "/about/#xcache-docs-v01",
-            "text": "",
+            "text": "Ilija Vukotic (ivukotic@cern.ch)",
             "title": "XCache docs v.01"
         }
     ]

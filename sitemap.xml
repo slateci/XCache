@@ -11,6 +11,14 @@
 
     
     <url>
+     <loc>/instructions/</loc>
+     <lastmod>2018-01-22</lastmod>
+     <changefreq>daily</changefreq>
+    </url>
+    
+
+    
+    <url>
      <loc>/about/</loc>
      <lastmod>2018-01-22</lastmod>
      <changefreq>daily</changefreq>

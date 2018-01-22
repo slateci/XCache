@@ -49,6 +49,9 @@
                         <a href=".">Home</a>
                     </li>
                     <li >
+                        <a href="instructions/">Instructions</a>
+                    </li>
+                    <li >
                         <a href="about/">About</a>
                     </li>
                 </ul>
@@ -65,7 +68,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="prev" href="about/">
+                        <a rel="prev" href="instructions/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -78,11 +81,52 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#xcache">XCache</a></li>
+            <li><a href="#what-is-it">What is it?</a></li>
+            <li><a href="#links">Links</a></li>
+            <li><a href="#configuration">Configuration</a></li>
+            <li><a href="#option-default-meaning">Option | Default | Meaning</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h1 id="xcache">XCache</h1></div>
+<h1 id="xcache">XCache</h1>
+<h2 id="what-is-it">What is it?</h2>
+<pre><code>XCache is a service that provides caching of data accessed using [xrootd protocol](here link).
+It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested.
+To use it to cache file that is at 
+```root://origin.org:1094/my_file.txt``` simply prepend name of the caching server:
+```root://caching_server.org:1094//root://origin.org:1094/my_file.txt```
+When deployed using kubernetes all relevant parameters are configured throught the container environment variables.
+</code></pre>
+<h2 id="links">Links</h2>
+<ul>
+<li><a href="https://hub.docker.com/r/slateci/xcache/">Docker</a></li>
+<li><a href="https://github.com/slateci/XCache">GitHub</a></li>
+<li><a href="http://slateci.io/XCache/">Documentation</a></li>
+<li><a href="http://atlas-kibana.mwt2.org">Monitoring</a></li>
+</ul>
+<h2 id="configuration">Configuration</h2>
+<h3 id="mandatory-variables">Mandatory variables</h3>
+<ul>
+<li>Sitename</li>
+<li>Certificate </li>
+</ul>
+<h3 id="optional-variables">Optional variables</h3>
+<h2 id="option-default-meaning">Option | Default | Meaning</h2>
+<p>Rucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
+Monitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
+Port | 1094 |
+Subfile caching | True |
+Prefetching | False |
+Block size | 1M | 
+Disk usage high watermark | 95% | 
+Disk usage low watermark | 80% |</p>
+<h4 id="to-do">To Do</h4>
+<ul>
+<li>Ilija - create a pod deployment</li>
+<li>Create config file generator</li>
+<li>Test</li>
+</ul></div>
         </div>
 
         <footer class="col-md-12">
@@ -164,5 +208,5 @@
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2018-01-22 22:51:48
+Build Date UTC : 2018-01-22 23:49:11
 -->
