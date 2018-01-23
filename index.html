@@ -62,8 +62,6 @@
         
             <li><a class="toctree-l3" href="#configuration">Configuration</a></li>
         
-            <li><a class="toctree-l3" href="#option-default-meaning">Option | Default | Meaning</a></li>
-        
         </ul>
     
 
@@ -117,17 +115,11 @@
               
                 <h1 id="xcache">XCache</h1>
 <h2 id="what-is-it">What is it?</h2>
-<pre><code>XCache is a service that provides caching of data accessed using [xrootd protocol](here link).
-It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested.
-To use it to cache file that is at
-
-```root://origin.org:1094/my_file.txt``` 
+<p>XCache is a service that provides caching of data accessed using <a href="./here link">xrootd protocol</a>. It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested. To use it to cache file that is at 
+<code>root://origin.org:1094/my_file.txt</code>
 simply prepend name of the caching server:
-
-```root://caching_server.org:1094//root://origin.org:1094/my_file.txt```
-
-When deployed using kubernetes all relevant parameters are configured throught the container environment variables.
-</code></pre>
+<code>root://caching_server.org:1094//root://origin.org:1094/my_file.txt</code>  <br />
+When deployed using kubernetes all relevant parameters are configured throught the container environment variables.</p>
 <h2 id="links">Links</h2>
 <ul>
 <li><a href="https://hub.docker.com/r/slateci/xcache/">Docker</a></li>
@@ -137,20 +129,76 @@ When deployed using kubernetes all relevant parameters are configured throught t
 </ul>
 <h2 id="configuration">Configuration</h2>
 <h3 id="mandatory-variables">Mandatory variables</h3>
-<ul>
-<li>Sitename</li>
-<li>Certificate </li>
-</ul>
-<h3 id="optional-variables">Optional variables</h3>
-<h2 id="option-default-meaning">Option | Default | Meaning</h2>
-<p>Rucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
-Monitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
-Port | 1094 |
-Subfile caching | True |
-Prefetching | False |
-Block size | 1M | 
-Disk usage high watermark | 95% | 
-Disk usage low watermark | 80% |</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sitename</td>
+<td>ATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.</td>
+</tr>
+<tr>
+<td>Certificate</td>
+<td>TBD.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="optional-settings">Optional settings</h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Default</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rucio N2N</td>
+<td>True</td>
+<td>This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>True</td>
+<td>This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.</td>
+</tr>
+<tr>
+<td>Port</td>
+<td>1094</td>
+<td></td>
+</tr>
+<tr>
+<td>Subfile caching</td>
+<td>True</td>
+<td></td>
+</tr>
+<tr>
+<td>Prefetching</td>
+<td>False</td>
+<td></td>
+</tr>
+<tr>
+<td>Block size</td>
+<td>1M</td>
+<td></td>
+</tr>
+<tr>
+<td>Disk usage high watermark</td>
+<td>95%</td>
+<td></td>
+</tr>
+<tr>
+<td>Disk usage low watermark</td>
+<td>80%</td>
+<td></td>
+</tr>
+</tbody>
+</table>
 <h4 id="to-do">To Do</h4>
 <ul>
 <li>Ilija - create a pod deployment</li>
@@ -208,5 +256,5 @@ Disk usage low watermark | 80% |</p>
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2018-01-22 23:56:50
+Build Date UTC : 2018-01-23 00:06:03
 -->
