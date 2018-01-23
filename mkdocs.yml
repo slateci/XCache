@@ -3,3 +3,5 @@ pages:
     - Home: index.md
     - Instructions: instructions.md
     - About: about.md
+theme: readthedocs
+repo_url: https://github.com/slateci/XCache
