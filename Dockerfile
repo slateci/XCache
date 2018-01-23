@@ -15,7 +15,15 @@ RUN yum install -y xrootd-rucioN2N-for-Xcache
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
-ADD xcache.cfg.template /etc/xrootd/
-ADD runme.sh /
+COPY xcache.cfg /etc/xrootd/
+COPY runme.sh /
+
+# build info
+RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
+
+RUN useradd -ms /bin/bash xrootd
+
+USER xrootd
+#WORKDIR /home/analyticssvc
 
 CMD [ "/bin/sh", "/runme.sh" ]

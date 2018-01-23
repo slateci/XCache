@@ -25,16 +25,16 @@ Certificate | TBD.
 
 ### Optional settings
 
-Option | Default | Meaning
---- | --- | ---
-Rucio N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
-Monitoring | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
-Port | 1094 |
-Subfile caching | True |
-Prefetching | False |
-Block size | 1M | 
-Disk usage high watermark | 95% | 
-Disk usage low watermark | 80% |
+Option | Variable | Default | Meaning
+--- | --- | --- | ---
+Rucio N2N | RUCIO_N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
+Monitoring | MONITORING | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
+Port | PORT | 1094 |
+Subfile caching | SUBFC | True |
+Prefetching | PREFETCH | False |
+Block size | BLKSIZE | 1M | 
+Disk usage high watermark | SPACE_HIGH_WM | 95% | 
+Disk usage low watermark | SPACE_LOW_WM | 80% |
 
 #### To Do
 
