@@ -35,6 +35,7 @@ Prefetching | PREFETCH | False |
 Block size | BLKSIZE | 1M | 
 Disk usage high watermark | SPACE_HIGH_WM | 95% | 
 Disk usage low watermark | SPACE_LOW_WM | 80% |
+RAM size | RAMSIZE | half of the free RAM | At least 1g. Units are ...  
 
 #### To Do
 

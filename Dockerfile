@@ -21,9 +21,4 @@ COPY runme.sh /
 # build info
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
-RUN useradd -ms /bin/bash xrootd
-
-USER xrootd
-#WORKDIR /home/analyticssvc
-
-CMD [ "/bin/sh", "/runme.sh" ]
+CMD [ "/runme.sh" ]
