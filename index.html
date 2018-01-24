@@ -151,6 +151,7 @@ When deployed using kubernetes all relevant parameters are configured throught t
 <table>
 <thead>
 <tr>
+<th>Implemented</th>
 <th>Option</th>
 <th>Variable</th>
 <th>Default</th>
@@ -159,56 +160,65 @@ When deployed using kubernetes all relevant parameters are configured throught t
 </thead>
 <tbody>
 <tr>
+<td>No</td>
 <td>Rucio N2N</td>
-<td>RUCIO_N2N</td>
+<td>XC_RUCIO_N2N</td>
 <td>True</td>
 <td>This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.</td>
 </tr>
 <tr>
+<td>No</td>
 <td>Monitoring</td>
-<td>MONITORING</td>
+<td>XC_MONITORING</td>
 <td>True</td>
 <td>This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.</td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>Port</td>
-<td>PORT</td>
+<td>XC_PORT</td>
 <td>1094</td>
 <td></td>
 </tr>
 <tr>
+<td>No</td>
 <td>Subfile caching</td>
 <td>SUBFC</td>
 <td>True</td>
 <td></td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>Prefetching</td>
-<td>PREFETCH</td>
-<td>False</td>
+<td>XC_PREFETCH</td>
+<td>0</td>
 <td></td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>Block size</td>
-<td>BLKSIZE</td>
+<td>XC_BLOCKSIZE</td>
 <td>1M</td>
 <td></td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>Disk usage high watermark</td>
-<td>SPACE_HIGH_WM</td>
+<td>XC_SPACE_HIGH_WM</td>
 <td>95%</td>
 <td></td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>Disk usage low watermark</td>
-<td>SPACE_LOW_WM</td>
+<td>XC_SPACE_LOW_WM</td>
 <td>80%</td>
 <td></td>
 </tr>
 <tr>
+<td>Yes</td>
 <td>RAM size</td>
-<td>RAMSIZE</td>
+<td>XC_RAMSIZE</td>
 <td>half of the free RAM</td>
 <td>At least 1g. Units are ...</td>
 </tr>
@@ -216,9 +226,14 @@ When deployed using kubernetes all relevant parameters are configured throught t
 </table>
 <h4 id="to-do">To Do</h4>
 <ul>
-<li>Ilija - create a pod deployment</li>
-<li>Create config file generator</li>
+<li>Add sitename</li>
+<li>Add RucioN2N</li>
+<li>Add subfile caching option</li>
+<li>Create pod reporting on cache status</li>
+<li>Add summary stream monitoring</li>
 <li>Test</li>
+<li>Create core collecting pod.</li>
+<li>Create full deployment</li>
 </ul>
               
             </div>
@@ -271,5 +286,5 @@ When deployed using kubernetes all relevant parameters are configured throught t
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2018-01-24 05:16:34
+Build Date UTC : 2018-01-24 19:37:42
 -->
