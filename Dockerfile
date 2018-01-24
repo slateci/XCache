@@ -28,10 +28,9 @@ RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
 # change ownership of directories
 RUN chown -R xrootd:xrootd /data/xrd/var
-RUN chown -R xrootd:xrootd /data/xrd &
+RUN chown -R xrootd:xrootd /data/xrd
 
 # build info
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
-USER xrootd
 CMD [ "/runme.sh" ]

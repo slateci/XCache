@@ -37,8 +37,8 @@ export TCMALLOC_RELEASE_RATE=10
 #chown -R xrootd:xrootd /data/xrd/var
 #chown -R xrootd:xrootd /data/xrd &
 
-#su - xrootd -c "
+su xrootd 
+
 /usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7
-#"
 
 wait
