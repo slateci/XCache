@@ -152,6 +152,7 @@ When deployed using kubernetes all relevant parameters are configured throught t
 <thead>
 <tr>
 <th>Option</th>
+<th>Variable</th>
 <th>Default</th>
 <th>Meaning</th>
 </tr>
@@ -159,43 +160,57 @@ When deployed using kubernetes all relevant parameters are configured throught t
 <tbody>
 <tr>
 <td>Rucio N2N</td>
+<td>RUCIO_N2N</td>
 <td>True</td>
 <td>This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.</td>
 </tr>
 <tr>
 <td>Monitoring</td>
+<td>MONITORING</td>
 <td>True</td>
 <td>This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.</td>
 </tr>
 <tr>
 <td>Port</td>
+<td>PORT</td>
 <td>1094</td>
 <td></td>
 </tr>
 <tr>
 <td>Subfile caching</td>
+<td>SUBFC</td>
 <td>True</td>
 <td></td>
 </tr>
 <tr>
 <td>Prefetching</td>
+<td>PREFETCH</td>
 <td>False</td>
 <td></td>
 </tr>
 <tr>
 <td>Block size</td>
+<td>BLKSIZE</td>
 <td>1M</td>
 <td></td>
 </tr>
 <tr>
 <td>Disk usage high watermark</td>
+<td>SPACE_HIGH_WM</td>
 <td>95%</td>
 <td></td>
 </tr>
 <tr>
 <td>Disk usage low watermark</td>
+<td>SPACE_LOW_WM</td>
 <td>80%</td>
 <td></td>
+</tr>
+<tr>
+<td>RAM size</td>
+<td>RAMSIZE</td>
+<td>half of the free RAM</td>
+<td>At least 1g. Units are ...</td>
 </tr>
 </tbody>
 </table>
@@ -256,5 +271,5 @@ When deployed using kubernetes all relevant parameters are configured throught t
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2018-01-23 00:06:03
+Build Date UTC : 2018-01-24 05:16:34
 -->
