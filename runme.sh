@@ -41,6 +41,6 @@ usermod -o -u $UID -g $GID -s /bin/sh xrootd
 chown -R xrootd:xrootd /data/xrd/var
 chown -R xrootd:xrootd /data/xrd &
 
-/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7
+su - xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7"
 
 wait

@@ -17,6 +17,7 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
 
 COPY xcache.cfg /etc/xrootd/
 COPY runme.sh /
+RUN chmod 755 /runme.sh
 
 # build info
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
