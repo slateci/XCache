@@ -19,10 +19,6 @@ unset X509_USER_PROXY
 
 echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 
-
-mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles
-mkdir -p /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
-
 # sets memory to be used
 if [ -z "$RAMSIZE" ]; then
   RAMSIZE=$(free | tail -2 | head -1 | awk '{printf("%d", $NF/1024/1024/2)}')
@@ -36,11 +32,13 @@ fi
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
 
-groupmod -o -g $GID xrootd
-usermod -o -u $UID -g $GID -s /bin/sh xrootd
-chown -R xrootd:xrootd /data/xrd/var
-chown -R xrootd:xrootd /data/xrd &
+#groupmod -o -g $GID xrootd
+#usermod -o -u $UID -g $GID -s /bin/sh xrootd
+#chown -R xrootd:xrootd /data/xrd/var
+#chown -R xrootd:xrootd /data/xrd &
 
-su - xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7"
+#su - xrootd -c "
+/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7
+#"
 
 wait

@@ -15,9 +15,16 @@ RUN yum install -y xrootd-rucioN2N-for-Xcache
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
+RUN mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
+
 COPY xcache.cfg /etc/xrootd/
 COPY runme.sh /
 RUN chmod 755 /runme.sh
+
+# USER <user>[:<group>] or
+# USER <UID>[:<GID>]
+RUN chown -R xrootd:xrootd /data/xrd/var
+RUN chown -R xrootd:xrootd /data/xrd &
 
 # build info
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
