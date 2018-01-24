@@ -24,7 +24,7 @@ RUN chmod 755 /runme.sh
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
 RUN groupmod -o -g 10940 xrootd
-RUN usermod -o -u 10940 -g 1094 -s /bin/sh xrootd
+RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
 # change ownership of directories
 RUN chown -R xrootd:xrootd /data/xrd/var
