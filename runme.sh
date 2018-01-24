@@ -20,22 +20,17 @@ unset X509_USER_PROXY
 echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 
 # sets memory to be used
-if [ -z "$RAMSIZE" ]; then
-  RAMSIZE=$(free | tail -2 | head -1 | awk '{printf("%d", $NF/1024/1024/2)}')
-  [ $RAMSIZE -lt 1 ] && RAMSIZE=1
-  RAMSIZE=${RAMSIZE}g
+if [ -z "$XC_RAMSIZE" ]; then
+  XC_RAMSIZE=$(free | tail -2 | head -1 | awk '{printf("%d", $NF/1024/1024/2)}')
+  [ $XC_RAMSIZE -lt 1 ] && XC_RAMSIZE=1
+  XC_RAMSIZE=${XC_RAMSIZE}g
 fi
 
-[ -z "$SPACE_LO_MARK" ] && SPACE_LO_MARK="0.75"
-[ -z "$SPACE_HI_MARK" ] && SPACE_HI_MARK="0.85"
+[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.75"
+[ -z "$XC_SPACE_HI_MARK" ] && XC_SPACE_HI_MARK="0.85"
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
-
-#groupmod -o -g $GID xrootd
-#usermod -o -u $UID -g $GID -s /bin/sh xrootd
-#chown -R xrootd:xrootd /data/xrd/var
-#chown -R xrootd:xrootd /data/xrd &
 
 su xrootd 
 
