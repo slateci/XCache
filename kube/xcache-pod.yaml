@@ -9,16 +9,16 @@ spec:
     command: ["sleep"]
     args: ["36500000"]
     env:
-      - name: SPACE_HIGH_WM
-        value: 0.95
-      - name: SPACE_HIGH_WM
-        value: 0.80
-      - name: PORT
-        value: 1094
-      - name: UID
-        value: 100
-      - name: GID
-        value: 101
+    - name: SPACE_HIGH_WM
+      value: "0.95"
+    - name: SPACE_HIGH_WM
+      value: "0.80"
+    - name: PORT
+      value: "1094"
+    - name: UID
+      value: "100"
+    - name: GID
+      value: "101"
   #   volumeMounts:
   #   - name: keytab-volume
   #     mountPath: "/tmp/keytab"
