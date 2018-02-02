@@ -25,22 +25,27 @@ Certificate | TBD.
 
 ### Optional settings
 
-Option | Variable | Default | Meaning
---- | --- | --- | ---
-Rucio N2N | RUCIO_N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
-Monitoring | MONITORING | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
-Port | PORT | 1094 |
-Subfile caching | SUBFC | True |
-Prefetching | PREFETCH | False |
-Block size | BLKSIZE | 1M | 
-Disk usage high watermark | SPACE_HIGH_WM | 95% | 
-Disk usage low watermark | SPACE_LOW_WM | 80% |
-RAM size | RAMSIZE | half of the free RAM | At least 1g. Units are ...  
+Implemented | Option | Variable | Default | Meaning
+--- | --- | --- | --- | ---
+No | Rucio N2N | XC_RUCIO_N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
+No | Monitoring | XC_MONITORING | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
+Yes | Port | XC_PORT | 1094 |
+No | Subfile caching | SUBFC | True |
+Yes | Prefetching | XC_PREFETCH | 0 |
+Yes | Block size | XC_BLOCKSIZE | 1M | 
+Yes | Disk usage high watermark | XC_SPACE_HIGH_WM | 95% | 
+Yes | Disk usage low watermark | XC_SPACE_LOW_WM | 80% |
+Yes | RAM size | XC_RAMSIZE | half of the free RAM | At least 1g. Units are ...  
 
 #### To Do
 
-*   Ilija - create a pod deployment
-*   Create config file generator
+*   Add sitename
+*   Add RucioN2N
+*   Add subfile caching option
+*   Create pod reporting on cache status
+*   Add summary stream monitoring
 *   Test
+*   Create core collecting pod.
+*   Create full deployment
 
 
