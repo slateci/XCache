@@ -14,9 +14,9 @@ spec:
 apiVersion: v1
 kind: Pod
 metadata:
-  label:
-    app: xcache
   name: xcache-pod
+  labels:
+    app: xcache
 spec:
   containers:
   - name: xcache-container
