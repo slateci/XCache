@@ -36,4 +36,4 @@ su xrootd
 
 /usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7 &
 
-wait
+sleep infinity
