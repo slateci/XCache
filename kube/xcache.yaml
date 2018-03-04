@@ -11,6 +11,7 @@ spec:
     name: xrootd
     port: 1094
     targetPort: 1094
+    nodePort: 31094
 ---
 apiVersion: v1
 kind: Pod
