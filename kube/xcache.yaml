@@ -8,6 +8,7 @@ spec:
     app: xcache
   ports:
   - protocol: TCP
+    name: xrootd
     port: 1094
     targetPort: 1094
 ---
