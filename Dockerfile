@@ -33,4 +33,4 @@ RUN chown -R xrootd:xrootd /data/xrd
 # build info
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
-CMD [ "su -p xrootd -c /runme.sh" ]
+CMD [ "/runme.sh" ]
