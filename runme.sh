@@ -1,21 +1,20 @@
 #!/bin/sh
 
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR do not have to be defined/provided
+# but then it won't really be useful
 
-# if x509 user proxy is provided in a non-standard location (/tmp/x509up_u$(id -u)),
-# then the proxy should be bind mounted: -B ${X509_USER_PROXY}:/var/run/x509up
+# if x509 user proxy is provided mount it in /var/run/x509up
 
 unset X509_USER_PROXY
 [ -s /var/run/x509up ] && export X509_USER_PROXY=/var/run/x509up
 
-# if X509_CERT_DIR is not defined, or is inaccessible in the container, then we use
-# the default location. Same for X509_VOMS_DIR.
-# One can also bind mount:
-#     -B ${X509_CERT_DIR}:/etc/grid-security/certificates
-#     -B ${X509_VOMS_DIR}:/etc/grid-security/vomsdir
+# if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
+unset X509_CERT_DIR
+[ ! -d "$X509_CERT_DIR" ] && export X509_CERT_DIR=/etc/grid-security/certificates
 
-[ ! -z "$X509_CERT_DIR" ] && [ ! -d "$X509_CERT_DIR" ] && export X509_CERT_DIR=/etc/grid-security/certificates
-[ ! -z "$X509_VOMS_DIR" ] && [ ! -d "$X509_VOMS_DIR" ] && export X509_VOMS_DIR=/etc/grid-security/vomsdir
+# if X509_VOMS_DIR is provided mount it in /etc/grid-security/vomsdir
+unset X509_VOMS_DIR
+[ ! -d "$X509_VOMS_DIR" ] && export X509_VOMS_DIR=/etc/grid-security/vomsdir
 
 echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 
