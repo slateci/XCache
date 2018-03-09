@@ -36,12 +36,25 @@ spec:
       value: "1M"
     - name: XC_PREFETCH
       value: "0"
-  #   volumeMounts:
-  #   - name: keytab-volume
-  #     mountPath: "/tmp/keytab"
-  #     readOnly: true
-  # volumes:
-  # - name: keytab-volume
-  #   secret:
-  #     secretName: analytcssvc-keytab
+    volumeMounts:
+    - name: xcache-proxy-volume
+      mountPath: "/var/run/"
+      # readOnly: true
+    - name: xcache-cert-volume
+      mountPath: "/etc/grid-security/certificates/"
+      # readOnly: true
+    - name: xcache-vomsdir-volume
+      mountPath: "/etc/grid-security/vomsdir/"
+      # readOnly: true
+  volumes:
+  - name: xcache-proxy-volume
+    secret:
+      secretName: xcache-proxy-secret
+      defaultMode: 256 # default is 0644; 256 is 0400
+  - name: xcache-cert-volume
+    secret:
+      secretName: xcache-cert-secret
+  - name: xcache-vomsdir-volume
+    secret:
+      secretName: xcache-vomsdir-secret
   restartPolicy: Never
