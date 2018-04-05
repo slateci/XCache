@@ -12,6 +12,32 @@ spec:
     port: 1094
     targetPort: 1094
     nodePort: 31094
+# --- This will be needed in order to get crls and proxy updated periodically.
+# kind: CronJob
+# apiVersion: batch/v1beta1
+# metadata:
+#   name: xcache-crl-update-cron
+# spec:
+#   schedule: "0 */6 * * *"
+#   suspend: false
+#   concurrencyPolicy: Forbid
+#   jobTemplate:
+#     spec:
+#       template:
+#         spec:
+#           containers:
+#           - name: xcache-container
+#             image: slateci/xcache:latest
+#             command: ["/usr/sbin/fetch-crl"]
+#             volumeMounts:
+#             - name: keytab-volume
+#               mountPath: "/tmp/keytab"
+#               readOnly: true
+#           volumes:
+#           - name: keytab-volume
+#             secret:
+#               secretName: analytcssvc-keytab
+#           restartPolicy: Never
 ---
 apiVersion: v1
 kind: Pod
@@ -40,9 +66,9 @@ spec:
     - name: xcache-proxy-volume
       mountPath: "/var/run/"
       # readOnly: true
-    - name: xcache-cert-volume
-      mountPath: "/etc/grid-security/certificates/"
-      # readOnly: true
+    # - name: xcache-cert-volume
+    #   mountPath: "/etc/grid-security/certificates/"
+    #   # readOnly: true
     - name: xcache-vomsdir-volume
       mountPath: "/etc/grid-security/vomsdir/"
       # readOnly: true
@@ -51,9 +77,9 @@ spec:
     secret:
       secretName: xcache-proxy-secret
       defaultMode: 256 # default is 0644; 256 is 0400
-  - name: xcache-cert-volume
-    secret:
-      secretName: xcache-cert-secret
+  # - name: xcache-cert-volume
+  #   secret:
+  #     secretName: xcache-cert-secret
   - name: xcache-vomsdir-volume
     secret:
       secretName: xcache-vomsdir-secret

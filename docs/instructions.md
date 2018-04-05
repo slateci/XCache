@@ -1,26 +1,42 @@
 # Instructions
 
-## How to build
+### Kubernetes
+
+Before starting you need to create all the necessary secrets. This can be done by executing __xcache-secret.bat__.
+
+To start:
+```kubectl create -f xcache.yaml```
+
+To run stress test:
+```kubectl create -f xcache-stress_test.yaml```
+
+### Docker
+
+To start:
 
 ```
-git clone https://github.com/slateci/XCache.git
-cd Xcache
-docker build --tag xcache:latest .
+docker run -d \
+-e XC_SPACE_HIGH_WM='0.95' \
+-e XC_SPACE_LOW_WM='0.80' \
+-e XC_PORT='1094' \
+-e XC_RAMSIZE='1g' \
+-e XC_BLOCKSIZE='1M' \
+-e XC_PREFETCH='0' \
+-p 1094:1094 \
+-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \
+-v /root/xcache_test/proxy:/var/run/ \
+--name xCache slateci/xcache
 ```
 
-## How to run
+To log into it and check logs:
 
-```docker run -dt -v /tmp/data:/data -v /tmp/x509up_u`id -u`:/var/run/x509up \
-  -v /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/etc/grid-security-emi/certificates:/etc/grid-security/certificates \
-  --rm --net=host -e "UIDGID=`id -u`:`id -g`" xcache ```
+```docker exec -it xCache bash
+ls /data/xrd/var/log/
+```
+To stop it:
 
-Note:
-1. UIDGID (in the form of uid:gid) is needed and will be used to run the xrootd process.
-2. A the disk space for cache is bind mounted to /data. It should be owned by "uid".
-3. To access ATLAS data sources, bind mount to /etc/grid-secrity/certificates is needed. Also
-   needed is a x509 proxy bind mounted to /var/run/x509up. It should be owned by "uid", have 
-   ATLAS voms attributes and should be continously updated.
+```docker stop xCache```
+```docker rm xCache```
 
-## To stop
-
-```pkill xrootd```
+To update it:
+```docker pull slateci/xcache```

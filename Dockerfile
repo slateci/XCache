@@ -6,6 +6,12 @@ LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 RUN mkdir -p /etc/grid-security/certificates /etc/grid-security/vomsdir /etc/grid-security/xrd /data
 
 RUN yum install -y curl gperftools hostname 
+
+# for CA certificates
+RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-release-latest.rpm -y
+RUN yum install osg-ca-certs fetch-crl voms-clients -y
+RUN /usr/sbin/fetch-crl
+
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
     curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \

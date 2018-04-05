@@ -9,7 +9,7 @@ spec:
   - name: xcache-container
     image: slateci/xcache:latest
     command: ["stress_test.sh"]
-    args: ["root://es-docker.mwt2.org:1094","AGLT2"]
+    args: ["root://es-docker.mwt2.org:1094"]
     # env:
     # - name: XC_PREFETCH
     #   value: "0"

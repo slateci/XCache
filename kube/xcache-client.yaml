@@ -10,25 +10,4 @@ spec:
     image: slateci/xcache:latest
     command: ["sleep"]
     args: ["36500000"]
-    # env:
-    # - name: XC_SPACE_HIGH_WM
-    #   value: "0.95"
-    # - name: XC_SPACE_LOW_WM
-    #   value: "0.80"
-    # - name: XC_PORT
-    #   value: "1094"
-    # - name: XC_RAMSIZE
-    #   value: "1g"
-    # - name: XC_BLOCKSIZE
-    #   value: "1M"
-    # - name: XC_PREFETCH
-    #   value: "0"
-  #   volumeMounts:
-  #   - name: keytab-volume
-  #     mountPath: "/tmp/keytab"
-  #     readOnly: true
-  # volumes:
-  # - name: keytab-volume
-  #   secret:
-  #     secretName: analytcssvc-keytab
   restartPolicy: Never
