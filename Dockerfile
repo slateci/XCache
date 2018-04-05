@@ -28,6 +28,10 @@ COPY xcache.cfg /etc/xrootd/
 COPY runme.sh /
 RUN chmod 755 /runme.sh
 
+RUN mkdir /tests
+ADD tests /tests/
+RUN chmod 755 /tests/tests.sh
+
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
 RUN groupmod -o -g 10940 xrootd
