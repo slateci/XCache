@@ -61,11 +61,9 @@
     
         <ul>
         
-            <li><a class="toctree-l3" href="#how-to-build">How to build</a></li>
+            <li><a class="toctree-l3" href="#kubernetes">Kubernetes</a></li>
         
-            <li><a class="toctree-l3" href="#how-to-run">How to run</a></li>
-        
-            <li><a class="toctree-l3" href="#to-stop">To stop</a></li>
+            <li><a class="toctree-l3" href="#docker">Docker</a></li>
         
         </ul>
     
@@ -114,24 +112,35 @@
             <div class="section">
               
                 <h1 id="instructions">Instructions</h1>
-<h2 id="how-to-build">How to build</h2>
-<pre><code>git clone https://github.com/slateci/XCache.git
-cd Xcache
-docker build --tag xcache:latest .
+<h3 id="kubernetes">Kubernetes</h3>
+<p>Before starting you need to create all the necessary secrets. This can be done by executing <strong>xcache-secret.bat</strong>.</p>
+<p>To start:
+<code>kubectl create -f xcache.yaml</code></p>
+<p>To run stress test:
+<code>kubectl create -f xcache-stress_test.yaml</code></p>
+<h3 id="docker">Docker</h3>
+<p>To start:</p>
+<pre><code>docker run -d \
+-e XC_SPACE_HIGH_WM='0.95' \
+-e XC_SPACE_LOW_WM='0.80' \
+-e XC_PORT='1094' \
+-e XC_RAMSIZE='1g' \
+-e XC_BLOCKSIZE='1M' \
+-e XC_PREFETCH='0' \
+-p 1094:1094 \
+-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \
+-v /root/xcache_test/proxy:/var/run/ \
+--name xCache slateci/xcache
 </code></pre>
 
-<h2 id="how-to-run">How to run</h2>
-<p><code>docker run -dt -v /tmp/data:/data -v /tmp/x509up_u`id -u`:/var/run/x509up \
-  -v /cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase/etc/grid-security-emi/certificates:/etc/grid-security/certificates \
-  --rm --net=host -e "UIDGID=`id -u`:`id -g`" xcache</code></p>
-<p>Note:
-1. UIDGID (in the form of uid:gid) is needed and will be used to run the xrootd process.
-2. A the disk space for cache is bind mounted to /data. It should be owned by "uid".
-3. To access ATLAS data sources, bind mount to /etc/grid-secrity/certificates is needed. Also
-   needed is a x509 proxy bind mounted to /var/run/x509up. It should be owned by "uid", have 
-   ATLAS voms attributes and should be continously updated.</p>
-<h2 id="to-stop">To stop</h2>
-<p><code>pkill xrootd</code></p>
+<p>To log into it and check logs:</p>
+<p><code>docker exec -it xCache bash
+ls /data/xrd/var/log/</code>
+To stop it:</p>
+<p><code>docker stop xCache</code>
+<code>docker rm xCache</code></p>
+<p>To update it:
+<code>docker pull slateci/xcache</code></p>
               
             </div>
           </div>
