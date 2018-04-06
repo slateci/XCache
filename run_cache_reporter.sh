@@ -4,4 +4,4 @@
 # .cinfo files, aggregate it and report to ES.
 
 # First it has to make sure directory is there as it could be created first.
-# sleep infinity
+sleep infinity

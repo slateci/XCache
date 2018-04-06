@@ -1,11 +1,19 @@
 #!/bin/sh
 
 # This should if needed do:
-# yum install osg-ca-certs fetch-crl voms-clients -y
+yum install fetch-crl -y
 
-# periodically run: 
-/usr/sbin/fetch-crl
-# periodically renew proxy.
+while true; do 
+  sleep 21600
+
+  # update crls
+  /usr/sbin/fetch-crl
+
+  # update proxy
+  # voms-proxy-init -voms atlas -pwstdin < /afs/cern.ch/user/i/ivukotic/gridlozinka.txt
+
+done
+
 
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR do not have to be defined/provided
 # but then it won't really be useful
@@ -25,19 +33,5 @@ unset X509_VOMS_DIR
 
 echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 
-# sets memory to be used
-if [ -z "$XC_RAMSIZE" ]; then
-  XC_RAMSIZE=$(free | tail -2 | head -1 | awk '{printf("%d", $NF/1024/1024/2)}')
-  [ $XC_RAMSIZE -lt 1 ] && XC_RAMSIZE=1
-  XC_RAMSIZE=${XC_RAMSIZE}g
-fi
-
-[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.75"
-[ -z "$XC_SPACE_HI_MARK" ] && XC_SPACE_HI_MARK="0.85"
-
-export LD_PRELOAD=/usr/lib64/libtcmalloc.so
-export TCMALLOC_RELEASE_RATE=10
-
-su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7 & "
 
 sleep infinity
