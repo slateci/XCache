@@ -35,7 +35,7 @@ RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh
 
 RUN mkdir /tests
 COPY tests/* /tests/
-RUN chmod 755 /tests/tests.sh
+RUN chmod 755 /tests/stress_tests.sh
 
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
