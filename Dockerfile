@@ -19,8 +19,6 @@ RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
 RUN yum install -y supervisor fetch-crl 
 
-RUN /usr/sbin/fetch-crl
-
 # setup supervisord
 RUN mkdir -p /var/log/supervisor
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf

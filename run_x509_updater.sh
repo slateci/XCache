@@ -4,9 +4,8 @@
 # yum install osg-ca-certs fetch-crl voms-clients -y
 
 # periodically run: 
-# /usr/sbin/fetch-crl
+/usr/sbin/fetch-crl
 # periodically renew proxy.
-
 
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR do not have to be defined/provided
 # but then it won't really be useful
