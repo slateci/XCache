@@ -30,11 +30,11 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
 RUN mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
 
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh /
-RUN chmod 755 /runme.sh
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh /
+RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh
 
 RUN mkdir /tests
-ADD tests /tests/
+COPY tests/* /tests/
 RUN chmod 755 /tests/tests.sh
 
 # xrootd user is created during installation
