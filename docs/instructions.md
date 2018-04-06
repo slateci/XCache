@@ -24,7 +24,7 @@ docker run -d \
 -e XC_PREFETCH='0' \
 -p 1094:1094 \
 -v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \
--v /root/xcache_test/proxy:/var/run/ \
+-v /root/xcache_test/proxy:/etc/grid-security/ \
 --name xCache slateci/xcache
 ```
 

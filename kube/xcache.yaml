@@ -12,32 +12,6 @@ spec:
     port: 1094
     targetPort: 1094
     nodePort: 31094
-# --- This will be needed in order to get crls and proxy updated periodically.
-# kind: CronJob
-# apiVersion: batch/v1beta1
-# metadata:
-#   name: xcache-crl-update-cron
-# spec:
-#   schedule: "0 */6 * * *"
-#   suspend: false
-#   concurrencyPolicy: Forbid
-#   jobTemplate:
-#     spec:
-#       template:
-#         spec:
-#           containers:
-#           - name: xcache-container
-#             image: slateci/xcache:latest
-#             command: ["/usr/sbin/fetch-crl"]
-#             volumeMounts:
-#             - name: keytab-volume
-#               mountPath: "/tmp/keytab"
-#               readOnly: true
-#           volumes:
-#           - name: keytab-volume
-#             secret:
-#               secretName: analytcssvc-keytab
-#           restartPolicy: Never
 ---
 apiVersion: v1
 kind: Pod
@@ -46,6 +20,11 @@ metadata:
   labels:
     app: xcache
 spec:
+
+  volumes:
+  - name: x509-data
+    emptyDir: {}
+
   containers:
   - name: xcache-container
     image: slateci/xcache:latest
@@ -63,24 +42,30 @@ spec:
     - name: XC_PREFETCH
       value: "0"
     volumeMounts:
-    - name: xcache-proxy-volume
-      mountPath: "/var/run/"
-      # readOnly: true
+    - name: x509-data
+      mountPath: "/etc/grid-security/"
+      readOnly: true
     # - name: xcache-cert-volume
-    #   mountPath: "/etc/grid-security/certificates/"
-    #   # readOnly: true
-    - name: xcache-vomsdir-volume
-      mountPath: "/etc/grid-security/vomsdir/"
-      # readOnly: true
-  volumes:
-  - name: xcache-proxy-volume
-    secret:
-      secretName: xcache-proxy-secret
-      defaultMode: 256 # default is 0644; 256 is 0400
-  # - name: xcache-cert-volume
+    #   mountPath: "..."
+
+  - name: x509-container
+    image: slateci/xcache:latest
+    command: ["run_x509_updater.sh"]
+    volumeMounts:
+    - name: x509-data
+      mountPath: "/etc/grid-security/"
+      readOnly: false
+    # - name: xcache-cert-volume
+    #   mountPath: "..."
+
+  - name: x509-container
+    image: slateci/xcache:latest
+    command: ["run_cache_reporter.sh"]
+
+  # volumes:
+  # - name: x509-certs-volume
   #   secret:
-  #     secretName: xcache-cert-secret
-  - name: xcache-vomsdir-volume
-    secret:
-      secretName: xcache-vomsdir-secret
+  #     secretName: x509-certs
+  #     defaultMode: 256 # default is 0644; 256 is 0400
+
   restartPolicy: Never
