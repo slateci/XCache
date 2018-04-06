@@ -9,8 +9,7 @@ RUN yum install -y curl gperftools hostname
 
 # for CA certificates
 RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-release-latest.rpm -y
-RUN yum install osg-ca-certs fetch-crl voms-clients -y
-RUN /usr/sbin/fetch-crl
+RUN yum install osg-ca-certs voms-clients -y
 
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
     curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
@@ -18,7 +17,9 @@ RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.n
     curl -s -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
-RUN yum install -y supervisor
+RUN yum install -y supervisor fetch-crl 
+
+RUN /usr/sbin/fetch-crl
 
 # setup supervisord
 RUN mkdir -p /var/log/supervisor
