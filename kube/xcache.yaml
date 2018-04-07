@@ -24,6 +24,10 @@ spec:
   volumes:
   - name: x509-data
     emptyDir: {}
+  - name: x509-certs-volume
+    secret:
+      secretName: xcache-cert-secret
+  #   defaultMode: 256 # default is 0644; 256 is 0400
 
   containers:
   - name: xcache-container
@@ -45,8 +49,8 @@ spec:
     - name: x509-data
       mountPath: "/etc/grid-security/"
       readOnly: true
-    # - name: xcache-cert-volume
-    #   mountPath: "..."
+    - name: xcache-cert-volume
+      mountPath: "/root/.globus"
 
   - name: x509-container
     image: slateci/xcache:latest
@@ -55,17 +59,11 @@ spec:
     - name: x509-data
       mountPath: "/etc/grid-security/"
       readOnly: false
-    # - name: xcache-cert-volume
-    #   mountPath: "..."
+    - name: xcache-cert-volume
+      mountPath: "/root/.globus"
 
   - name: reporter-container
     image: slateci/xcache:latest
     command: ["/run_cache_reporter.sh"]
-
-  # volumes:
-  # - name: x509-certs-volume
-  #   secret:
-  #     secretName: x509-certs
-  #     defaultMode: 256 # default is 0644; 256 is 0400
 
   restartPolicy: Never
