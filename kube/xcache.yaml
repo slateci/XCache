@@ -51,6 +51,8 @@ spec:
       readOnly: true
     - name: x509-certs-volume
       mountPath: "/root/.globus"
+    ports:
+      - containerPort: 1094
 
   - name: x509-container
     image: slateci/xcache:latest
