@@ -7,7 +7,7 @@ sleep 120
 # but then it won't really be useful
 
 # if x509 user proxy is provided mount it in /var/spool/xrootd/x509up
-[ -s /var/spool/xrootd/x509up ] && export X509_USER_PROXY=/var/spool/xrootd/x509up
+[ -f /var/spool/xrootd/x509up ] && export X509_USER_PROXY=/var/spool/xrootd/x509up
 
 # if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
 [ -s /etc/grid-security/certificates ] && export X509_CERT_DIR=/etc/grid-security/certificates
@@ -16,7 +16,8 @@ sleep 120
 #unset X509_VOMS_DIR
 #[ ! -d "$X509_VOMS_DIR" ] && export X509_VOMS_DIR=/etc/grid-security/vomsdir
 
-echo $X509_USER_PROXY $X509_CERT_DIR 
+echo "Set proxy file:" $X509_USER_PROXY 
+echo "Set cert dir:" $X509_CERT_DIR 
 
 # sets memory to be used
 if [ -z "$XC_RAMSIZE" ]; then
@@ -30,6 +31,9 @@ fi
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
+
+env
+echo "Starting cache ..."
 
 su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7 & "
 
