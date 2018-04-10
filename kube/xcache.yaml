@@ -48,7 +48,7 @@ spec:
     volumeMounts:
     - name: x509-data
       mountPath: "/etc/grid-security/"
-      readOnly: true
+      readOnly: false
     - name: x509-certs-volume
       mountPath: "/root/.globus"
     ports:

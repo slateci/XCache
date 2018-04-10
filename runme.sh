@@ -6,8 +6,10 @@ sleep 120
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR don't have to be defined/provided
 # but then it won't really be useful
 
-# if x509 user proxy is provided mount it in /var/spool/xrootd/x509up
-[ -f /var/spool/xrootd/x509up ] && export X509_USER_PROXY=/var/spool/xrootd/x509up
+# if x509 user proxy is provided mount it in /etc/grid-security/x509up
+[ -f /etc/grid-security/x509up ] && export X509_USER_PROXY=/etc/grid-security/x509up
+echo "first try:" echo $X509_USER_PROXY
+export X509_USER_PROXY=/etc/grid-security/x509up
 
 # if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
 [ -s /etc/grid-security/certificates ] && export X509_CERT_DIR=/etc/grid-security/certificates

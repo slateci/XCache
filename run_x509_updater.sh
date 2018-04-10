@@ -10,8 +10,8 @@ while true; do
 
   # update proxy
   voms-proxy-init -key /root/.globus/userkey.pem -cert /root/.globus/usercert.pem --voms=atlas
-  mv /tmp/x509up_u0 /var/spool/xrootd/x509up
-  chown xrootd /var/spool/xrootd/x509up
+  mv /tmp/x509up_u0 /etc/grid-security/x509up
+  chown xrootd /etc/grid-security/x509up
 
   sleep 21600
 
