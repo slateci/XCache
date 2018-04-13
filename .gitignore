@@ -1,4 +1,4 @@
-xcache-secret.sh
+certificates
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
