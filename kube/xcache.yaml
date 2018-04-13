@@ -50,7 +50,8 @@ spec:
       mountPath: "/etc/grid-security/"
       readOnly: false
     - name: x509-certs-volume
-      mountPath: "/root/.globus"
+      mountPath: "/etc/grid-certs/"
+      readOnly: false
     ports:
       - containerPort: 1094
 
@@ -62,7 +63,8 @@ spec:
       mountPath: "/etc/grid-security/"
       readOnly: false
     - name: x509-certs-volume
-      mountPath: "/root/.globus"
+      mountPath: "/etc/grid-certs/"
+      readOnly: false
 
   - name: reporter-container
     image: slateci/xcache:latest
