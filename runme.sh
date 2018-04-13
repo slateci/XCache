@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # sleep long enough to get x509 things set up.
+echo "Waiting 2 min for other containers to start."
 sleep 120
 
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR don't have to be defined/provided
@@ -8,8 +9,6 @@ sleep 120
 
 # if x509 user proxy is provided mount it in /etc/grid-security/x509up
 [ -f /etc/grid-security/x509up ] && export X509_USER_PROXY=/etc/grid-security/x509up
-echo "first try:" echo $X509_USER_PROXY
-export X509_USER_PROXY=/etc/grid-security/x509up
 
 # if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
 [ -s /etc/grid-security/certificates ] && export X509_CERT_DIR=/etc/grid-security/certificates
