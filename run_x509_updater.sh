@@ -4,8 +4,6 @@
 yum install osg-ca-certs voms-clients wlcg-voms-atlas fetch-crl -y
 
 CERTPATH=/etc/grid-certs
-chmod 400 $CERTPATH/userkey.pem
-chmod 644 $CERTPATH/usercert.pem
 
 while true; do 
 

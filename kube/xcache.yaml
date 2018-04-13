@@ -27,7 +27,13 @@ spec:
   - name: x509-certs-volume
     secret:
       secretName: xcache-cert-secret
-  #   defaultMode: 256 # default is 0644; 256 is 0400
+      items:
+      - key: userkey
+        path: userkey.pem
+        mode: 256 
+      - key: usercert
+        path: usercert.pem
+    # default is 0644; 256 is 0400
 
   containers:
   - name: xcache-container
@@ -51,7 +57,7 @@ spec:
       readOnly: false
     - name: x509-certs-volume
       mountPath: "/etc/grid-certs/"
-      readOnly: false
+      readOnly: true
     ports:
       - containerPort: 1094
 
@@ -64,7 +70,7 @@ spec:
       readOnly: false
     - name: x509-certs-volume
       mountPath: "/etc/grid-certs/"
-      readOnly: false
+      readOnly: true
 
   - name: reporter-container
     image: slateci/xcache:latest
