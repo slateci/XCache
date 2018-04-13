@@ -42,7 +42,7 @@
         },
         {
             "location": "/instructions/",
-            "text": "Instructions\n\n\nKubernetes\n\n\nBefore starting you need to create all the necessary secrets. This can be done by executing \nxcache-secret.bat\n.\n\n\nTo start:\n\nkubectl create -f xcache.yaml\n\n\nTo run stress test:\n\nkubectl create -f xcache-stress_test.yaml\n\n\nDocker\n\n\nTo start:\n\n\ndocker run -d \\\n-e XC_SPACE_HIGH_WM='0.95' \\\n-e XC_SPACE_LOW_WM='0.80' \\\n-e XC_PORT='1094' \\\n-e XC_RAMSIZE='1g' \\\n-e XC_BLOCKSIZE='1M' \\\n-e XC_PREFETCH='0' \\\n-p 1094:1094 \\\n-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \\\n-v /root/xcache_test/proxy:/var/run/ \\\n--name xCache slateci/xcache\n\n\n\n\nTo log into it and check logs:\n\n\ndocker exec -it xCache bash\nls /data/xrd/var/log/\n\nTo stop it:\n\n\ndocker stop xCache\n\n\ndocker rm xCache\n\n\nTo update it:\n\ndocker pull slateci/xcache",
+            "text": "Instructions\n\n\nKubernetes\n\n\nBefore starting you need to create all the necessary secrets. This can be done by executing \nxcache-secret.bat\n.\n\n\nTo start:\n\nkubectl create -f xcache.yaml\n\n\nTo run stress test:\n\nkubectl create -f xcache-stress_test.yaml\n\n\nDocker\n\n\nTo start:\n\n\ndocker run -d \\\n-e XC_SPACE_HIGH_WM='0.95' \\\n-e XC_SPACE_LOW_WM='0.80' \\\n-e XC_PORT='1094' \\\n-e XC_RAMSIZE='1g' \\\n-e XC_BLOCKSIZE='1M' \\\n-e XC_PREFETCH='0' \\\n-p 1094:1094 \\\n-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \\\n-v /root/xcache_test/proxy:/etc/grid-security/ \\\n--name xCache slateci/xcache\n\n\n\n\nTo log into it and check logs:\n\n\ndocker exec -it xCache bash\nls /data/xrd/var/log/\n\nTo stop it:\n\n\ndocker stop xCache\n\n\ndocker rm xCache\n\n\nTo update it:\n\ndocker pull slateci/xcache",
             "title": "Instructions"
         },
         {
@@ -57,7 +57,7 @@
         },
         {
             "location": "/instructions/#docker",
-            "text": "To start:  docker run -d \\\n-e XC_SPACE_HIGH_WM='0.95' \\\n-e XC_SPACE_LOW_WM='0.80' \\\n-e XC_PORT='1094' \\\n-e XC_RAMSIZE='1g' \\\n-e XC_BLOCKSIZE='1M' \\\n-e XC_PREFETCH='0' \\\n-p 1094:1094 \\\n-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \\\n-v /root/xcache_test/proxy:/var/run/ \\\n--name xCache slateci/xcache  To log into it and check logs:  docker exec -it xCache bash\nls /data/xrd/var/log/ \nTo stop it:  docker stop xCache  docker rm xCache  To update it: docker pull slateci/xcache",
+            "text": "To start:  docker run -d \\\n-e XC_SPACE_HIGH_WM='0.95' \\\n-e XC_SPACE_LOW_WM='0.80' \\\n-e XC_PORT='1094' \\\n-e XC_RAMSIZE='1g' \\\n-e XC_BLOCKSIZE='1M' \\\n-e XC_PREFETCH='0' \\\n-p 1094:1094 \\\n-v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \\\n-v /root/xcache_test/proxy:/etc/grid-security/ \\\n--name xCache slateci/xcache  To log into it and check logs:  docker exec -it xCache bash\nls /data/xrd/var/log/ \nTo stop it:  docker stop xCache  docker rm xCache  To update it: docker pull slateci/xcache",
             "title": "Docker"
         },
         {
