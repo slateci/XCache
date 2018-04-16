@@ -1,16 +1,23 @@
-# Instructions
+# Creating secrets
+First one needs to create k8s secret that contains robot certificate that will be used by the XCache to get the data from origin servers. 
+Create directory __certificates__ in __kube__ folder. In it add files __xcache.key.pem__ and __xcache.crt.pem__.
+Than execute file __xcache-secret.bat__. This is normally done only once. Upon creation, you may delete __certificates__ folder.
 
-### Kubernetes
+# Create service
+This service maps xrootd port to external ports. This is normally done only once. 
+From kube directory do:
+```kubectl create -f xcache_service.yaml```
 
-Before starting you need to create all the necessary secrets. This can be done by executing __xcache-secret.bat__.
-
-To start:
+# Start XCache:
 ```kubectl create -f xcache.yaml```
 
-To run stress test:
+# Run stress test:
 ```kubectl create -f xcache-stress_test.yaml```
 
-### Docker
+
+
+
+# Docker (obsolete)
 
 To start:
 
