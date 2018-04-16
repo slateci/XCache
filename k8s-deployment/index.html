@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Setting up k8s cluster - XCache</title>
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Setting up k8s cluster";
+    var mkdocs_page_input_path = "k8s-deployment.md";
+    var mkdocs_page_url = "/k8s-deployment/";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href=".." class="icon icon-home"> XCache</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="..">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../instructions/">Instructions</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="./">Setting up k8s cluster</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#kubernetes-v110-on-centos-7">Kubernetes v1.10 on CentOS 7</a></li>
+    
+
+    <li class="toctree-l2"><a href="#head-node-installation">Head node installation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#optional-enabling-the-kubernetes-dashboard">Optional - Enabling the Kubernetes dashboard</a></li>
+        
+            <li><a class="toctree-l3" href="#optional-allow-workers-to-run-on-head-node">Optional - Allow workers to run on head node</a></li>
+        
+        </ul>
+    
+
+    <li class="toctree-l2"><a href="#adding-workers">Adding Workers</a></li>
+    
+
+    <li class="toctree-l2"><a href="#adding-users-and-rbac">Adding Users and RBAC</a></li>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../about/">About</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="..">XCache</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="..">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Setting up k8s cluster</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/slateci/XCache/edit/master/docs/k8s-deployment.md"
+          class="icon icon-github"> Edit on GitHub</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h2 id="kubernetes-v110-on-centos-7">Kubernetes v1.10 on CentOS 7</h2>
+<h1 id="head-node-installation">Head node installation</h1>
+<p>On the head node:</p>
+<pre><code># yum update -y
+# yum install -y docker
+# systemctl enable docker &amp;&amp; systemctl start docker
+# cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+repo_gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+# setenforce 0
+# yum install -y kubelet kubeadm kubectl
+# systemctl enable kubelet &amp;&amp; systemctl start kubelet
+</code></pre>
+
+<p>At this point, docker should be running and the kubelet should be crash looping. if Docker won't start and complains about overlayfs, make sure you've updated and reboot into the latest kernel. </p>
+<p>Now start kubeadm</p>
+<pre><code># kubeadm init
+</code></pre>
+
+<p>Once it's done, you should see:</p>
+<pre><code>Your Kubernetes master has initialized successfully!
+</code></pre>
+
+<p>Follow the instructions from the shell output. <em>most importantly</em>, save the <code>kubeadm join ...</code>  line as it has an important token in it. This is needed to join additional nodes to the cluster. </p>
+<p>Add Calico networking (there are many possible plugins, we've chosen this one based on best practices)</p>
+<pre><code># kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
+</code></pre>
+
+<p>Check to see that the Master is ready</p>
+<pre><code>$ kubectl get nodes
+NAME                STATUS    ROLES     AGE       VERSION
+k8s-head.mwt2.org   Ready     master    1h        v1.10.0
+
+</code></pre>
+
+<p>Create a .kube/config for a regular user:</p>
+<pre><code class="bash">$ mkdir -p $HOME/.kube
+$ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+$ sudo chown $(id -u):$(id -g) $HOME/.kube/config
+</code></pre>
+
+<h3 id="optional-enabling-the-kubernetes-dashboard">Optional - Enabling the Kubernetes dashboard</h3>
+<pre><code>$ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
+secret &quot;kubernetes-dashboard-certs&quot; created
+serviceaccount &quot;kubernetes-dashboard&quot; created
+role.rbac.authorization.k8s.io &quot;kubernetes-dashboard-minimal&quot; created
+rolebinding.rbac.authorization.k8s.io &quot;kubernetes-dashboard-minimal&quot; created
+deployment.apps &quot;kubernetes-dashboard&quot; created
+service &quot;kubernetes-dashboard&quot; created
+</code></pre>
+
+<p>To access the dashboard, you'll want to have your <code>.kube/config</code> and  <code>kubectl</code> on your workstation/laptop and run</p>
+<pre><code>kubectl proxy
+</code></pre>
+
+<p>Then you can access the dashboard at <code>http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/</code></p>
+<p>It may display errors about not being able to work in the default namespace. If so, you'll need to do the following:</p>
+<pre><code class="bash">kubectl create serviceaccount dashboard -n default
+kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
+</code></pre>
+
+<p>Then, to get the token for authentication:</p>
+<pre><code>kubectl get secret $(./kubectl get serviceaccount dashboard -o jsonpath=&quot;{.secrets[0].name}&quot;) -o jsonpath=&quot;{.data.token}&quot; | base64 --decode
+</code></pre>
+
+<h3 id="optional-allow-workers-to-run-on-head-node">Optional - Allow workers to run on head node</h3>
+<p>You can now add additional nodes to the cluster, or "taint" the master to allow work to be scheduled onto it (single node configuration)</p>
+<pre><code>kubectl taint nodes --all node-role.kubernetes.io/master-
+</code></pre>
+
+<h1 id="adding-workers">Adding Workers</h1>
+<p>Hopefully you saved the output of <code>kubeadm init</code>. If so, you can just copy/paste the <code>kubeadm join ...</code> bits from the output into your worker node.</p>
+<p>If not, here's how to regenerate it. On the master:</p>
+<pre><code>$ sudo kubeadm token create --print-join-command
+kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;
+</code></pre>
+
+<p>Just paste that into your worker. <em>Note that the token expires after 24h, after which you'll need to create a new token to add workers to your cluster</em>. </p>
+<hr />
+<h1 id="adding-users-and-rbac">Adding Users and RBAC</h1>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../about/" class="btn btn-neutral float-right" title="About">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../instructions/" class="btn btn-neutral" title="Instructions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+          <a href="https://github.com/slateci/XCache/" class="fa fa-github" style="float: left; color: #fcfcfc"> GitHub</a>
+      
+      
+        <span><a href="../instructions/" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../about/" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '..';</script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/require.js"></script>
+      <script src="../search/search.js"></script>
+
+</body>
+</html>
