@@ -57,15 +57,19 @@
     <a class="current" href="./">Instructions</a>
     <ul class="subnav">
             
-    <li class="toctree-l2"><a href="#instructions">Instructions</a></li>
+    <li class="toctree-l2"><a href="#creating-secrets">Creating secrets</a></li>
     
-        <ul>
-        
-            <li><a class="toctree-l3" href="#kubernetes">Kubernetes</a></li>
-        
-            <li><a class="toctree-l3" href="#docker">Docker</a></li>
-        
-        </ul>
+
+    <li class="toctree-l2"><a href="#create-service">Create service</a></li>
+    
+
+    <li class="toctree-l2"><a href="#start-xcache">Start XCache:</a></li>
+    
+
+    <li class="toctree-l2"><a href="#run-stress-test">Run stress test:</a></li>
+    
+
+    <li class="toctree-l2"><a href="#docker-obsolete">Docker (obsolete)</a></li>
     
 
     </ul>
@@ -116,14 +120,19 @@
           <div role="main">
             <div class="section">
               
-                <h1 id="instructions">Instructions</h1>
-<h3 id="kubernetes">Kubernetes</h3>
-<p>Before starting you need to create all the necessary secrets. This can be done by executing <strong>xcache-secret.bat</strong>.</p>
-<p>To start:
-<code>kubectl create -f xcache.yaml</code></p>
-<p>To run stress test:
-<code>kubectl create -f xcache-stress_test.yaml</code></p>
-<h3 id="docker">Docker</h3>
+                <h1 id="creating-secrets">Creating secrets</h1>
+<p>First one needs to create k8s secret that contains robot certificate that will be used by the XCache to get the data from origin servers. 
+Create directory <strong>certificates</strong> in <strong>kube</strong> folder. In it add files <strong>xcache.key.pem</strong> and <strong>xcache.crt.pem</strong>.
+Than execute file <strong>xcache-secret.bat</strong>. This is normally done only once. Upon creation, you may delete <strong>certificates</strong> folder.</p>
+<h1 id="create-service">Create service</h1>
+<p>This service maps xrootd port to external ports. This is normally done only once. 
+From kube directory do:
+<code>kubectl create -f xcache_service.yaml</code></p>
+<h1 id="start-xcache">Start XCache:</h1>
+<p><code>kubectl create -f xcache.yaml</code></p>
+<h1 id="run-stress-test">Run stress test:</h1>
+<p><code>kubectl create -f xcache-stress_test.yaml</code></p>
+<h1 id="docker-obsolete">Docker (obsolete)</h1>
 <p>To start:</p>
 <pre><code>docker run -d \
 -e XC_SPACE_HIGH_WM='0.95' \
