@@ -3,6 +3,8 @@ pages:
     - Home: index.md
     - Instructions: instructions.md
     - Setting up k8s cluster: k8s-deployment.md
+    - Monitoring: monitoring.md
+    - Analytics: analytics.md
     - About: about.md
 theme: readthedocs
 repo_url: https://github.com/slateci/XCache
