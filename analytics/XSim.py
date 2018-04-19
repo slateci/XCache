@@ -35,29 +35,62 @@ my_query = {
     }
 }
 
-"transfer_start", "transfer_end",
+# "transfer_start", "transfer_end",
 
 scroll = scan(client=es, index=indices, query=my_query)
 
 count = 0
 
-XC = cache.XCache(10 * 1024 * 1024 * 1024 * 1024)
+XC = cache.XCache()
 
 for res in scroll:
     r = res['_source']
 
     # XC.add_file(r['scope'] + r['filename'], r['filesize'], r['transfer_start'], r['transfer_end'])
-    XC.add_file(r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end'])
+    # XC.add_file(r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end'])
+    XC.insert_file(r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end'])
 
     # if count < 2:
     #     print(res)
     if not count % 100000:
         print(count)
-    if count > 100000:
-        break
+    # if count > 100000:
+        # break
     count = count + 1
 
+TB = 1024 * 1024 * 1024 * 1024
+
+clairvoyant = True
+
+XC.set_name('5TB cache')
+XC.set_size(5 * TB)
+XC.replay_cache(clairvoyant)
 XC.print_cache_state()
+XC.plot_cache_state()
+
+XC.set_name('10TB cache')
+XC.set_size(10 * TB)
+XC.replay_cache(clairvoyant)
+XC.print_cache_state()
+XC.plot_cache_state()
+
+XC.set_name('20TB cache')
+XC.set_size(20 * TB)
+XC.replay_cache(clairvoyant)
+XC.print_cache_state()
+XC.plot_cache_state()
+
+XC.set_name('30TB cache')
+XC.set_size(30 * TB)
+XC.replay_cache(clairvoyant)
+XC.print_cache_state()
+XC.plot_cache_state()
+
+XC.set_name('inf. cache')
+XC.set_size(4000 * TB)
+XC.replay_cache(clairvoyant)
+XC.print_cache_state()
+# XC.plot_cache_state()
 
 # dfs = []
 # for dest, data in allData.items():
