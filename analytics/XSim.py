@@ -9,7 +9,7 @@ import cache
 start_date = '2018-04-01 00:00:00'
 end_date = '2018-05-01 23:59:59'
 
-site = 'WUPPERTAL'
+site = 'MWT2'
 
 site += '*'
 es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
@@ -21,18 +21,21 @@ start = int(pd.Timestamp(start_date).timestamp())
 end = int(pd.Timestamp(end_date).timestamp())
 
 my_query = {
-    "_source": ["transfer_start", "transfer_end", "site", "event", "scope", "filename", "filesize"],
+    "_source": ["time_start", "time_end", "site", "event", "scope", "filename", "filesize"],
     'query': {
         'bool': {
             'must': [
-                {'range': {'transfer_end': {'gte': start, 'lt': end}}},
+                {'range': {'time_start': {'gte': start, 'lt': end}}},
+                {'exists': {"field": "filename"}},
                 {'wildcard': {'site': site}},
-                {'term': {'event': 'download'}},
+                {'wildcard': {'event': 'get*'}},
+                # {'term': {'event': 'download'}},
             ]
         }
     }
 }
 
+"transfer_start", "transfer_end",
 
 scroll = scan(client=es, index=indices, query=my_query)
 
@@ -43,13 +46,15 @@ XC = cache.XCache(10 * 1024 * 1024 * 1024 * 1024)
 for res in scroll:
     r = res['_source']
 
-    XC.add_file(r['scope'] + r['filename'], r['filesize'], r['transfer_start'], r['transfer_end'])
+    # XC.add_file(r['scope'] + r['filename'], r['filesize'], r['transfer_start'], r['transfer_end'])
+    XC.add_file(r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end'])
+
     # if count < 2:
     #     print(res)
     if not count % 100000:
         print(count)
-    # if count > 5:
-    #     break
+    if count > 100000:
+        break
     count = count + 1
 
 XC.print_cache_state()

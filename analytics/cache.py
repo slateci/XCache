@@ -72,8 +72,10 @@ class XCache(object):
         """ just a summary print """
         df = pd.DataFrame.from_dict(self.cache, orient='index')
         df.columns = ['filesize', 'accesses', 'first access', 'last access']
+        print(df.describe())
         print('total requests:', self.total_requests, '\ttotal hits:', self.total_hits,
               'hit probability:', self.total_hits / self.total_requests * 100, '%')
         print('cache used:', df['filesize'].sum() / 1024 / 1024 / 1024, 'GB')
         print('avg. accesses:', df['accesses'].mean())
         print('total files cached:', df.shape[0])
+        pd.DataFrame.hist(df, column=['filesize', 'accesses'], bins=20)
