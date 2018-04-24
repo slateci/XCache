@@ -1,3 +1,6 @@
+import time
+import logging
+import threading
 import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
@@ -6,14 +9,19 @@ matplotlib.rc('xtick', labelsize=14)
 matplotlib.rc('ytick', labelsize=14)
 
 
-class XCache(object):
+class XCache(threading.Thread):
     """ as implemented in XCache """
     MB = 1024 * 1024
     GB = 1024 * MB
     TB = 1024 * GB
 
-    def __init__(self, size=TB, lwm=0.85, hwm=0.90, max_rate_out=100 * 1024 * 1024):
+    all_accesses = None
+
+    def __init__(self, name='unnamed', size=TB, lwm=0.85, hwm=0.90, max_rate_out=100 * 1024 * 1024):
         """ cache size is in bytes, max_rate_out is in bytes per second """
+        threading.Thread.__init__(self)
+        self.logger = logging.getLogger(__name__)
+        self.name = name
         self.size = size
         self.lwm_bytes = size * lwm
         self.hwm_bytes = size * hwm
@@ -21,7 +29,6 @@ class XCache(object):
         self.hwm = hwm
         # cache record: [filesize, #accesses, time_of_firstaccess, time_of_lastaccess]
         self.cache = {}
-        self.requests = []
         # this will hold rates
         self.ingress = []
         self.egress = []
@@ -30,86 +37,62 @@ class XCache(object):
         self.total_requests = 0
         self.data_from_cache = 0
         self.data_delivered = 0
-        self.per_file_counts = None
         self.cleanups = 0
+        self.t1 = None
+        self.t2 = None
 
-    def reset(self):
-        """ to be done before starting replay """
-        self.cache = {}
-        self.utilization = 0
-        self.total_hits = 0
-        self.total_requests = 0
-        self.cleanups = 0
-        self.data_from_cache = 0
+    def clairvoyant(self):
+        """ sets a flag that means that file won't be needed again."""
+        # needs fix
+        pass
+        # multiuse = self.per_file_counts[self.per_file_counts.counts > 1].filename
+        # self.all_accesses = self.all_accesses[all_accesses.filename.isin(multiuse)]
+        # self.per_file_counts = self.all_accesses.groupby(['filename']).size().reset_index(name='counts')
 
-    def set_size(self, size):
-        """ full cache size in bytes. has to be set before doing replay """
-        self.size = size
-        self.lwm_bytes = size * self.lwm
-        self.hwm_bytes = size * self.hwm
+    def run(self):
+        """ this function actually does simulation """
+        self.t1 = time.clock()
 
-    def set_name(self, name):
-        print(name)
-        self.name = name
+        done = 0
+        for index, row in XCache.all_accesses.iterrows():
+            if not done % 10000:
+                self.logger.debug(done)
+            done += 1
+            filename = index
+            filesize = row[0]
+            transfer_start = row[1]
+            if filename in self.cache:
+                self.total_hits += 1
+                self.data_from_cache += filesize
+                self.cache[filename][1] += 1
+                self.cache[filename][3] = transfer_start
+                continue
+            # was not in cache
+            if self.utilization + filesize > self.hwm_bytes:
+                # print("needs cleaning...")
+                self.cleanups += 1
+                self.clean()
+            self.utilization += filesize
+            self.cache[filename] = [filesize, 1, transfer_start, transfer_start]
 
-    def clean_if_needed(self, filesize):
-        """ a simple algo cleaning files with the lowest time_of_last_access """
-        if self.utilization + filesize < self.hwm_bytes:
-            return
-        # print("needs cleaning...")
-        self.cleanups += 1
+        self.t2 = time.clock()
+        self.logger.debug("done. Walltime:", self.t2 - self.t1)
+
+    def clean(self):
+        """ simple algos cleaning files """
         df = pd.DataFrame.from_dict(self.cache, orient='index')
         df.columns = ['filesize', 'accesses', 'first access', 'last access']
         # df.sort_values(['last access'], ascending=[True], inplace=True)
         # df.sort_values(['accesses', 'last access'], ascending=[True, True], inplace=True)
         # df.sort_values(['accesses', 'filesize'], ascending=[True, False], inplace=True)
-        df.sort_values(['accesses', 'last access', 'filesize'], ascending=[True, True, False], inplace=True)
+        df = df.sort_values(['accesses', 'last access', 'filesize'], ascending=[True, True, False], inplace=False)
         df['cum_sum'] = df.filesize.cumsum()
         # print('files in cache:', df.shape[0], end='  ')
         df = df[df.cum_sum < (self.hwm_bytes - self.lwm_bytes)]
         # print('files to flush:', df.shape[0])
-        ftf = df.index.values
-        for fn in ftf:
+        for fn in df.index.values:
             self.utilization -= self.cache[fn][0]
             del self.cache[fn]
-
-    def insert_file(self, filename, filesize, transfer_start, transfer_end):
-        """ This is needed as files coming from ES are not sorted in time """
-        self.requests.append([filename, filesize, transfer_start, transfer_end])
-        return
-
-    def replay_cache(self, clairvoyant=False):
-        """ this function actually does simulation """
-        self.reset()
-        all_accesses = pd.DataFrame(self.requests).sort_values(2)
-        all_accesses.columns = ['filename', 'filesize', 'first access', 'last access']
-
-        self.total_requests = all_accesses.shape[0]
-        self.data_delivered = all_accesses.filesize.sum()
-        self.per_file_counts = all_accesses.groupby(['filename']).size().reset_index(name='counts')
-
-        if clairvoyant:
-            multiuse = self.per_file_counts[self.per_file_counts.counts > 1].filename
-            all_accesses = all_accesses[all_accesses.filename.isin(multiuse)]
-
-        for index, row in all_accesses.iterrows():
-            self.add_file(row[0], row[1], row[2], row[3])
-
-    def add_file(self, filename, filesize, transfer_start, transfer_end):
-        """ returns True if cached, False if not """
-        # check if it was cached
-        if filename in self.cache:
-            self.total_hits += 1
-            self.data_from_cache += filesize
-            self.cache[filename][1] += 1
-            self.cache[filename][3] = transfer_end
-            return True
-
-        # was not in cache
-        self.clean_if_needed(filesize)
-        self.utilization += filesize
-        self.cache[filename] = [filesize, 1, transfer_start, transfer_end]
-        return False
 
     def plot_cache_state(self):
         """ most important plots. """
@@ -136,7 +119,8 @@ class XCache(object):
         plt.xlabel('accesses (all files)')
         plt.ylabel('count')
         # plt.yscale('log', nonposy='clip')
-        plt.hist(self.per_file_counts.counts, 100, log=True)
+        per_file_counts = XCache.all_accesses.groupby(['filename']).size().reset_index(name='counts')
+        plt.hist(per_file_counts.counts, 100, log=True)
         # plt.show()
         plt.savefig(self.name + '.png')
 
@@ -151,12 +135,14 @@ class XCache(object):
         df = pd.DataFrame.from_dict(self.cache, orient='index')
         df.columns = ['filesize', 'accesses', 'first access', 'last access']
         print(df.describe())
-        print('total requests:', self.total_requests, '\ttotal hits:', self.total_hits,
-              'hit probability:', self.total_hits / self.total_requests * 100, '%')
+        total_requests = XCache.all_accesses.shape[0]
+        data_delivered = XCache.all_accesses.filesize.sum()
+        print('total requests:', total_requests, '\ttotal hits:', self.total_hits,
+              'hit probability:', self.total_hits / total_requests * 100, '%')
         print('cache used:', df['filesize'].sum() / XCache.GB, 'GB')
         print('avg. accesses (files found in cache):', df['accesses'].mean())
         print('total files cached:', df.shape[0])
-        print('delivered total:', self.data_delivered / XCache.TB,
+        print('delivered total:', data_delivered / XCache.TB,
               'delivered cached:', self.data_from_cache / XCache.TB,
               'or:', self.data_from_cache / self.data_delivered * 100, '[%]')
         print('cleanups', self.cleanups)
