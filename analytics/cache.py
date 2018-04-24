@@ -76,7 +76,7 @@ class XCache(threading.Thread):
             self.cache[filename] = [filesize, 1, transfer_start, transfer_start]
 
         self.t2 = time.clock()
-        self.logger.debug("done. Walltime:", self.t2 - self.t1)
+        self.logger.debug("done. Walltime:" + str(self.t2 - self.t1))
 
     def clean(self):
         """ simple algos cleaning files """
@@ -130,19 +130,21 @@ class XCache(threading.Thread):
         # show filesize distribution
         # show filesize vs accesses heat map
 
-    def print_cache_state(self):
+    def get_cache_stats(self):
         """ just a summary print """
         df = pd.DataFrame.from_dict(self.cache, orient='index')
         df.columns = ['filesize', 'accesses', 'first access', 'last access']
-        print(df.describe())
-        total_requests = XCache.all_accesses.shape[0]
-        data_delivered = XCache.all_accesses.filesize.sum()
-        print('total requests:', total_requests, '\ttotal hits:', self.total_hits,
-              'hit probability:', self.total_hits / total_requests * 100, '%')
-        print('cache used:', df['filesize'].sum() / XCache.GB, 'GB')
-        print('avg. accesses (files found in cache):', df['accesses'].mean())
-        print('total files cached:', df.shape[0])
-        print('delivered total:', data_delivered / XCache.TB,
-              'delivered cached:', self.data_from_cache / XCache.TB,
-              'or:', self.data_from_cache / self.data_delivered * 100, '[%]')
-        print('cleanups', self.cleanups)
+
+        res = {
+            'total accesses': XCache.all_accesses.shape[0],
+            'cache hits': self.total_hits,
+            'delivered data': XCache.all_accesses.filesize.sum() / XCache.TB,
+            'delivered from cache': self.data_from_cache / XCache.TB,
+            'cleanups': self.cleanups,
+            'files in cache': df.shape[0],
+            'avg. accesses of cached files': df['accesses'].mean(),
+            'avg. cached file size': df['filesize'].mean() / XCache.MB,
+            'walltime': self.t2 - self.t1
+        }
+
+        return res

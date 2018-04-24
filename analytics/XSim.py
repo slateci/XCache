@@ -8,7 +8,7 @@ import pandas as pd
 
 from cache import XCache
 
-load_from_disk = False
+load_from_disk = True
 
 start_date = '2018-04-01 00:00:00'
 end_date = '2018-05-01 23:59:59'
@@ -47,8 +47,6 @@ else:
     requests = []
     for res in scroll:
         r = res['_source']
-
-        # XC.add_file(r['scope'] + r['filename'], r['filesize'], r['transfer_start'], r['transfer_end'])
         # requests.append([r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end']])
         requests.append([r['scope'] + r['filename'], r['filesize'], r['time_start']])
 
@@ -93,16 +91,28 @@ XC_20.join()
 XC_30.join()
 XC_inf.join()
 
-XC_5.print_cache_state()
-XC_5.plot_cache_state()
-XC_10.print_cache_state()
-XC_10.plot_cache_state()
-XC_20.print_cache_state()
-XC_20.plot_cache_state()
-XC_30.print_cache_state()
-XC_30.plot_cache_state()
-XC_inf.print_cache_state()
-XC_inf.plot_cache_state()
+d1 = pd.DataFrame.from_dict(XC_5.get_cache_stats(), orient='index')
+d1.columns = ["1/2"]
+d2 = pd.DataFrame.from_dict(XC_10.get_cache_stats(), orient='index')
+d2.columns = ["1"]
+d3 = pd.DataFrame.from_dict(XC_20.get_cache_stats(), orient='index')
+d3.columns = ["2"]
+d4 = pd.DataFrame.from_dict(XC_30.get_cache_stats(), orient='index')
+d4.columns = ["3"]
+d5 = pd.DataFrame.from_dict(XC_30.get_cache_stats(), orient='index')
+d5.columns = ["Inf"]
+
+r = d1.join(d2).join(d3).join(d4).join(d5)
+
+print(r)
+
+r.to_hdf(site + '_results.h5', key=site, mode='w')
+
+# XC_5.plot_cache_state()
+# XC_10.plot_cache_state()
+# XC_20.plot_cache_state()
+# XC_30.plot_cache_state()
+# XC_inf.plot_cache_state()
 
 
 # dfs = []
