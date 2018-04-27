@@ -1,12 +1,10 @@
-import threading
 import logging
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
-# import numpy as np
 import pandas as pd
 
-from cache import XCache
+from cache import XCache, set_skip_tag, clairvoyant
 
 load_from_disk = True
 
@@ -48,7 +46,7 @@ else:
     for res in scroll:
         r = res['_source']
         # requests.append([r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end']])
-        requests.append([r['scope'] + r['filename'], r['filesize'], r['time_start']])
+        requests.append([r['scope'] + ':' + r['filename'], r['filesize'], r['time_start']])
 
         # if count < 2:
         #     print(res)
@@ -63,66 +61,19 @@ else:
     XCache.all_accesses.set_index('filename', drop=True, inplace=True)
     XCache.all_accesses.to_hdf(site + '.h5', key=site, mode='w', complevel=1)
 
-logging.basicConfig(
-    format='[%(levelname)s] (%(threadName)-10s) %(message)s',
-)
+# logging.basicConfig(
+#     format='[%(levelname)s] (%(threadName)-10s) %(message)s',
+# )
 
 logging.getLogger('cache').setLevel(logging.DEBUG)
 
 logging.debug(str(XCache.all_accesses.shape[0]) + ' requests loaded.')
-# XC.clairvoyant()
+# XCache.all_accesses = XCache.all_accesses[:100000]
+clairvoyant()
+# set_skip_tag()
 
-XC_5 = XCache('5TB cache ' + site, size=5 * XCache.TB)
-XC_10 = XCache('10TB cache ' + site, size=10 * XCache.TB)
-XC_20 = XCache('20TB cache ' + site, size=20 * XCache.TB)
-XC_30 = XCache('30TB cache ' + site, size=30 * XCache.TB)
-XC_inf = XCache('inf. cache ' + site, size=5000 * XCache.TB)
-
-
-XC_5.start()
-XC_10.start()
-XC_20.start()
-XC_30.start()
-XC_inf.start()
-
-XC_5.join()
-XC_10.join()
-XC_20.join()
-XC_30.join()
-XC_inf.join()
-
-d1 = pd.DataFrame.from_dict(XC_5.get_cache_stats(), orient='index')
-d1.columns = ["1/2"]
-d2 = pd.DataFrame.from_dict(XC_10.get_cache_stats(), orient='index')
-d2.columns = ["1"]
-d3 = pd.DataFrame.from_dict(XC_20.get_cache_stats(), orient='index')
-d3.columns = ["2"]
-d4 = pd.DataFrame.from_dict(XC_30.get_cache_stats(), orient='index')
-d4.columns = ["3"]
-d5 = pd.DataFrame.from_dict(XC_30.get_cache_stats(), orient='index')
-d5.columns = ["Inf"]
-
-r = d1.join(d2).join(d3).join(d4).join(d5)
-
-print(r)
-
-r.to_hdf(site + '_results.h5', key=site, mode='w')
-
-# XC_5.plot_cache_state()
-# XC_10.plot_cache_state()
-# XC_20.plot_cache_state()
-# XC_30.plot_cache_state()
-# XC_inf.plot_cache_state()
-
-
-# dfs = []
-# for dest, data in allData.items():
-#     ts = pd.to_datetime(data[0], unit='ms')
-#     df = pd.DataFrame({dest: data[1]}, index=ts)
-#     df.sort_index(inplace=True)
-#     df.index = df.index.map(lambda t: t.replace(second=0))
-#     df = df[~df.index.duplicated(keep='last')]
-#     dfs.append(df)
-#     # print(df.head(2))
-
-# print(count, "\nData loaded.")
+for i in [5, 10, 20, 30, 40, 50, 10000]:
+    # for i in [5, 10, 20, 30, 10000]:
+    XC = XCache(site, size=i * XCache.TB, algo='Clairvoyant')
+    XC.run()
+    XC.store_result()
