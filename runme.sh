@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# make cache space owned by xrootd user
+chown -R xrootd:xrootd /cache
+
 # sleep long enough to get x509 things set up.
 echo "Waiting 2 min for other containers to start."
 sleep 120
