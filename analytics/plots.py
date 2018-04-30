@@ -3,40 +3,43 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-title = 'MWT2 LRU'
-title = 'MWT2 FS'
-title = 'MWT2 LRU (files larger than 1GB not cached)'
-title = 'MWT2 LRU (files smaller than 100kB not cached)'
-title = 'MWT2 Clairvoyant'
+site = 'AGLT2'
+title = site + ' LRU'
+# title = site + ' FS'
+# title = site + ' LRU (files larger than 1GB not cached)'
+# title = site + ' LRU (files smaller than 100kB not cached)'
+# title = site + ' Clairvoyant'
+# title = site + ' LRU prod only'
 
 results = [
-    ['MWT2_5_LRU_results.h5', '5TB'],
-    ['MWT2_10_LRU_results.h5', '10TB'],
-    ['MWT2_20_LRU_results.h5', '20TB'],
-    ['MWT2_30_LRU_results.h5', '30TB'],
-    ['MWT2_40_LRU_results.h5', '40TB'],
-    ['MWT2_50_LRU_results.h5', '50TB'],
-    ['MWT2_10000_LRU_results.h5', 'Inf']
-]
-
-results = [
-    ['MWT2_5_Clairvoyant_results.h5', '5TB'],
-    ['MWT2_10_Clairvoyant_results.h5', '10TB'],
-    ['MWT2_20_Clairvoyant_results.h5', '20TB'],
-    ['MWT2_30_Clairvoyant_results.h5', '30TB'],
-    ['MWT2_40_Clairvoyant_results.h5', '40TB'],
-    ['MWT2_50_Clairvoyant_results.h5', '50TB'],
-    ['MWT2_10000_Clairvoyant_results.h5', 'Inf']
+    # [site + '_5_LRU_results.h5', '5TB'],
+    [site + '_10_LRU_results.h5', '10TB'],
+    [site + '_20_LRU_results.h5', '20TB'],
+    [site + '_30_LRU_results.h5', '30TB'],
+    [site + '_40_LRU_results.h5', '40TB'],
+    [site + '_50_LRU_results.h5', '50TB'],
+    [site + '_100_LRU_results.h5', '100TB'],
+    [site + '_10000_LRU_results.h5', 'Inf']
 ]
 
 # results = [
-#     ['MWT2_5_FS_results.h5', '5TB'],
-#     ['MWT2_10_FS_results.h5', '10TB'],
-#     ['MWT2_20_FS_results.h5', '20TB'],
-#     ['MWT2_30_FS_results.h5', '30TB'],
-#     ['MWT2_40_FS_results.h5', '40TB'],
-#     ['MWT2_50_FS_results.h5', '50TB'],
-#     ['MWT2_10000_FS_results.h5', 'Inf']
+#     [site+ '_5_Clairvoyant_results.h5', '5TB'],
+#     [site+ '_10_Clairvoyant_results.h5', '10TB'],
+#     [site+ '_20_Clairvoyant_results.h5', '20TB'],
+#     [site+ '_30_Clairvoyant_results.h5', '30TB'],
+#     [site+ '_40_Clairvoyant_results.h5', '40TB'],
+#     [site+ '_50_Clairvoyant_results.h5', '50TB'],
+#     [site+ '_10000_Clairvoyant_results.h5', 'Inf']
+# ]
+
+# results = [
+#     [site+ '_5_FS_results.h5', '5TB'],
+#     [site+ '_10_FS_results.h5', '10TB'],
+#     [site+ '_20_FS_results.h5', '20TB'],
+#     [site+ '_30_FS_results.h5', '30TB'],
+#     [site+ '_40_FS_results.h5', '40TB'],
+#     [site+ '_50_FS_results.h5', '50TB'],
+#     [site+ '_10000_FS_results.h5', 'Inf']
 # ]
 
 df = None

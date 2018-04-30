@@ -69,5 +69,12 @@ spec:
   - name: reporter-container
     image: slateci/xcache:latest
     command: ["/run_cache_reporter.sh"]
-
+    env:
+    - name: XC_SITE
+      value: "MWT2"
+    volumeMounts:
+    - name: xcache-data
+      mountPath: "/cache"
+      readOnly: true
+      
   restartPolicy: Never
