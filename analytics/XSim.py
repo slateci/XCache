@@ -6,7 +6,7 @@ import pandas as pd
 
 from cache import XCache, set_skip_tag, clairvoyant
 
-load_from_disk = True
+load_from_disk = False
 
 start_date = '2018-04-01 00:00:00'
 end_date = '2018-05-01 23:59:59'
@@ -28,7 +28,8 @@ my_query = {
                 {'range': {'time_start': {'gte': start, 'lt': end}}},
                 {'exists': {"field": "filename"}},
                 {'wildcard': {'site': site + '*'}},
-                {'wildcard': {'event': 'get*'}},
+                # {'wildcard': {'event': 'get*'}},
+                {'term': {'event': 'get_sm'}},
                 # {'term': {'event': 'download'}},
             ]
         }
@@ -69,11 +70,11 @@ logging.getLogger('cache').setLevel(logging.DEBUG)
 
 logging.debug(str(XCache.all_accesses.shape[0]) + ' requests loaded.')
 # XCache.all_accesses = XCache.all_accesses[:100000]
-clairvoyant()
+# clairvoyant()
 # set_skip_tag()
 
 for i in [5, 10, 20, 30, 40, 50, 10000]:
     # for i in [5, 10, 20, 30, 10000]:
-    XC = XCache(site, size=i * XCache.TB, algo='Clairvoyant')
+    XC = XCache(site, size=i * XCache.TB, algo='LRU')  # Clairvoyant
     XC.run()
     XC.store_result()
