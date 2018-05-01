@@ -102,8 +102,78 @@ kubeadm join <master ip>:6443 --token <token> --discovery-token-ca-cert-hash sha
 
 Just paste that into your worker. *Note that the token expires after 24h, after which you'll need to create a new token to add workers to your cluster*. 
 
-
-
 ------
 
-# Adding Users and RBAC
+# Adding namespaces, users, and access control
+For all of the following, it's assumed that you'll save the yaml to a file and run `kubectl -f` against it.
+
+## Creating a new namespace
+It's helpful to have users isolated to a separate namespace. Here's how to create one:
+```
+kind: Namespace
+apiVersion: v1
+metadata:
+    name: development
+    labels:
+        name: development
+```
+
+
+## Create a new user context
+The easiest way to add new users is to use kubeadm to generate a new client context:
+```
+# kubeadm alpha phase kubeconfig user --client-name=lincoln
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: <base64-encoded data> 
+    server: https://<your k8s API IP>:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: lincoln
+  name: lincoln@kubernetes
+current-context: lincoln@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: lincoln
+  user:
+    client-certificate-data: <base64 encoded data> 
+    client-key-data: <base64 encoded data> 
+```
+This is a `.kube/config` file that you should send to your non-admin user.
+
+## Create roles and bind them to the user
+Kubernetes uses a role-based access control (RBAC) system. To let users do anything, you'll need to "bind" a role to them.
+
+Here's a role that allows a user to create deployments, replicasets, pods, and jobs:
+```
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: development
+  name: deployment-manager
+rules:
+- apiGroups: ["", "extensions", "apps", "batch"]
+  resources: ["deployments", "replicasets", "pods", "jobs"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+```
+
+And then to associate that role to our newly created user:
+```
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: deployment-manager-binding
+  namespace: development
+subjects:
+- kind: User
+  name: lincoln
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: deployment-manager
+  apiGroup: ""
+```
