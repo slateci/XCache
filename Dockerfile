@@ -26,15 +26,14 @@ RUN yum install -y supervisor fetch-crl
 
 RUN yum install -y \
     python-pip \
-    python-devel \
-    python36u \
-    python36u-pip \
-    python36u-devel 
+    python36
 
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir \
     requests
+
 # python3
+RUN python36 -m ensurepip
 RUN pip3.6 install --upgrade pip
 RUN pip3.6 install --no-cache-dir \
     requests
