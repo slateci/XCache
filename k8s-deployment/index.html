@@ -79,10 +79,30 @@
     <li class="toctree-l2"><a href="#adding-workers">Adding Workers</a></li>
     
 
-    <li class="toctree-l2"><a href="#adding-users-and-rbac">Adding Users and RBAC</a></li>
+    <li class="toctree-l2"><a href="#adding-namespaces-users-and-access-control">Adding namespaces, users, and access control</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#creating-a-new-namespace">Creating a new namespace</a></li>
+        
+            <li><a class="toctree-l3" href="#create-a-new-user-context">Create a new user context</a></li>
+        
+            <li><a class="toctree-l3" href="#create-roles-and-bind-them-to-the-user">Create roles and bind them to the user</a></li>
+        
+        </ul>
     
 
     </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../monitoring/">Monitoring</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../analytics/">Analytics</a>
 	    </li>
           
             <li class="toctree-l1">
@@ -210,7 +230,72 @@ kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-c
 
 <p>Just paste that into your worker. <em>Note that the token expires after 24h, after which you'll need to create a new token to add workers to your cluster</em>. </p>
 <hr />
-<h1 id="adding-users-and-rbac">Adding Users and RBAC</h1>
+<h1 id="adding-namespaces-users-and-access-control">Adding namespaces, users, and access control</h1>
+<p>For all of the following, it's assumed that you'll save the yaml to a file and run <code>kubectl -f</code> against it.</p>
+<h2 id="creating-a-new-namespace">Creating a new namespace</h2>
+<p>It's helpful to have users isolated to a separate namespace. Here's how to create one:</p>
+<pre><code>kind: Namespace
+apiVersion: v1
+metadata:
+    name: development
+    labels:
+        name: development
+</code></pre>
+
+<h2 id="create-a-new-user-context">Create a new user context</h2>
+<p>The easiest way to add new users is to use kubeadm to generate a new client context:</p>
+<pre><code># kubeadm alpha phase kubeconfig user --client-name=lincoln
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: &lt;base64-encoded data&gt; 
+    server: https://&lt;your k8s API IP&gt;:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: lincoln
+  name: lincoln@kubernetes
+current-context: lincoln@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: lincoln
+  user:
+    client-certificate-data: &lt;base64 encoded data&gt; 
+    client-key-data: &lt;base64 encoded data&gt; 
+</code></pre>
+
+<p>This is a <code>.kube/config</code> file that you should send to your non-admin user.</p>
+<h2 id="create-roles-and-bind-them-to-the-user">Create roles and bind them to the user</h2>
+<p>Kubernetes uses a role-based access control (RBAC) system. To let users do anything, you'll need to "bind" a role to them.</p>
+<p>Here's a role that allows a user to create deployments, replicasets, pods, and jobs:</p>
+<pre><code>kind: Role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  namespace: development
+  name: deployment-manager
+rules:
+- apiGroups: [&quot;&quot;, &quot;extensions&quot;, &quot;apps&quot;, &quot;batch&quot;]
+  resources: [&quot;deployments&quot;, &quot;replicasets&quot;, &quot;pods&quot;, &quot;jobs&quot;]
+  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;update&quot;, &quot;patch&quot;, &quot;delete&quot;]
+</code></pre>
+
+<p>And then to associate that role to our newly created user:</p>
+<pre><code>kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: deployment-manager-binding
+  namespace: development
+subjects:
+- kind: User
+  name: lincoln
+  apiGroup: &quot;&quot;
+roleRef:
+  kind: Role
+  name: deployment-manager
+  apiGroup: &quot;&quot;
+</code></pre>
               
             </div>
           </div>
@@ -218,7 +303,7 @@ kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-c
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../about/" class="btn btn-neutral float-right" title="About">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../monitoring/" class="btn btn-neutral float-right" title="Monitoring">Next <span class="icon icon-circle-arrow-right"></span></a>
       
       
         <a href="../instructions/" class="btn btn-neutral" title="Instructions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
@@ -252,7 +337,7 @@ kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-c
         <span><a href="../instructions/" style="color: #fcfcfc;">&laquo; Previous</a></span>
       
       
-        <span style="margin-left: 15px"><a href="../about/" style="color: #fcfcfc">Next &raquo;</a></span>
+        <span style="margin-left: 15px"><a href="../monitoring/" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
