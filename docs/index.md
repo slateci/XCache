@@ -40,12 +40,12 @@ Yes | RAM size | XC_RAMSIZE | half of the free RAM | At least 1g. Units are ...
 #### To Do
 
 *   Add sitename
-*   Add RucioN2N
+*   Add sending monitoring info to logstash
+*   Add liveness probe. Add AGIS updating secreet. 
 *   Add subfile caching option
-*   Create pod reporting on cache status
-*   Add summary stream monitoring
 *   Test
 *   Create core collecting pod.
-*   Create full deployment
+*   Create Helm deployment
+*   Add summary stream monitoring
 
 

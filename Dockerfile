@@ -5,7 +5,28 @@ LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
 RUN mkdir -p /etc/grid-security/certificates /etc/grid-security/vomsdir /etc/grid-security/xrd /data
 
-RUN yum install -y curl gperftools hostname 
+RUN yum -y update
+
+RUN yum install -y \
+    curl \
+    gperftools \
+    hostname   \
+    python-pip \
+    python-devel \
+    python36u \
+    python36u-pip \
+    python36u-devel 
+
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir \
+    requests
+# elasticsearch 
+
+# python3
+RUN pip3.6 install --upgrade pip
+RUN pip3.6 install --no-cache-dir \
+    requests
+# elasticsearch 
 
 # for CA certificates
 RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-release-latest.rpm -y

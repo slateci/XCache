@@ -8,7 +8,7 @@ title = site + ' LRU'
 # title = site + ' FS'
 # title = site + ' LRU (files larger than 1GB not cached)'
 # title = site + ' LRU (files smaller than 100kB not cached)'
-# title = site + ' Clairvoyant'
+title = site + ' Clairvoyant'
 # title = site + ' LRU prod only'
 
 results = [
@@ -22,15 +22,16 @@ results = [
     [site + '_10000_LRU_results.h5', 'Inf']
 ]
 
-# results = [
-#     [site+ '_5_Clairvoyant_results.h5', '5TB'],
-#     [site+ '_10_Clairvoyant_results.h5', '10TB'],
-#     [site+ '_20_Clairvoyant_results.h5', '20TB'],
-#     [site+ '_30_Clairvoyant_results.h5', '30TB'],
-#     [site+ '_40_Clairvoyant_results.h5', '40TB'],
-#     [site+ '_50_Clairvoyant_results.h5', '50TB'],
-#     [site+ '_10000_Clairvoyant_results.h5', 'Inf']
-# ]
+results = [
+    # [site+ '_5_Clairvoyant_results.h5', '5TB'],
+    [site + '_10_Clairvoyant_results.h5', '10TB'],
+    [site + '_20_Clairvoyant_results.h5', '20TB'],
+    [site + '_30_Clairvoyant_results.h5', '30TB'],
+    [site + '_40_Clairvoyant_results.h5', '40TB'],
+    [site + '_50_Clairvoyant_results.h5', '50TB'],
+    [site + '_100_Clairvoyant_results.h5', '100TB'],
+    [site + '_10000_Clairvoyant_results.h5', 'Inf']
+]
 
 # results = [
 #     [site+ '_5_FS_results.h5', '5TB'],

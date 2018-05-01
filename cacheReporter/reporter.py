@@ -16,8 +16,12 @@ end_time = ct - 23 * 3600
 if 'XC_SITE' not in os.environ:
     print "Must set $XC_SITE. Exiting."
     sys.exit(1)
+if 'XC_REPORT_COLLECTOR' not in os.environ:
+    print "Must set $XC_REPORT_COLLECTOR. Exiting."
+    sys.exit(1)
 
 site = os.environ['XC_SITE']
+collector = os.environ['XC_REPORT_COLLECTOR']
 
 reports = []
 
@@ -77,3 +81,8 @@ for filename in files:
         get_info(filename)
 
 print(reports)
+if len(reports) > 0:
+
+    print "reported. All done."
+else:
+    print "Nothing to report"
