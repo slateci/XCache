@@ -21,6 +21,29 @@ echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
 
+# this does not work as we have no access to rucio
+#
+# curl -X GET "http://atlas-kibana.mwt2.org:9200/traces/_search" -H 'Content-Type: application/json' -d'
+# {   
+#     "_source": ["site", "event", "scope", "filename"],
+#     "query" : {
+#         "bool": {
+#             "must": [
+#                 {"wildcard": {"site": "MWT2*"}},
+#                 {"wildcard": {"event": "get*"}}
+#         ]
+#         }
+#     }
+# }
+# ' > res.json
+
+# fns=( $(jq  '.hits.hits[]._source.filename' res.json) )
+# scps=( $(jq  '.hits.hits[]._source.scope' res.json) )
+
+# for ((i=0;i<${#fns[@]};++i)); do
+#     printf "%s is in %s\n" "${fns[i]}" "${scps[i]}"
+# done
+
 while read fp; do
     echo $fp
     xrdcp -f $1//$fp /dev/null

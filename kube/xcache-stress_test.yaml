@@ -1,24 +1,50 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: xcache-client-pod
+  name: xcache-stress-client
   labels:
-    app: xcache-client
+    app: xcache-stress
 spec:
+
+  nodeSelector:
+    xcache-capable: "false"
+
+  volumes:
+  - name: x509-data
+    emptyDir: {}
+  - name: x509-certs-volume
+    secret:
+      secretName: xcache-cert-secret
+      items:
+      - key: userkey
+        path: userkey.pem
+        mode: 256 
+      - key: usercert
+        path: usercert.pem
+
   containers:
-  - name: xcache-container
+
+  - name: xcache-stresser
     image: slateci/xcache:latest
     command: ["stress_test.sh"]
-    args: ["root://es-docker.mwt2.org:1094"]
-    # env:
-    # - name: XC_PREFETCH
-    #   value: "0"
-  #   volumeMounts:
-  #   - name: keytab-volume
-  #     mountPath: "/tmp/keytab"
-  #     readOnly: true
-  # volumes:
-  # - name: keytab-volume
-  #   secret:
-  #     secretName: analytcssvc-keytab
+    args: ["root://es-docker.mwt2.org:1094","MWT2"]
+    volumeMounts:
+    - name: x509-data
+      mountPath: "/etc/grid-security/"
+      readOnly: false
+    - name: x509-certs-volume
+      mountPath: "/etc/grid-certs/"
+      readOnly: true
+
+  - name: x509-container
+    image: slateci/xcache:latest
+    command: ["/run_x509_updater.sh"]
+    volumeMounts:
+    - name: x509-data
+      mountPath: "/etc/grid-security/"
+      readOnly: false
+    - name: x509-certs-volume
+      mountPath: "/etc/grid-certs/"
+      readOnly: true
+
   restartPolicy: Never
