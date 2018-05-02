@@ -6,6 +6,7 @@ from glob import glob
 import struct
 import time
 from datetime import datetime
+import requests
 
 base_dir = '/cache/xrdcinfos/meta'
 
@@ -50,7 +51,14 @@ def get_info(filename):
     time_of_creation, = struct.unpack('Q', fin.read(8))
     print 'time of creation:', datetime.fromtimestamp(time_of_creation)
 
-    rec = {'site': site, 'file': filename.replace(base_dir, ''), 'size': fs, 'created_at': time_of_creation}
+    rec = {
+        'sender': 'xCache',
+        'type': 'docs',
+        'site': site,
+        'file': filename.replace(base_dir, ''),
+        'size': fs,
+        'created_at': time_of_creation
+    }
 
     accesses, = struct.unpack('Q', fin.read(8))
     print 'accesses:', accesses
@@ -82,7 +90,7 @@ for filename in files:
 
 print(reports)
 if len(reports) > 0:
-
-    print "reported. All done."
+    r = requests.post(collector, json=reports)
+    print 'response:', r.status_code
 else:
     print "Nothing to report"

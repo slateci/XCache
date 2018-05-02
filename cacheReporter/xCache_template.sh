@@ -15,6 +15,15 @@ curl -XPOST  'atlas-kibana.mwt2.org:9200/_template/xcache' -d '{
           "site": {
             "type": "keyword"
           },
+          "sender": {
+            "type": "keyword"
+          },
+          "type": {
+            "type": "keyword"
+          },
+          "host": {
+            "type": "keyword"
+          },
           "file": {
             "type": "keyword"
           },
