@@ -51,7 +51,11 @@ spec:
     - name: xcache-data
       mountPath: "/cache"
       readOnly: false
-
+    livenessProbe:
+      tcpSocket:
+        port: 1094
+      initialDelaySeconds: 15
+      periodSeconds: 20
     ports:
       - containerPort: 1094
 

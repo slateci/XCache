@@ -44,7 +44,10 @@ export TCMALLOC_RELEASE_RATE=10
 #     printf "%s is in %s\n" "${fns[i]}" "${scps[i]}"
 # done
 
-while read fp; do
-    echo $fp
-    xrdcp -f $1//$fp /dev/null
-done </tests/testfiles.txt
+while true
+do
+    while read fp; do
+        echo $fp
+        xrdcp -f $1//$fp /dev/null
+    done </tests/testfiles.txt
+done
