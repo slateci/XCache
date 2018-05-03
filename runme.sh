@@ -1,8 +1,8 @@
 #!/bin/sh
 
 # make cache space owned by xrootd user
-mkdir /cache/xrdcinfos/
-mkdir /cache/datafiles/
+mkdir -p /cache/xrdcinfos/
+mkdir -p /cache/datafiles/
 chown -R xrootd:xrootd /cache
 
 # sleep long enough to get x509 things set up.
