@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "xcache.fullname" . }}
+  labels:
+    app: {{ template "xcache.name" . }}
+    chart: {{ template "xcache.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "xcache.name" . }}
+    release: {{ .Release.Name }}
