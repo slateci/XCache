@@ -47,7 +47,8 @@ export TCMALLOC_RELEASE_RATE=10
 while true
 do
     while read fp; do
-        echo $fp
+        date
+        echo $1//$fp
         xrdcp -f $1//$fp /dev/null
     done </tests/testfiles.txt
 done

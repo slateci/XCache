@@ -26,8 +26,8 @@ spec:
 
   - name: xcache-stresser
     image: slateci/xcache:latest
-    command: ["stress_test.sh"]
-    args: ["root://es-docker.mwt2.org:1094","MWT2"]
+    command: ["/tests/stress_test.sh"]
+    args: ["root://xcache.mwt2.org:1094","MWT2"]
     volumeMounts:
     - name: x509-data
       mountPath: "/etc/grid-security/"

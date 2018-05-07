@@ -54,8 +54,8 @@ spec:
     livenessProbe:
       tcpSocket:
         port: 1094
-      initialDelaySeconds: 15
-      periodSeconds: 20
+      initialDelaySeconds: 180
+      periodSeconds: 60
     ports:
       - containerPort: 1094
 
