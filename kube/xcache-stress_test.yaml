@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: xcache-stress-client
+  name: stress-test
   labels:
-    app: xcache-stress
+    app: stress-test
 spec:
 
   nodeSelector:
@@ -24,7 +24,7 @@ spec:
 
   containers:
 
-  - name: xcache-stresser
+  - name: stresser
     image: slateci/xcache:latest
     command: ["/tests/stress_test.sh"]
     args: ["root://xcache.mwt2.org:1094","MWT2"]
@@ -36,7 +36,7 @@ spec:
       mountPath: "/etc/grid-certs/"
       readOnly: true
 
-  - name: x509-container
+  - name: x509
     image: slateci/xcache:latest
     command: ["/run_x509_updater.sh"]
     volumeMounts:
