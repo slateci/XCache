@@ -57,11 +57,11 @@ def get_info(filename):
         'site': site,
         'file': filename.replace(base_dir, ''),
         'size': fs,
-        'created_at': time_of_creation
+        'created_at': time_of_creation * 1000
     }
 
     accesses, = struct.unpack('Q', fin.read(8))
-    print 'accesses:', accesses
+    # print 'accesses:', accesses
 
     min_access = max(0, accesses - 20)
     for a in range(min_access, accesses):
@@ -73,8 +73,8 @@ def get_info(filename):
         print 'access:', a, 'attached at:', datetime.fromtimestamp(attach_time), 'detached at:', datetime.fromtimestamp(detach_time), 'bytes disk:', bytes_disk, 'bytes ram:', bytes_ram, 'bytes missed:', bytes_missed
         if detach_time > start_time and detach_time < end_time:
             dp = rec.copy()
-            dp['attached_at'] = attach_time
-            dp['detached_at'] = detach_time
+            dp['attached_at'] = attach_time * 1000
+            dp['detached_at'] = detach_time * 1000
             dp['bytes_disk'] = bytes_disk
             dp['bytes_ram'] = bytes_ram
             dp['bytes_missed'] = bytes_missed
