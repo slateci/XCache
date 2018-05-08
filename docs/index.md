@@ -12,7 +12,7 @@ When deployed using kubernetes all relevant parameters are configured throught t
 *   [Docker](https://hub.docker.com/r/slateci/xcache/)
 *   [GitHub](https://github.com/slateci/XCache)
 *   [Documentation](http://slateci.io/XCache/)
-*   [Monitoring](http://atlas-kibana.mwt2.org)
+*   [Monitoring](http://atlas-kibana-dev.mwt2.org/goto/f6bac2569c885896a607dc047b190b6d)
 
 ## Configuration
 
@@ -39,9 +39,7 @@ Yes | RAM size | XC_RAMSIZE | half of the free RAM | At least 1g. Units are ...
 
 #### To Do
 
-*   Add sitename
-*   Add sending monitoring info to logstash
-*   Add liveness probe. Add AGIS updating secreet. 
+*   Add AGIS updating secreet. 
 *   Add subfile caching option
 *   Test
 *   Create core collecting pod.
