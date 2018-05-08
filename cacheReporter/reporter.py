@@ -11,8 +11,8 @@ import requests
 base_dir = '/cache/xrdcinfos/meta'
 
 ct = time.time()
-start_time = ct - 24 * 3600
-end_time = ct - 23 * 3600
+start_time = ct - 3600
+end_time = ct
 
 if 'XC_SITE' not in os.environ:
     print "Must set $XC_SITE. Exiting."
