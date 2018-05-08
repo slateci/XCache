@@ -63,7 +63,8 @@ def get_info(filename):
     accesses, = struct.unpack('Q', fin.read(8))
     print 'accesses:', accesses
 
-    for a in range(accesses):
+    min_access = max(0, accesses - 20)
+    for a in range(min_access, accesses):
         attach_time, = struct.unpack('Q', fin.read(8))
         detach_time, = struct.unpack('Q', fin.read(8))
         bytes_disk, = struct.unpack('q', fin.read(8))
