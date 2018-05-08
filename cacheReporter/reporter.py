@@ -32,24 +32,24 @@ def get_info(filename):
     fin = open(filename, "rb")
 
     fv, = struct.unpack('i', fin.read(4))
-    print "file version:", fv
+    # print "file version:", fv
     bs, = struct.unpack('q', fin.read(8))
-    print 'bucket size:', bs
+    # print 'bucket size:', bs
     fs, = struct.unpack('q', fin.read(8))
-    print 'file size:', fs
+    # print 'file size:', fs
 
     buckets = int((fs - 1) / bs + 1)
-    print 'buckets:', buckets
+    # print 'buckets:', buckets
 
     StateVectorLengthInBytes = int((buckets - 1) / 8 + 1)
     sv = struct.unpack(str(StateVectorLengthInBytes) + 'B', fin.read(StateVectorLengthInBytes))  # disk written state vector
     # print 'disk written state vector:\n ->', sv, '<-'
 
     chksum, = struct.unpack('16s', fin.read(16))
-    print 'chksum:', chksum
+    # print 'chksum:', chksum
 
     time_of_creation, = struct.unpack('Q', fin.read(8))
-    print 'time of creation:', datetime.fromtimestamp(time_of_creation)
+    # print 'time of creation:', datetime.fromtimestamp(time_of_creation)
 
     rec = {
         'sender': 'xCache',
