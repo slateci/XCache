@@ -63,7 +63,7 @@
     <li class="toctree-l2"><a href="#create-service">Create service</a></li>
     
 
-    <li class="toctree-l2"><a href="#start-xcache">Start XCache:</a></li>
+    <li class="toctree-l2"><a href="#configure-and-start-xcache">Configure and start XCache</a></li>
     
 
     <li class="toctree-l2"><a href="#run-stress-test">Run stress test:</a></li>
@@ -139,9 +139,9 @@ Than execute file <strong>xcache-secret.bat</strong>. This is normally done only
 This is normally done only once. </p>
 <p>From kube directory do:
 <code>kubectl create -f xcache_service.yaml</code></p>
-<h2 id="start-xcache">Start XCache:</h2>
+<h2 id="configure-and-start-xcache">Configure and start XCache</h2>
 <p>There are several settings that should be set before starting XCache:
-* cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
+  * cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
 <pre><code> - name: xcache-data
    hostPath:
      path: /scratch
