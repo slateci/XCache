@@ -137,12 +137,14 @@ Than execute file <strong>xcache-secret.bat</strong>. This is normally done only
 <h2 id="create-service">Create service</h2>
 <p>This service maps xrootd port to external ports. The only thing to be changed is the last line of the <strong>xcache_service.yaml</strong> file. It has to point to the node's IP address.
 This is normally done only once. </p>
-<p>From kube directory do:
-<code>kubectl create -f xcache_service.yaml</code></p>
+<p>From kube directory do:</p>
+<pre><code class="bash">kubectl create -f xcache_service.yaml
+</code></pre>
+
 <h2 id="configure-and-start-xcache">Configure and start XCache</h2>
 <p>There are several settings that should be set before starting XCache:
-  * cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
-<pre><code> - name: xcache-data
+- cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
+<pre><code class="YAML"> - name: xcache-data
    hostPath:
      path: /scratch
 </code></pre>
@@ -150,13 +152,17 @@ This is normally done only once. </p>
 <ul>
 <li>all the parameters that start with <strong>XC_</strong></li>
 </ul>
-<p>Once everything is set up, to start the service simply do:
-<code>kubectl create -f xcache.yaml</code></p>
+<p>Once everything is set up, to start the service simply do:</p>
+<pre><code class="bash">kubectl create -f xcache.yaml
+</code></pre>
+
 <h2 id="run-stress-test">Run stress test:</h2>
-<p><code>kubectl create -f xcache-stress_test.yaml</code></p>
+<pre><code class="bash">kubectl create -f xcache-stress_test.yaml
+</code></pre>
+
 <h1 id="docker-obsolete">Docker (obsolete)</h1>
 <p>To start:</p>
-<pre><code>docker run -d \
+<pre><code class="bash">docker run -d \
 -e XC_SPACE_HIGH_WM='0.95' \
 -e XC_SPACE_LOW_WM='0.80' \
 -e XC_PORT='1094' \
