@@ -8,22 +8,35 @@ This service maps xrootd port to external ports. The only thing to be changed is
 This is normally done only once. 
 
 From kube directory do:
-```kubectl create -f xcache_service.yaml```
-
-## Start XCache:
-There are several settings that should be set before starting XCache:
-* cache directory - replace __/scratch__ with directory that should be used to store cached data.
-```- name: xcache-data
-     hostPath:
-       path: /scratch
+```bash
+kubectl create -f xcache_service.yaml
 ```
-* all the parameters that start with __XC\___
+
+## Configure and start XCache
+There are several settings that should be set before starting XCache:
+
+- cache directory - replace __/scratch__ with directory that should be used to store cached data.
+```YAML
+ - name: xcache-data
+   hostPath:
+     path: /scratch
+```
+- all the parameters that start with __XC\___
 
 Once everything is set up, to start the service simply do:
-```kubectl create -f xcache.yaml```
+```bash 
+kubectl create -f xcache.yaml
+```
 
-## Run stress test:
-```kubectl create -f xcache-stress_test.yaml```
+## Run stress test
+The stress test k8s pod runs a simple client that repeatedly transfers (using xrdcp) 26 5GB files through the XCache. Files are stored at AGLT2. The only configuration needed is in line: ```args: ["root://xcache.mwt2.org:1094","MWT2"] ``` where the first argument has to be changed to address of the xcache service you are testing. Then to start the test do:
+```bash
+kubectl create -f xcache-stress_test.yaml
+```
+To get test's logs do:
+```bash
+kubectl logs stress-test -c stresser
+```
 
 
 
@@ -32,7 +45,7 @@ Once everything is set up, to start the service simply do:
 
 To start:
 
-```
+```bash
 docker run -d \
 -e XC_SPACE_HIGH_WM='0.95' \
 -e XC_SPACE_LOW_WM='0.80' \
