@@ -122,7 +122,7 @@
         },
         {
             "location": "/monitoring/",
-            "text": "Monitoring deployment(s)\n\n\nMonitoring XCache operational parameters",
+            "text": "Monitoring deployment(s)\n\n\nMonitoring XCache operational parameters\n\n\nInformation from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here \nXCache state",
             "title": "Monitoring"
         },
         {
@@ -132,7 +132,7 @@
         },
         {
             "location": "/monitoring/#monitoring-xcache-operational-parameters",
-            "text": "",
+            "text": "Information from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here  XCache state",
             "title": "Monitoring XCache operational parameters"
         },
         {
