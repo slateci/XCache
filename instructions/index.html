@@ -163,6 +163,10 @@ This is normally done only once. </p>
 <pre><code class="bash">kubectl create -f xcache-stress_test.yaml
 </code></pre>
 
+<p>To get test's logs do:</p>
+<pre><code class="bash">kubectl logs stress-test -c stresser
+</code></pre>
+
 <h1 id="docker-obsolete">Docker (obsolete)</h1>
 <p>To start:</p>
 <pre><code class="bash">docker run -d \
