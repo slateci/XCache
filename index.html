@@ -153,12 +153,8 @@ When deployed using kubernetes all relevant parameters are configured throught t
 </thead>
 <tbody>
 <tr>
-<td>Sitename</td>
+<td>XC_SITE</td>
 <td>ATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.</td>
-</tr>
-<tr>
-<td>Certificate</td>
-<td>TBD.</td>
 </tr>
 </tbody>
 </table>
@@ -182,10 +178,10 @@ When deployed using kubernetes all relevant parameters are configured throught t
 <td>This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.</td>
 </tr>
 <tr>
-<td>No</td>
+<td>Yes</td>
 <td>Monitoring</td>
-<td>XC_MONITORING</td>
-<td>True</td>
+<td>XC_REPORT_COLLECTOR</td>
+<td>http://uct2-collectd.mwt2.org:8080</td>
 <td>This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.</td>
 </tr>
 <tr>
@@ -299,5 +295,5 @@ When deployed using kubernetes all relevant parameters are configured throught t
 
 <!--
 MkDocs version : 0.17.2
-Build Date UTC : 2018-05-16 20:17:43
+Build Date UTC : 2018-05-16 20:38:28
 -->
