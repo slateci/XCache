@@ -66,6 +66,12 @@
     <li class="toctree-l2"><a href="#start-xcache">Start XCache:</a></li>
     
 
+    <li class="toctree-l2"><a href="#run-stress-test">Run stress test:</a></li>
+    
+
+    <li class="toctree-l2"><a href="#docker-obsolete">Docker (obsolete)</a></li>
+    
+
     </ul>
 	    </li>
           
@@ -136,27 +142,19 @@ This is normally done only once. </p>
 <h2 id="start-xcache">Start XCache:</h2>
 <p>There are several settings that should be set before starting XCache:
 * cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.
-```- name: xcache-data
-     hostPath:
-       path: /scratch</p>
-<pre><code>* all the parameters that start with __XC\___
-
-Once everything is set up, to start the service simply do:
-```kubectl create -f xcache.yaml```
-
-## Run stress test:
-```kubectl create -f xcache-stress_test.yaml```
-
-
-
-
-# Docker (obsolete)
-
-To start:
-
-</code></pre>
-
-<p>docker run -d \
+        <code>- name: xcache-data
+            hostPath:
+              path: /scratch</code></p>
+<ul>
+<li>all the parameters that start with <strong>XC_</strong></li>
+</ul>
+<p>Once everything is set up, to start the service simply do:
+<code>kubectl create -f xcache.yaml</code></p>
+<h2 id="run-stress-test">Run stress test:</h2>
+<p><code>kubectl create -f xcache-stress_test.yaml</code></p>
+<h1 id="docker-obsolete">Docker (obsolete)</h1>
+<p>To start:</p>
+<pre><code>docker run -d \
 -e XC_SPACE_HIGH_WM='0.95' \
 -e XC_SPACE_LOW_WM='0.80' \
 -e XC_PORT='1094' \
@@ -166,15 +164,13 @@ To start:
 -p 1094:1094 \
 -v /root/xcache_test/vomsdir:/etc/grid-security/vomsdir/ \
 -v /root/xcache_test/proxy:/etc/grid-security/ \
---name xCache slateci/xcache</p>
-<pre><code>
-To log into it and check logs:
-
-```docker exec -it xCache bash
-ls /data/xrd/var/log/
+--name xCache slateci/xcache
 </code></pre>
 
-<p>To stop it:</p>
+<p>To log into it and check logs:</p>
+<p><code>docker exec -it xCache bash
+ls /data/xrd/var/log/</code>
+To stop it:</p>
 <p><code>docker stop xCache</code>
 <code>docker rm xCache</code></p>
 <p>To update it:
