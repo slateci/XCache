@@ -141,10 +141,12 @@ This is normally done only once. </p>
 <code>kubectl create -f xcache_service.yaml</code></p>
 <h2 id="start-xcache">Start XCache:</h2>
 <p>There are several settings that should be set before starting XCache:
-* cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.
-        <code>- name: xcache-data
-            hostPath:
-              path: /scratch</code></p>
+* cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
+<pre><code> - name: xcache-data
+   hostPath:
+     path: /scratch
+</code></pre>
+
 <ul>
 <li>all the parameters that start with <strong>XC_</strong></li>
 </ul>
