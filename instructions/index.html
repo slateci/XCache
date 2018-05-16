@@ -142,9 +142,11 @@ This is normally done only once. </p>
 </code></pre>
 
 <h2 id="configure-and-start-xcache">Configure and start XCache</h2>
-<p>There are several settings that should be set before starting XCache:
-- cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</p>
-<pre><code class="YAML"> - name: xcache-data
+<p>There are several settings that should be set before starting XCache:</p>
+<ul>
+<li>cache directory - replace <strong>/scratch</strong> with directory that should be used to store cached data.</li>
+</ul>
+<pre><code class="YAML"> - name: xcache\-data
    hostPath:
      path: /scratch
 </code></pre>
