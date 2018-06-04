@@ -20,15 +20,14 @@ When deployed using kubernetes all relevant parameters are configured throught t
 
 Variable | Meaning
 --- | ---
-Sitename | ATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.
-Certificate | TBD.  
+XC_SITE | ATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.
 
 ### Optional settings
 
 Implemented | Option | Variable | Default | Meaning
 --- | --- | --- | --- | ---
 No | Rucio N2N | XC_RUCIO_N2N | True | This is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.
-No | Monitoring | XC_MONITORING | True | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
+Yes | Monitoring | XC_REPORT_COLLECTOR | http://uct2-collectd.mwt2.org:8080 | This is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.
 Yes | Port | XC_PORT | 1094 |
 No | Subfile caching | SUBFC | True |
 Yes | Prefetching | XC_PREFETCH | 0 |

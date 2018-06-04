@@ -6,12 +6,12 @@ import pandas as pd
 
 from cache import XCache, set_skip_tag, clairvoyant
 
-load_from_disk = True
+load_from_disk = False
 
-start_date = '2018-04-01 00:00:00'
-end_date = '2018-05-01 23:59:59'
+start_date = '2018-05-01 00:00:00'
+end_date = '2018-06-01 23:59:59'
 
-site = 'AGLT2'
+site = 'BNL'
 
 es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
 indices = "traces"
@@ -73,7 +73,7 @@ logging.debug(str(XCache.all_accesses.shape[0]) + ' requests loaded.')
 clairvoyant()
 # set_skip_tag()
 
-for i in [10, 20, 30, 40, 50, 100, 10000]:
+for i in [100, 200, 400, 800]:
     # for i in [5, 10, 20, 30, 10000]:
     XC = XCache(site, size=i * XCache.TB, algo='Clairvoyant')  #
     XC.run()
