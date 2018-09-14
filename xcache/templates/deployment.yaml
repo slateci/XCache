@@ -6,7 +6,7 @@ metadata:
     app: {{ template "xcache.name" . }}
     chart: {{ template "xcache.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    instance: {{ .Values.Instance }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -23,13 +23,26 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: XC_SPACE_HIGH_WM
+            value: {{ .Values.XCacheConfig.HighWaterMark }}
+          - name: XC_SPACE_LOW_WM
+            value: {{ .Values.XCacheConfig.LowWaterMark }}
+          - name: XC_PORT
+            value: {{ .Values.Service.Port }}
+          - name: XC_RAMSIZE
+            value: {{ .Values.XCacheConfig.RamSize }}
+          - name: XC_BLOCKSIZE
+            value: {{ .Values.XCacheConfig.BlockSize }}
+          - name: XC_PREFETCH
+            value: {{ .Values.XCacheConfig.Prefetch }}
           livenessProbe:
             tcpSocket:
-              port: 1094
+              port: {{ .Values.Service.Port }}
             initialDelaySeconds: 180
             periodSeconds: 60
           ports:
-            - containerPort: 1094
+            - containerPort: {{ .Values.Service.Port }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
@@ -44,3 +57,27 @@ spec:
       tolerations:
 {{ toYaml . | indent 8 }}
     {{- end }}
+
+        - name: x509
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        command: ["/run_x509_updater.sh"]
+        volumeMounts:
+        - name: x509-data
+          mountPath: "/etc/grid-security/"
+          readOnly: false
+        - name: x509-certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
+
+        - name: reporter
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        command: ["/run_cache_reporter.sh"]
+        env:
+        - name: XC_SITE
+          value: "{{ .Values.SiteConfig.Name }}"
+        - name: XC_REPORT_COLLECTOR
+          value: "{{ .Values.Monitoring.Collector }}"
+        volumeMounts:
+        - name: xcache-data
+          mountPath: "/cache"
+          readOnly: true

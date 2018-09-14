@@ -1,25 +1,40 @@
-# Default values for xcache.
+# Instance to label use case of XCache deployment
+# Generates app name as "xcache-[Instance]"
+# Enables unique instances of XCache in one namespace
+Instance: global
 
-replicaCount: 1
+Service:
+  # Port that the service will utilize.
+  Port: 1094
+  # External IP that may access the service
+  ExternalIP: 192.170.227.231
+
+SiteConfig:
+  Name: MWT2
+
+Monitoring:
+  Collector: http://uct2-collectd.mwt2.org:8080
+
+XCacheConfig:
+  # Space usage
+  HighWaterMark: 0.95
+  LowWaterMark: 0.90
+  # The amount of memory XCache is allowed to use (in GB)
+  RamSize: 1g
+  # Minimal chunk size that will be prefetched/cached.
+  BlockSize: 1M
+  # to prefetch even chunks that were not requested
+  Prefetch: 0
+  # The name of the secret that was created for your XCache certificate
+  # This must be created BEFORE deploying XCache
+  CertSecret: xcache-cert-secret
+
+
 
 image:
   repository: slateci/xcache
   tag: latest
   pullPolicy: IfNotPresent
-
-service:
-  type: NodePort
-  selector:
-    app: xcache
-  ports:
-  - protocol: TCP
-    name: xrootd
-    port: 1094
-    targetPort: 1094
-    nodePort: 31094
-  externalIPs:
-  - 192.170.227.231
-
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -35,7 +50,3 @@ resources: {}
 
 nodeSelector: 
   xcache-capable: "true"
-
-tolerations: []
-
-affinity: {}

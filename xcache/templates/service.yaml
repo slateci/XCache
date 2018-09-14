@@ -6,14 +6,19 @@ metadata:
     app: {{ template "xcache.name" . }}
     chart: {{ template "xcache.chart" . }}
     release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
+    instance: {{ .Values.Instance }}
 spec:
-  type: {{ .Values.service.type }}
+  type: NodePort
   ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
+    - protocol: TCP
       name: http
+      port: {{ .Values.Service.Port }}
+      targetPort: {{ .Values.Service.Port }}
+      nodePort: 31094
+  externalIPs:
+  - {{ .Values.Service.ExternalIP }}
   selector:
     app: {{ template "xcache.name" . }}
+    chart: {{ template "xcache.chart" . }}
     release: {{ .Release.Name }}
+    instance: {{ .Values.Instance }}
