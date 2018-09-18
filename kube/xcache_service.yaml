@@ -13,6 +13,6 @@ spec:
     targetPort: 1094
     nodePort: 31094
   externalIPs:
-  - 192.170.227.231
+  - 192.170.227.151
 
 ---

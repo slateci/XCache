@@ -19,6 +19,32 @@ spec:
         app: {{ template "xcache.name" . }}
         release: {{ .Release.Name }}
     spec:
+    
+      nodeSelector:
+        xcache-capable: "true"
+      
+      tolerations:
+      - key: "special"
+        operator: "Exists"
+        value: true
+        effect: PreferNoSchedule
+
+      volumes:
+      - name: x509-data
+        emptyDir: {}
+      - name: x509-certs-volume
+        secret:
+          secretName: xcache-cert-secret
+          items:
+          - key: userkey
+            path: userkey.pem
+            mode: 256 
+          - key: usercert
+            path: usercert.pem
+      - name: xcache-data
+        hostPath:
+          path: {{ .Values.XCacheConfig.CacheDirectory }}
+      
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -42,42 +68,38 @@ spec:
             initialDelaySeconds: 180
             periodSeconds: 60
           ports:
-            - containerPort: {{ .Values.Service.Port }}
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
+            - containerPort: {{ .Values.Service.Port }}         
+          volumeMounts:
+          - name: x509-data
+            mountPath: "/etc/grid-security/"
+            readOnly: false
+          - name: x509-certs-volume
+            mountPath: "/etc/grid-certs/"
+            readOnly: true
+          - name: xcache-data
+            mountPath: "/cache"
+            readOnly: false
 
         - name: x509
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        command: ["/run_x509_updater.sh"]
-        volumeMounts:
-        - name: x509-data
-          mountPath: "/etc/grid-security/"
-          readOnly: false
-        - name: x509-certs-volume
-          mountPath: "/etc/grid-certs/"
-          readOnly: true
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["/run_x509_updater.sh"]
+          volumeMounts:
+          - name: x509-data
+            mountPath: "/etc/grid-security/"
+            readOnly: false
+          - name: x509-certs-volume
+            mountPath: "/etc/grid-certs/"
+            readOnly: true
 
         - name: reporter
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        command: ["/run_cache_reporter.sh"]
-        env:
-        - name: XC_SITE
-          value: "{{ .Values.SiteConfig.Name }}"
-        - name: XC_REPORT_COLLECTOR
-          value: "{{ .Values.Monitoring.Collector }}"
-        volumeMounts:
-        - name: xcache-data
-          mountPath: "/cache"
-          readOnly: true
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          command: ["/run_cache_reporter.sh"]
+          env:
+          - name: XC_SITE
+            value: "{{ .Values.SiteConfig.Name }}"
+          - name: XC_REPORT_COLLECTOR
+            value: "{{ .Values.Monitoring.Collector }}"
+          volumeMounts:
+          - name: xcache-data
+            mountPath: "/cache"
+            readOnly: true

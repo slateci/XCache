@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xcache-deployment
+  labels:
+    app: xcache
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: xcache
+  template:
+    metadata:
+      labels:
+        app: xcache
+    spec:
+      nodeSelector:
+        xcache-capable: "true"
+        
+      tolerations:
+      - key: "special"
+        operator: "Exists"
+        value: true
+        effect: PreferNoSchedule
+
+      volumes:
+      - name: x509-data
+        emptyDir: {}
+      - name: x509-certs-volume
+        secret:
+          secretName: xcache-cert-secret
+          items:
+          - key: userkey
+            path: userkey.pem
+            mode: 256 
+          - key: usercert
+            path: usercert.pem
+      - name: xcache-data
+        hostPath:
+          path: /scratch
+
+      containers:
+      - name: xcache
+        image: slateci/xcache:latest
+        env:
+        - name: XC_SPACE_HIGH_WM
+          value: "0.95"
+        - name: XC_SPACE_LOW_WM
+          value: "0.80"
+        - name: XC_PORT
+          value: "1094"
+        - name: XC_RAMSIZE
+          value: "1g"
+        - name: XC_BLOCKSIZE
+          value: "1M"
+        - name: XC_PREFETCH
+          value: "0"
+        volumeMounts:
+        - name: x509-data
+          mountPath: "/etc/grid-security/"
+          readOnly: false
+        - name: x509-certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
+        - name: xcache-data
+          mountPath: "/cache"
+          readOnly: false
+        livenessProbe:
+          tcpSocket:
+            port: 1094
+          initialDelaySeconds: 180
+          periodSeconds: 60
+        ports:
+          - containerPort: 1094
+
+      - name: x509
+        image: slateci/xcache:latest
+        command: ["/run_x509_updater.sh"]
+        volumeMounts:
+        - name: x509-data
+          mountPath: "/etc/grid-security/"
+          readOnly: false
+        - name: x509-certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
+
+      - name: reporter
+        image: slateci/xcache:latest
+        command: ["/run_cache_reporter.sh"]
+        env:
+        - name: XC_SITE
+          value: "MWT2"
+        - name: XC_REPORT_COLLECTOR
+          value: "http://uct2-collectd.mwt2.org:8080"
+        volumeMounts:
+        - name: xcache-data
+          mountPath: "/cache"
+          readOnly: true
+          

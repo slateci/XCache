@@ -6,9 +6,6 @@ metadata:
     app: stress-test
 spec:
 
-  nodeSelector:
-    xcache-capable: "false"
-
   volumes:
   - name: x509-data
     emptyDir: {}
