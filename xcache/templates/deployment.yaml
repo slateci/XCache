@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "xcache.fullname" . }}
@@ -19,14 +19,13 @@ spec:
         app: {{ template "xcache.name" . }}
         release: {{ .Release.Name }}
     spec:
-    
+
       nodeSelector:
         xcache-capable: "true"
       
       tolerations:
       - key: "special"
         operator: "Exists"
-        value: true
         effect: PreferNoSchedule
 
       volumes:
@@ -51,17 +50,17 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
           - name: XC_SPACE_HIGH_WM
-            value: {{ .Values.XCacheConfig.HighWaterMark }}
+            value: "{{ .Values.XCacheConfig.HighWaterMark }}"
           - name: XC_SPACE_LOW_WM
-            value: {{ .Values.XCacheConfig.LowWaterMark }}
+            value: "{{ .Values.XCacheConfig.LowWaterMark }}"
           - name: XC_PORT
-            value: {{ .Values.Service.Port }}
+            value: "{{ .Values.Service.Port }}"
           - name: XC_RAMSIZE
-            value: {{ .Values.XCacheConfig.RamSize }}
+            value: "{{ .Values.XCacheConfig.RamSize }}"
           - name: XC_BLOCKSIZE
-            value: {{ .Values.XCacheConfig.BlockSize }}
+            value: "{{ .Values.XCacheConfig.BlockSize }}"
           - name: XC_PREFETCH
-            value: {{ .Values.XCacheConfig.Prefetch }}
+            value: "{{ .Values.XCacheConfig.Prefetch }}"
           livenessProbe:
             tcpSocket:
               port: {{ .Values.Service.Port }}
