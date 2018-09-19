@@ -8,16 +8,21 @@ metadata:
     release: {{ .Release.Name }}
     instance: {{ .Values.Instance }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       app: {{ template "xcache.name" . }}
+      chart: {{ template "xcache.chart" . }}
       release: {{ .Release.Name }}
+      instance: {{ .Values.Instance }}
+    
   template:
     metadata:
       labels:
         app: {{ template "xcache.name" . }}
+        chart: {{ template "xcache.chart" . }}
         release: {{ .Release.Name }}
+        instance: {{ .Values.Instance }}
     spec:
 
       nodeSelector:

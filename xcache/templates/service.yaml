@@ -11,7 +11,7 @@ spec:
   type: NodePort
   ports:
     - protocol: TCP
-      name: http
+      name: xrootd
       port: {{ .Values.Service.Port }}
       targetPort: {{ .Values.Service.Port }}
       nodePort: 31094
