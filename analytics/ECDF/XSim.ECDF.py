@@ -8,11 +8,18 @@ from cache import XCache, set_skip_tag, clairvoyant
 
 load_from_disk = False
 
-start_date = '2018-08-01 00:00:00'
-end_date = '2018-09-01 23:59:59'
+start_date = '2018-04-22 00:00:00'
+end_date = '2018-04-26 23:59:59'
 
-site = 'MWT2'
-event = 'get_sm'  # get_sm, get_sm_a, get_*
+start_date = '2018-04-26 00:00:00'
+end_date = '2018-05-08 23:59:59'
+
+start_date = '2018-05-08 00:00:00'
+end_date = '2018-05-29 23:59:59'
+
+
+site = 'UKI-SCOTGRID-ECDF'
+event = 'get_sm_a'  # get_sm, get_sm_a, get_*
 
 es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
 indices = "traces"
@@ -29,8 +36,8 @@ my_query = {
                 {'range': {'time_start': {'gte': start, 'lt': end}}},
                 {'exists': {"field": "filename"}},
                 {'wildcard': {'site': site + '*'}},
-                {'wildcard': {'filename': 'EVNT*'}},
-                # {'wildcard': {'event': event}},
+                # {'wildcard': {'filename': 'EVNT*'}},
+                {'wildcard': {'event': event}}
                 # {'term': {'event': 'get_sm'}},
                 # {'term': {'event': 'get_sm_a'}},
                 # {'term': {'event': 'download'}},
@@ -73,11 +80,12 @@ logging.getLogger('cache').setLevel(logging.DEBUG)
 
 logging.debug(str(XCache.all_accesses.shape[0]) + ' requests loaded.')
 # XCache.all_accesses = XCache.all_accesses[:100000]
-clairvoyant()
+
+# clairvoyant()
 # set_skip_tag()
 
 # for i in [100, 200, 400, 800, 10000]:
-for i in [5, 10, 20, 30, 10000]:
-    XC = XCache(site, size=i * XCache.TB, algo='Clairvoyant')  #
+for i in [100, 500, 1000, 5000, 10000]:
+    XC = XCache(site, size=i * XCache.GB, algo='LRU')  #
     XC.run()
     XC.store_result()
