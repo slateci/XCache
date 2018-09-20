@@ -50,5 +50,5 @@ do
         date
         echo $1//$fp
         xrdcp -f $1//$fp /dev/null
-    done </tests/testfiles.txt
+    done </tests/$2
 done

@@ -20,6 +20,11 @@ end_date = '2018-05-29 23:59:59'
 start_date = '2018-06-04 00:00:00'
 end_date = '2018-06-10 23:59:59'
 
+start_date = '2018-06-10 00:00:00'
+end_date = '2018-06-17 23:59:59'
+
+start_date = '2018-06-18 00:00:00'
+end_date = '2018-06-29 23:59:59'
 
 site = 'UKI-SCOTGRID-ECDF'
 event = 'get_sm_a'  # get_sm, get_sm_a, get_*
