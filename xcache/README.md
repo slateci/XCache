@@ -4,7 +4,8 @@ To run this chart one needs a k8s cluster with a node labeled: __xcache-capable:
 
 To set it up one needs to change values in values.yaml, all other variables have good default values:
 
-`SiteConfig:
+```
+SiteConfig:
   Name: MWT2
 
 XCacheConfig:
@@ -12,9 +13,14 @@ XCacheConfig:
 
 Service:
   # External IP that may access the service
-  ExternalIP: 192.170.227.151`
+  ExternalIP: 192.170.227.151
+```
   
 XCache nodes should be tainted:
-`kubectl taint nodes "xcache nodename" special=true:PreferNoSchedule`
+```
+kubectl taint nodes "xcache nodename" special=true:PreferNoSchedule
+```
 and labeled:
-`kubectl label nodes <your-node-name> xcache-capable=true`
+```
+kubectl label nodes <your-node-name> xcache-capable=true
+```
