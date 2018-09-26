@@ -19,21 +19,31 @@ def clairvoyant():
 
     print('======= clarivoyant starting =======')
     gr = XCache.all_accesses.groupby('filename', axis=0)
+    print('grouped by filename', len(gr))
     all = []
-    # count = 0
+    count = 0
     for filename, rest in gr:
-        # if count > 1000:
+        lol = rest.values.tolist()
+        nf = len(lol)
+        fs = lol[0][0]
+        for i in range(nf):
+            if i + 1 < nf:
+                shiftedtime = lol[i + 1][1]
+            else:
+                shiftedtime = 9.999999E9
+            all.append([filename, fs, lol[i][1], shiftedtime])
+        if not count % 100000:
+            print(count)  # , '\n', rest, all)
             # break
-        # count += 1
-        r = rest.copy()
-        r['filename'] = filename
-        r['shifted'] = r['transfer_start'].shift(-1)
-        all.append(r)
-    result = pd.concat(all, ignore_index=True)
+        count += 1
+    print('column added to all.')
+    result = pd.DataFrame(all)
+    result.columns = ['filename', 'filesize', 'transfer_start', 'shifted']
+    print('put back into single Df.')
     del gr
     del all
-    result.fillna(9.999999E9, inplace=True)
     XCache.all_accesses = result.sort_values('transfer_start')
+    print('sorted.')
     XCache.all_accesses.set_index('filename', drop=True, inplace=True)
     print('======= clairvoyant done =======')
 

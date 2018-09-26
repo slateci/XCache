@@ -4,37 +4,41 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 site = 'MWT2'
-title = site + ' LRU'
+title = site + ' LRU EVNT only'
 # title = site + ' FS'
 # title = site + ' LRU (files larger than 1GB not cached)'
 # title = site + ' LRU (files smaller than 100kB not cached)'
-title = site + ' Clairvoyant'
+# title = site + ' Clairvoyant'
 # title = site + ' LRU prod only'
 
 results = [
-    # [site + '_5_LRU_results.h5', '5TB'],
+    [site + '_1_LRU_results.h5', '1TB'],
+    [site + '_2_LRU_results.h5', '2TB'],
+    [site + '_5_LRU_results.h5', '5TB'],
     [site + '_10_LRU_results.h5', '10TB'],
     [site + '_20_LRU_results.h5', '20TB'],
     [site + '_30_LRU_results.h5', '30TB'],
     [site + '_40_LRU_results.h5', '40TB'],
     [site + '_50_LRU_results.h5', '50TB'],
-    [site + '_100_LRU_results.h5', '100TB'],
-    [site + '_10000_LRU_results.h5', 'Inf']
+    # [site + '_100_LRU_results.h5', '100TB'],
+    # [site + '_10000_LRU_results.h5', 'Inf']
 ]
 
-results = [
-    [site + '_5_Clairvoyant_results.h5', '5TB'],
-    [site + '_10_Clairvoyant_results.h5', '10TB'],
-    [site + '_20_Clairvoyant_results.h5', '20TB'],
-    [site + '_30_Clairvoyant_results.h5', '30TB'],
-    # [site + '_40_Clairvoyant_results.h5', '40TB'],
-    # [site + '_50_Clairvoyant_results.h5', '50TB'],
-    # [site + '_100_Clairvoyant_results.h5', '100TB'],
-    # [site + '_200_Clairvoyant_results.h5', '200TB'],
-    # [site + '_400_Clairvoyant_results.h5', '400TB'],
-    # [site + '_800_Clairvoyant_results.h5', '800TB'],
-    [site + '_10000_Clairvoyant_results.h5', 'Inf']
-]
+# results = [
+#     [site + '_1_Clairvoyant_results.h5', '1TB'],
+#     [site + '_2_Clairvoyant_results.h5', '2TB'],
+#     [site + '_5_Clairvoyant_results.h5', '5TB'],
+#     [site + '_10_Clairvoyant_results.h5', '10TB'],
+#     [site + '_20_Clairvoyant_results.h5', '20TB'],
+#     [site + '_30_Clairvoyant_results.h5', '30TB'],
+#     [site + '_40_Clairvoyant_results.h5', '40TB'],
+#     [site + '_50_Clairvoyant_results.h5', '50TB'],
+#     # [site + '_100_Clairvoyant_results.h5', '100TB'],
+#     # [site + '_200_Clairvoyant_results.h5', '200TB'],
+#     # [site + '_400_Clairvoyant_results.h5', '400TB'],
+#     # [site + '_800_Clairvoyant_results.h5', '800TB'],
+#     # [site + '_10000_Clairvoyant_results.h5', 'Inf']
+# ]
 
 # results = [
 #     [site+ '_5_FS_results.h5', '5TB'],
