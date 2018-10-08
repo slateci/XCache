@@ -1,0 +1,25 @@
+{
+  "name": "xcache-federation",
+  "version": "1.0.0",
+  "description": "Coordinates all the XCache infrastructure, serves clients, includes monitoring.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Ilija Vukotic",
+  "license": "ISC",
+  "dependencies": {
+    "math.js": "^1.1.43",
+    "npm": "^6.4.1"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slateci/XCache.git"
+  },
+  "bugs": {
+    "url": "https://github.com/slateci/XCache/issues"
+  },
+  "homepage": "https://github.com/slateci/XCache#readme"
+}

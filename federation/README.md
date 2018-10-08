@@ -7,7 +7,7 @@
 ## To Do:
 * maybe rewrite in node.js (for easy REST interface, scalability)
 * current calculation is based on equal capacity servers. Which won't always be the case.
-* XCache servers to report status in ES
+* XCache servers to report status through the backend to ES
 * each cache record contains info on one server: 
 **	cache it belongs to
 **  sites it serves
@@ -17,4 +17,4 @@
 **  index in cache
 **  disk size
 **  lwm and hwm
-* reporting requests to ES
+* backend reports requests to ES too
