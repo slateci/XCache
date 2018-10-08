@@ -1,3 +1,7 @@
+'''
+This simulation should use actual xcache-backend.
+That will stress test it, and also give way to test monitoring part.  
+'''
 import logging
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
