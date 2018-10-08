@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: xcache-backend
-        image: sslhep/ml_front:latest
+        image: slate/xcache-backend:latest
         ports:
           - containerPort: 443
           - containerPort: 80
@@ -56,8 +56,8 @@ spec:
         - name: https-certs-volume
           mountPath: "/etc/https-certs/"
           readOnly: true
-        - name: frontend-conf-volume
-          mountPath: "/etc/ml-front-conf/"
+        - name: conf-volume
+          mountPath: "/etc/backend-conf/"
       volumes:
       - name: https-certs-volume
         secret:
@@ -68,9 +68,9 @@ spec:
             mode: 256 
           - key: cert
             path: cert.pem
-      - name: frontend-conf-volume
+      - name: conf-volume
         secret:
           secretName: config
           items:
-          - key: mlconf
-            path: mlfront-config.json
+          - key: config
+            path: config.json
