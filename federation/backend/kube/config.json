@@ -1,0 +1,4 @@
+{
+    "SITENAME": "xcache.org",
+    "ELASTIC_HOST": "atlas-kibana.mwt2.org:9200"
+}

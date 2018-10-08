@@ -1,0 +1,76 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: xcache-backend
+  namespace: xcache
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: atlas.xcache.org
+  labels:
+    k8s-app: xcache-backend
+spec:
+  type: LoadBalancer
+  ports:
+  - name: https
+    protocol: TCP
+    port: 443
+    targetPort: 443
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    k8s-app: xcache-backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: xcache-backend  
+  namespace: xcache
+  labels:
+    k8s-app: xcache-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: xcache-backend
+  template:
+    metadata:
+      labels:
+        k8s-app: xcache-backend
+    spec:
+      containers:
+      - name: xcache-backend
+        image: sslhep/ml_front:latest
+        ports:
+          - containerPort: 443
+          - containerPort: 80
+        livenessProbe:
+          httpGet:
+            scheme: HTTPS
+            path: /healthz
+            port: 443
+          periodSeconds: 60
+          initialDelaySeconds: 60
+          timeoutSeconds: 10
+        volumeMounts:
+        - name: https-certs-volume
+          mountPath: "/etc/https-certs/"
+          readOnly: true
+        - name: frontend-conf-volume
+          mountPath: "/etc/ml-front-conf/"
+      volumes:
+      - name: https-certs-volume
+        secret:
+          secretName: cert-secret
+          items:
+          - key: key
+            path: key.pem
+            mode: 256 
+          - key: cert
+            path: cert.pem
+      - name: frontend-conf-volume
+        secret:
+          secretName: config
+          items:
+          - key: mlconf
+            path: mlfront-config.json
