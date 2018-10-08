@@ -11,7 +11,12 @@ XCache is a service that provides caching of data accessed using [xrootd protoco
 *   [Documentation](http://slateci.io/XCache/)
 *   [Monitoring](http://atlas-kibana-dev.mwt2.org/goto/f6bac2569c885896a607dc047b190b6d)
 
-## Analytics
+## Analytics / Simulation
 
 ### To do
-* Cache performance collection should start only after 5 cache clean ups in order to avoid startup effect. 
+* Cache performance collection should start only after 5 cache clean ups in order to avoid startup effect.
+* USA scale XCache simulation. 
+
+## Federation
+
+To make a tree of caching servers, we make all deployed servers report their metadata and status to a central Elasticsearch instance through a REST API of the federation server. The federation server serves filepaths based on the client location and file origin.
