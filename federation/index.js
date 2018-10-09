@@ -26,26 +26,30 @@ app.use(express.static('public'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json('application/json'));
 
-function save_requests() {
-    const es = new Elastic();
+var requests = [];
 
-}
 
 /*
  requires client site (how defined ?) and origin server site (how defined?)
- to test do wget localhost:8080/get_path/aod.root/MWT2/BNL
- or curl -X GET "localhost:8080/get_path/asdf/asdf/asddf"
+ to test do wget localhost:8080/path/aod.root/MWT2/BNL
+ or curl -X GET "localhost:8080/path/asdf/asdf/asddf"
 */
-app.get('/get_path/:filename/:client/:origin', function (req, res) {
+app.get('/path/:filename/:client/:origin', function (req, res) {
     console.log('got path request');
     console.log(req.params.filename, req.params.client, req.params.origin);
+    requests.push({
+        filename: req.params.filename, 
+        client: req.params.client,
+        origin: req.params.origin,
+        timestamp: new Date().getTime()
+    });
+        
+    if (requests.length > 1) {
+        var es = new elastic();
+        es.save_requests(requests);
+        requests = [];
+    }
     res.status(200).send('OK');
-
-    // res.json({
-    //     TFAAS: ml_front_config.TFAAS,
-    //     PUBLIC_INSTANCE: ml_front_config.PUBLIC_INSTANCE,
-    //     MONITOR: ml_front_config.MONITOR
-    // });
 });
 
 // add function that serves clients based on their geoip.
@@ -59,9 +63,9 @@ app.post('/add_server', function (req, res) {
     res.status(200).send('OK');
 });
 
-app.delete('/remove_server', function (req, res) {
+app.delete('/remove_server/:server', function (req, res) {
     console.log('removing server');
-    console.log(req);
+    console.log(req.params.server);
     res.status(200).send('OK');
 
     // res.json({
@@ -73,18 +77,6 @@ app.delete('/remove_server', function (req, res) {
 
 
 
-app.get('/path', function (req, res) {
-    console.log('getting path');
-    console.log(req);
-    link = 'xxx/xxx/xxx/asdf.root';
-    res.status(200).send(link);
-
-    // res.json({
-    //     TFAAS: ml_front_config.TFAAS,
-    //     PUBLIC_INSTANCE: ml_front_config.PUBLIC_INSTANCE,
-    //     MONITOR: ml_front_config.MONITOR
-    // });
-});
 
 
 app.use((err, req, res, next) => {

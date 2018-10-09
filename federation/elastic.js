@@ -2,8 +2,10 @@ var elasticsearch = require('elasticsearch');
 
 // var config = require('/etc/backend-conf/config.json');
 var config = {
-    "SITENAME": "xcache.org",
-    "ELASTIC_HOST": "atlas-kibana.mwt2.org:9200"
+    SITENAME: "xcache.org",
+    ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
+    SERVERS_INDEX: "xcache-servers",
+    REQUESTS_INDEX: "xcache-requests"
 };
 
 
@@ -13,23 +15,15 @@ module.exports = class Elastic {
         this.es = new elasticsearch.Client({ host: config.ELASTIC_HOST, log: 'error' });
     }
 
-    async write() {
-        console.log("adding user to ES...");
+    async save_requests(requests) {
+        console.log("saving requests to ES...");
+        var docs = { body: [] }
+        for (var i = 0, len = requests.length; i < len; i++) {
+            docs.body.push({ index: { _index: config.REQUESTS_INDEX, _type: 'docs' } })
+            docs.body.push(requests[i]);
+        }
         try {
-            const response = await this.es.index({
-                index: 'mlfront_users', type: 'docs', id: this.id,
-                refresh: true,
-                body: {
-                    "username": this.username,
-                    "affiliation": this.affiliation,
-                    "user": this.name,
-                    "email": this.email,
-                    "event": config.NAMESPACE,
-                    "created_at": new Date().getTime(),
-                    "approved": this.approved,
-                    "approved_on": this.approved_on
-                }
-            });
+            const response = await this.es.bulk(docs);
             console.log(response);
         } catch (err) {
             console.error(err)
@@ -37,7 +31,7 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async delete() {
+    async delete_server() {
         console.log("deleting user from ES...");
         try {
             const response = await this.es.deleteByQuery({
@@ -51,7 +45,7 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async update() {
+    async add_server() {
         console.log("Updating user info in ES...");
         try {
             const response = await this.es.update({
@@ -70,7 +64,26 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async load() {
+    async update_server() {
+        console.log("Updating user info in ES...");
+        try {
+            const response = await this.es.update({
+                index: 'mlfront_users', type: 'docs', id: this.id,
+                body: {
+                    doc: {
+                        "approved_on": this.approved_on,
+                        "approved": this.approved
+                    }
+                }
+            });
+            console.log(response);
+        } catch (err) {
+            console.error(err)
+        }
+        console.log("Done.");
+    };
+
+    async load_tree() {
         console.log("getting user's info...");
 
         try {

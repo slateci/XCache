@@ -5,7 +5,6 @@
 * for a given client site and filename returns optimal path.
 
 ## To Do:
-* maybe rewrite in node.js (for easy REST interface, scalability)
 * current calculation is based on equal capacity servers. Which won't always be the case.
 * XCache servers to report status through the backend to ES
 * each cache record contains info on one server: 
@@ -15,6 +14,5 @@
 **  cache coordinates
 **  status
 **  index in cache
-**  disk size
-**  lwm and hwm
+**  capacity (disk size * HWM)
 * backend reports requests to ES too
