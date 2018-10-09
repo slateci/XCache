@@ -1,0 +1,85 @@
+POST /_template/xcache-servers
+{
+  "index_patterns": "xc_servers*",
+  "settings": {
+    "index": {
+      "number_of_shards": "5",
+      "number_of_replicas": "0"
+    }
+  },
+  "mappings": {
+    "docs": {
+      "properties": {
+        "site": {
+          "type": "keyword"
+        },
+        "serves": {
+          "type": "keyword"
+        },
+        "upstream-site": {
+          "type": "keyword"
+        },
+        "upstream-fallback": {
+          "type": "keyword"
+        },
+        "hostname": {
+          "type": "keyword"
+        },
+        "capacity": {
+          "type": "long"
+        },
+        "index": {
+          "type": "integer"
+        },
+        "lat": {
+          "type": "float"
+        },
+        "long": {
+          "type": "float"
+        },
+        "status": {
+          "type": "keyword"
+        },
+        "created": {
+          "type": "date",
+          "format": "basic_date_time_no_millis||epoch_millis"
+        },
+        "last_update": {
+          "type": "date",
+          "format": "basic_date_time_no_millis||epoch_millis"
+        }
+      }
+    }
+  }
+}
+
+
+POST /_template/xcache-requests
+{
+  "index_patterns": "xc_requests*",
+  "settings": {
+    "index": {
+      "number_of_shards": "5",
+      "number_of_replicas": "0"
+    }
+  },
+  "mappings": {
+    "docs": {
+      "properties": {
+        "filename": {
+          "type": "keyword"
+        },
+        "client": {
+          "type": "keyword"
+        },
+        "origin": {
+          "type": "keyword"
+        },
+        "timestamp": {
+          "type": "date",
+          "format": "basic_date_time_no_millis||epoch_millis"
+        }
+      }
+    }
+  }
+}

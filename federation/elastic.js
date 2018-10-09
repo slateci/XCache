@@ -4,8 +4,8 @@ var elasticsearch = require('elasticsearch');
 var config = {
     SITENAME: "xcache.org",
     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
-    SERVERS_INDEX: "xcache-servers",
-    REQUESTS_INDEX: "xcache-requests"
+    SERVERS_INDEX: "xc_servers",
+    REQUESTS_INDEX: "xc_requests"
 };
 
 
@@ -23,8 +23,7 @@ module.exports = class Elastic {
             docs.body.push(requests[i]);
         }
         try {
-            const response = await this.es.bulk(docs);
-            console.log(response);
+            await this.es.bulk(docs);
         } catch (err) {
             console.error(err)
         }
@@ -47,10 +46,14 @@ module.exports = class Elastic {
 
     async add_server(server) {
         console.log("Adding server to ES...");
+        server.created = new Date().getTime();
+        server.last_update = new Date().getTime();
+        console.log(server);
         try {
             const response = await this.es.index({
                 index: config.SERVERS_INDEX, type: 'docs',
-                id: server.site + '_' + str(server.index), body: server
+                id: server.site + '_' + server.index.toString(),
+                body: server
             });
             console.log(response);
         } catch (err) {
@@ -63,7 +66,7 @@ module.exports = class Elastic {
         console.log("Updating server info in ES...");
         try {
             const response = await this.es.update({
-                index: config.SERVERS_INDEX, type: 'docs', id: server.site + '_' + str(server.index),
+                index: config.SERVERS_INDEX, type: 'docs', id: server.site + '_' + server.index.toString(),
                 body: {
                     doc: {
                         "approved_on": this.approved_on,

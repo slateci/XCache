@@ -13,8 +13,8 @@ const elastic = require('./elastic.js');
 var config = {
     SITENAME: "xcache.org",
     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
-    SERVERS_INDEX: "xcache-servers",
-    REQUESTS_INDEX: "xcache-requests"
+    SERVERS_INDEX: "xc_servers",
+    REQUESTS_INDEX: "xc_requests"
 };
 
 console.log('XCache backend server starting ... ');
@@ -59,9 +59,9 @@ app.get('/path/:filename/:client/:origin', function (req, res) {
 // to test do: curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @server.json
 app.post('/add_server', function (req, res) {
     console.log('adding server');
-    // console.log(req.body); 
+    // console.log(req.body);
     var es = new elastic();
-    es.save_requests(req.body);
+    es.add_server(req.body);
     res.status(200).send('OK');
 });
 
