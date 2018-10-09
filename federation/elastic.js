@@ -45,17 +45,12 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async add_server() {
-        console.log("Updating user info in ES...");
+    async add_server(server) {
+        console.log("Adding server to ES...");
         try {
-            const response = await this.es.update({
-                index: 'mlfront_users', type: 'docs', id: this.id,
-                body: {
-                    doc: {
-                        "approved_on": this.approved_on,
-                        "approved": this.approved
-                    }
-                }
+            const response = await this.es.index({
+                index: config.SERVERS_INDEX, type: 'docs',
+                body: server
             });
             console.log(response);
         } catch (err) {
