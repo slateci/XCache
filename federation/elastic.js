@@ -31,12 +31,12 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async delete_server() {
-        console.log("deleting user from ES...");
+    async delete_server(server_id) {
+        console.log("deleting server from ES...");
         try {
             const response = await this.es.deleteByQuery({
-                index: 'mlfront_users', type: 'docs',
-                body: { query: { match: { "_id": this.id } } }
+                index: config.SERVERS_INDEX, type: 'docs',
+                body: { query: { match: { "_id": server_id } } }
             });
             console.log(response);
         } catch (err) {
@@ -50,7 +50,7 @@ module.exports = class Elastic {
         try {
             const response = await this.es.index({
                 index: config.SERVERS_INDEX, type: 'docs',
-                body: server
+                id: server.site + '_' + str(server.index), body: server
             });
             console.log(response);
         } catch (err) {
@@ -59,11 +59,11 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async update_server() {
-        console.log("Updating user info in ES...");
+    async update_server(server) {
+        console.log("Updating server info in ES...");
         try {
             const response = await this.es.update({
-                index: 'mlfront_users', type: 'docs', id: this.id,
+                index: config.SERVERS_INDEX, type: 'docs', id: server.site + '_' + str(server.index),
                 body: {
                     doc: {
                         "approved_on": this.approved_on,
