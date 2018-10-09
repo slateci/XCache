@@ -16,10 +16,10 @@ POST /_template/xcache-servers
         "serves": {
           "type": "keyword"
         },
-        "upstream-site": {
+        "upstream_site": {
           "type": "keyword"
         },
-        "upstream-fallback": {
+        "upstream_fallback": {
           "type": "keyword"
         },
         "hostname": {

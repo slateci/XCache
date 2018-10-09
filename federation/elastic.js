@@ -34,7 +34,7 @@ module.exports = class Elastic {
         console.log("deleting server from ES...");
         try {
             const response = await this.es.deleteByQuery({
-                index: config.SERVERS_INDEX, type: 'docs',
+                index: config.SERVERS_INDEX, type: 'docs', refresh: true,
                 body: { query: { match: { "_id": server_id } } }
             });
             console.log(response);
@@ -51,7 +51,7 @@ module.exports = class Elastic {
         console.log(server);
         try {
             const response = await this.es.index({
-                index: config.SERVERS_INDEX, type: 'docs',
+                index: config.SERVERS_INDEX, type: 'docs', refresh: true,
                 id: server.site + '_' + server.index.toString(),
                 body: server
             });
@@ -67,10 +67,16 @@ module.exports = class Elastic {
         try {
             const response = await this.es.update({
                 index: config.SERVERS_INDEX, type: 'docs', id: server.site + '_' + server.index.toString(),
+                refresh: true,
                 body: {
                     doc: {
-                        "approved_on": this.approved_on,
-                        "approved": this.approved
+                        "serves": server.serves,
+                        "upstream_site": server.upstream_site,
+                        "upstream_fallback": server.upstream_fallback,
+                        "hostname": server.hostname,
+                        "capacity": server.capacity,
+                        "status": server.status,
+                        "last_update": new Date().getTime()
                     }
                 }
             });
@@ -81,63 +87,34 @@ module.exports = class Elastic {
         console.log("Done.");
     };
 
-    async load_tree() {
-        console.log("getting user's info...");
-
+    async load_server_tree() {
+        console.log("loading all server info...");
+        var server_tree = [];
         try {
             const response = await this.es.search({
-                index: 'mlfront_users', type: 'docs',
+                index: config.SERVERS_INDEX, type: 'docs',
                 body: {
-                    query: {
-                        bool: {
-                            must: [
-                                { match: { event: config.NAMESPACE } },
-                                { match: { _id: this.id } }
-                            ]
-                        }
-                    }
+                    query: { bool: { must: [{ match: { status: "active" } }] } }
                 }
             });
             // console.log(response);
             if (response.hits.total == 0) {
-                console.log("user not found.");
+                console.log("No active servers found.");
                 return false;
             }
             else {
-                console.log("User found.");
-                var obj = response.hits.hits[0]._source;
-                // console.log(obj);
-                // var created_at = new Date(obj.created_at).toUTCString();
-                // var approved_on = new Date(obj.approved_on).toUTCString();
-                this.name = obj.user;
-                this.email = obj.email;
-                this.affiliation = obj.affiliation;
-                this.created_at = obj.created_at;
-                this.approved = obj.approved;
-                this.approved_on = obj.approved_on;
-                return true;
+                console.log("Active servers found.");
+                for (var i = 0; i < response.hits.hits.length; i++) {
+                    var si = response.hits.hits[i]._source;
+                    console.log(si);
+                    server_tree.push(si);
+                }
             };
         } catch (err) {
             console.error(err)
         }
         console.log('Done.');
-        return false;
-    };
-
-    async add_service(service) {
-        try {
-            service.owner = this.id;
-            service.timestamp = new Date().getTime();
-            service.user = this.name;
-            console.log('creating service in es: ', service);
-            await this.es.index({
-                index: 'ml_front', type: 'docs', body: service
-            }, function (err, resp, status) {
-                console.log("from ES indexer:", resp);
-            });
-        } catch (err) {
-            console.error(err)
-        }
+        return server_tree;
     };
 
 }

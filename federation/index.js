@@ -27,7 +27,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json('application/json'));
 
 var requests = [];
-
+var server_set = [];
 
 /*
  requires client site (how defined ?) and origin server site (how defined?)
@@ -57,24 +57,34 @@ app.get('/path/:filename/:client/:origin', function (req, res) {
 // could hold cache of proximity for known addresses.
 
 // to test do: curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @server.json
-app.post('/add_server', function (req, res) {
+app.post('/add_server', async function (req, res) {
     console.log('adding server');
     // console.log(req.body);
     var es = new elastic();
-    es.add_server(req.body);
+    await es.add_server(req.body);
+    await reload_servers();
     res.status(200).send('OK');
 });
 
-app.delete('/remove_server/:server', function (req, res) {
+/* 
+will update everything except
+*/
+app.post('/update_server', async function (req, res) {
+    console.log('updating server');
+    // console.log(req.body);
+    var es = new elastic();
+    await es.update_server(req.body);
+    await reload_servers();
+    res.status(200).send('OK');
+});
+
+app.delete('/server/:server', async function (req, res) {
     console.log('removing server');
     console.log(req.params.server);
+    var es = new elastic();
+    await es.delete_server(req.params.server);
+    await reload_servers();
     res.status(200).send('OK');
-
-    // res.json({
-    //     TFAAS: ml_front_config.TFAAS,
-    //     PUBLIC_INSTANCE: ml_front_config.PUBLIC_INSTANCE,
-    //     MONITOR: ml_front_config.MONITOR
-    // });
 });
 
 
@@ -87,6 +97,15 @@ app.use((err, req, res, next) => {
 });
 
 
+async function reload_servers() {
+    console.log('reloading servers');
+    var es = new elastic();
+    var new_set = await es.load_server_tree();
+    server_set = new_set;
+}
+
+reload_servers();
+
 // var httpsServer = https.createServer(credentials, app).listen(443);
 
 //// redirects to https if someone comes on http.
@@ -97,3 +116,4 @@ app.use((err, req, res, next) => {
 
 // for testing
 var httpsServer = http.createServer(app).listen(8080);
+
