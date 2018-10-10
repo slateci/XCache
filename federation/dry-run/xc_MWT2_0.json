@@ -3,10 +3,10 @@
     "serves": "MWT2",
     "upstream_site": "xc_Int2_MW",
     "upstream_fallback": "xc_BNL",
-    "hostname": "123.123.123.123",
+    "hostname": "111.111.111.0",
     "capacity": 102410241024,
     "index": 0,
     "lat": 15.123,
     "long": -45.123,
-    "status": "disabled"
+    "status": "active"
 }

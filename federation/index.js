@@ -67,7 +67,7 @@ app.post('/add_server', async function (req, res) {
 });
 
 /* 
-will update everything except
+will update everything except: index, site, long, lat, 
 */
 app.post('/update_server', async function (req, res) {
     console.log('updating server');

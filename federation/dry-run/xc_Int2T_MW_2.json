@@ -1,0 +1,15 @@
+{
+    "site": "xc_Int2_MW",
+    "serves": [
+        "xc_MWT2",
+        "xc_AGLT2"
+    ],
+    "upstream_site": "xc_BNL",
+    "upstream_fallback": "xc_CERN",
+    "hostname": "333.333.333.0",
+    "capacity": 2410241024,
+    "index": 2,
+    "lat": 15.123,
+    "long": -45.123,
+    "status": "active"
+}
