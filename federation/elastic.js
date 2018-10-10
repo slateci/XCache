@@ -1,11 +1,13 @@
 var elasticsearch = require('elasticsearch');
+const server = require('./server.js');
 
 // var config = require('/etc/backend-conf/config.json');
 var config = {
     SITENAME: "xcache.org",
     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
     SERVERS_INDEX: "xc_servers",
-    REQUESTS_INDEX: "xc_requests"
+    REQUESTS_INDEX: "xc_requests",
+    SIMULATION: true
 };
 
 
@@ -48,11 +50,12 @@ module.exports = class Elastic {
         console.log("Adding server to ES...");
         server.created = new Date().getTime();
         server.last_update = new Date().getTime();
+        delete server.files;
         console.log(server);
         try {
             const response = await this.es.index({
                 index: config.SERVERS_INDEX, type: 'docs', refresh: true,
-                id: server.site + '_' + server.index.toString(),
+                id: server.id,
                 body: server
             });
             console.log(response);
@@ -88,8 +91,8 @@ module.exports = class Elastic {
     };
 
     async load_server_tree() {
-        console.log("loading all server info...");
-        var server_tree = [];
+        // console.log("loading all server info...");
+        var server_tree = new Map();
         try {
             const response = await this.es.search({
                 index: config.SERVERS_INDEX, type: 'docs',
@@ -106,8 +109,14 @@ module.exports = class Elastic {
                 console.log("Active servers found.");
                 for (var i = 0; i < response.hits.hits.length; i++) {
                     var si = response.hits.hits[i]._source;
-                    console.log(si);
-                    server_tree.push(si);
+                    var ser = new server();
+                    ser.initialize(si);
+                    if (!server_tree.has(ser.site)) {
+                        server_tree.set(ser.site, []);
+                    }
+                    var os = server_tree.get(ser.site);
+                    os.push(ser);
+                    server_tree.set(ser.site, os);
                 }
             };
         } catch (err) {

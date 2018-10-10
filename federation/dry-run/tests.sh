@@ -24,9 +24,9 @@ curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_serv
 curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_AGLT2_2.json
 
 
-curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_0.json
-curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_1.json
-curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_2.json
-curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_3.json
+curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_MW_0.json
+curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_MW_1.json
+curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_MW_2.json
+curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_Int2T_MW_3.json
 
 curl  --header "Content-Type: application/json" -X POST "localhost:8080/add_server" -d @xc_BNL_0.json

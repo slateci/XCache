@@ -1,6 +1,5 @@
 {
     "site": "xc_BNL",
-    "serves": "xc_Int2_MW",
     "upstream_site": "none",
     "upstream_fallback": "xc_CERN",
     "hostname": "444.444.444.0",
