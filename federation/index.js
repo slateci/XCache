@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 
 const elastic = require('./elastic.js');
 const server = require('./server.js');
+const site = require('./site.js');
 
 // var config = require('/etc/backend-conf/config.json');
 var config = {
@@ -29,7 +30,6 @@ app.use(express.static('public'));
 app.use(bodyParser.json('application/json'));
 
 var requests = [];
-var server_set;
 
 String.prototype.hashCode = function () {
     var hash = 0, i, chr;
@@ -39,13 +39,13 @@ String.prototype.hashCode = function () {
         hash = ((hash << 5) - hash) + chr;
         hash |= 0; // Convert to 32bit integer
     }
-    return hash;
+    return Math.abs(hash);
 };
 
 /*
  requires client site (how defined ?) and origin server site (how defined?)
- to test do wget localhost:8080/path/aod.root/MWT2/BNL
- or curl -X GET "localhost:8080/path/asdf/asdf/asddf"
+ to test do wget localhost:8080/path/aod.root/xc_MWT2/BNL
+ or curl -X GET "localhost:8080/path/aod.root/xc_MWT2/root://bnl.asdf/asdf/asdf/aod.root"
 */
 app.get('/path/:filename/:edgecache/:originpath', function (req, res) {
     console.log('got path request');
@@ -65,15 +65,57 @@ app.get('/path/:filename/:edgecache/:originpath', function (req, res) {
     res.status(200).send('OK');
 });
 
-app.get('/simulate/:filename/:edgecache/:filesize', function (req, res) {
+app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
     console.log('got path request');
-    // console.log(req.params.filename, req.params.edgecache, req.params.filesize);
-    request = {
-        filename: req.params.filename.hashCode(),
-        edgecache: req.params.edgecache,
-        filesize: req.params.filesize
-    };
-    console.log(request);
+    // console.log(req.params.filename, req.params.edgecache, req.params.filesize, req.params.time);
+    // console.log(server_set);
+    rfileid = req.params.filename.hashCode();
+    redge = req.params.edgecache;
+    rsize = req.params.filesize;
+    rtime = req.params.time;
+
+    path = 'root://';
+    if (server_set.has(redge)) {
+        l1 = server_set.get(redge);
+        s1 = l1.get_server(rfileid);
+        found = s1.add_request(rfileid, rsize, rtime);
+        l1.requests_received += 1;
+        if (found) {
+            l1.files_delivered += 1;
+            l1.data_delivered += rsize;
+        }
+        path += s1.hostname + '//';
+
+        // if (!s1.upstream_site === null) {
+        l2 = server_set.get(l1.upstream_site);
+        s2 = l2.get_server(rfileid);
+        if (!found) {
+            l2.requests_received += 1;
+            found = s2.add_request(rfileid, rsize, rtime)
+            if (found) {
+                l2.files_delivered += 1;
+                l2.data_delivered += rsize;
+            }
+        }
+        path += s2.hostname + '//';
+
+        // if (!s2.upstream_site == null) {
+        l3 = server_set.get(l2.upstream_site);
+        s3 = l3.get_server(rfileid);
+        if (!found) {
+            l3.requests_received += 1;
+            found = s3.add_request(rfileid, rsize, rtime)
+            if (found) {
+                l3.files_delivered += 1;
+                l3.data_delivered += rsize;
+            }
+        }
+        path += s3.hostname + '//';
+        // }
+        // }
+        res.status(200).send(path);
+        return;
+    }
     res.status(200).send('OK');
 });
 

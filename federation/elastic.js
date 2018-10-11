@@ -1,5 +1,6 @@
 var elasticsearch = require('elasticsearch');
 const server = require('./server.js');
+const site = require('./site.js');
 
 // var config = require('/etc/backend-conf/config.json');
 var config = {
@@ -51,6 +52,7 @@ module.exports = class Elastic {
         server.created = new Date().getTime();
         server.last_update = new Date().getTime();
         delete server.files;
+        delete server.current_utilization;
         console.log(server);
         try {
             const response = await this.es.index({
@@ -97,6 +99,7 @@ module.exports = class Elastic {
             const response = await this.es.search({
                 index: config.SERVERS_INDEX, type: 'docs',
                 body: {
+                    size: 200,
                     query: { bool: { must: [{ match: { status: "active" } }] } }
                 }
             });
@@ -112,11 +115,11 @@ module.exports = class Elastic {
                     var ser = new server();
                     ser.initialize(si);
                     if (!server_tree.has(ser.site)) {
-                        server_tree.set(ser.site, []);
+                        server_tree.set(ser.site, new site(ser.site));
                     }
                     var os = server_tree.get(ser.site);
-                    os.push(ser);
-                    server_tree.set(ser.site, os);
+                    os.add_server(ser);
+                    // server_tree.set(ser.site, os);
                 }
             };
         } catch (err) {

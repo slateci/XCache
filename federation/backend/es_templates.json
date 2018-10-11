@@ -25,11 +25,20 @@ POST /_template/xcache-servers
         "hostname": {
           "type": "keyword"
         },
+        "id": {
+          "type": "keyword"
+        },
         "capacity": {
           "type": "long"
         },
         "index": {
           "type": "integer"
+        },
+        "hwm": {
+          "type": "float"
+        },
+        "lwm": {
+          "type": "float"
         },
         "lat": {
           "type": "float"
