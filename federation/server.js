@@ -64,9 +64,9 @@ module.exports = class Server {
     }
 
     cleanup() {
-        console.log('starting cleanup.')
-        // LRU
-        n = Array.from(this.files);
+        console.log('starting cleanup.') <=============
+            // LRU
+            n = Array.from(this.files);
         // sort array in increasing last access time order.
         n.sort(function (a, b) { return a[1][2] - b[1][2]; });
         var i = 0;

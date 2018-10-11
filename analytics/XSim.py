@@ -11,8 +11,7 @@ load_from_disk = False
 start_date = '2018-08-01 00:00:00'
 end_date = '2018-09-01 00:00:00'
 
-site = 'MWT2'
-event = 'get_sm'  # get_sm, get_sm_a, get_*
+site = 'AGLT2'
 
 algo = 'LRU'  # LRU, Clairvoyant, FS
 
@@ -32,7 +31,7 @@ my_query = {
                 {'exists': {"field": "filename"}},
                 {'wildcard': {'site': site + '*'}},
                 # {'wildcard': {'filename': 'EVNT*'}},
-                # {'wildcard': {'event': event}},
+                # {'wildcard': {'event': 'get_sm*'}},
                 {'term': {'event': 'get_sm'}},
                 # {'term': {'event': 'get_sm_a'}},
                 # {'term': {'event': 'download'}},

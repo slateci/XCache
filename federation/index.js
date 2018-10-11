@@ -65,15 +65,15 @@ app.get('/path/:filename/:edgecache/:originpath', function (req, res) {
     res.status(200).send('OK');
 });
 
-app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
-    console.log('got path request');
-    // console.log(req.params.filename, req.params.edgecache, req.params.filesize, req.params.time);
+app.get('/simulate', function (req, res) {
+    // console.log('got path request');
+    // console.log(req.query);
     // console.log(server_set);
-    rfileid = req.params.filename.hashCode();
-    redge = req.params.edgecache;
-    rsize = req.params.filesize;
-    rtime = req.params.time;
-
+    rfileid = req.query.filename.hashCode();
+    redge = req.query.site;
+    rsize = req.query.filesize;
+    rtime = req.query.time;
+    lf = 3
     path = 'root://';
     if (server_set.has(redge)) {
         l1 = server_set.get(redge);
@@ -81,6 +81,7 @@ app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
         found = s1.add_request(rfileid, rsize, rtime);
         l1.requests_received += 1;
         if (found) {
+            lf = 0;
             l1.files_delivered += 1;
             l1.data_delivered += rsize;
         }
@@ -93,6 +94,7 @@ app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
             l2.requests_received += 1;
             found = s2.add_request(rfileid, rsize, rtime)
             if (found) {
+                lf = 1
                 l2.files_delivered += 1;
                 l2.data_delivered += rsize;
             }
@@ -106,6 +108,7 @@ app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
             l3.requests_received += 1;
             found = s3.add_request(rfileid, rsize, rtime)
             if (found) {
+                lf = 2
                 l3.files_delivered += 1;
                 l3.data_delivered += rsize;
             }
@@ -113,10 +116,15 @@ app.get('/simulate/:filename/:edgecache/:filesize/:time', function (req, res) {
         path += s3.hostname + '//';
         // }
         // }
-        res.status(200).send(path);
-        return;
+        console.log(path);
+        res.statusCode = 200;
+        res.end('lf_' + lf);
     }
-    res.status(200).send('OK');
+    else {
+        res.statusCode = 404;
+        res.end('No edge server with that name.');
+    }
+    res.end();
 });
 
 // add function that serves clients based on their geoip.
@@ -161,10 +169,10 @@ app.delete('/server/:server_id', async function (req, res) {
 
 
 
-app.use((err, req, res, next) => {
-    console.error('Error in error handler: ', err.message);
-    res.status(err.status).send(err.message);
-});
+// app.use((err, req, res, next) => {
+//     console.error('Error in error handler: ', err.message);
+//     res.status(err.status).send(err.message);
+// });
 
 
 async function reload_servers() {
