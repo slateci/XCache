@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 80
 EXPOSE 433
 
-CMD [ "npm","start" ]
+CMD [ "node","index.js" ]

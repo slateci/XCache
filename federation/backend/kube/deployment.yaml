@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: xcache-backend
-        image: slate/xcache-backend:latest
+        image: slateci/xcache-backend:latest
         ports:
           - containerPort: 443
           - containerPort: 80
@@ -50,7 +50,7 @@ spec:
             path: /healthz
             port: 443
           periodSeconds: 60
-          initialDelaySeconds: 60
+          initialDelaySeconds: 600000
           timeoutSeconds: 10
         volumeMounts:
         - name: https-certs-volume
