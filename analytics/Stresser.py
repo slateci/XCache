@@ -30,6 +30,7 @@ print(all_data.filesize.mean() / GB, "GB avg. file size")
 
 print('---------- start requests ----------')
 
+accesses = [0, 0, 0, 0]
 count = 0
 for index, row in all_data.iterrows():
     if count > 3000:
@@ -37,18 +38,19 @@ for index, row in all_data.iterrows():
     payload = {'filename': index, 'site': row['site'], 'filesize': row['filesize'], 'time': row['transfer_start']}
     # print(payload)
     r = requests.get('http://localhost:8080/simulate', params=payload)
-    # if r.status_code != 200:
-    # print(r)
-    print(r.content)
+    if r.status_code != 200:
+        print(r, r.content)
+        break
+    accesses[int(r.content[-1])] += 1
 
     if not count % 1000:
         print(count, 'accesses finished.')
     count += 1
 
+print(accesses)
 asdf
 
 
-accesses = (20, 35, 30, 35, 27)
 data = (25, 32, 34, 20, 25)
 
 ind = np.arange(len(accesses))  # the x locations for the groups

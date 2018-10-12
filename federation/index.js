@@ -116,7 +116,7 @@ app.get('/simulate', function (req, res) {
         path += s3.hostname + '//';
         // }
         // }
-        console.log(path);
+        // console.log(path);
         res.statusCode = 200;
         res.end('lf_' + lf);
     }
