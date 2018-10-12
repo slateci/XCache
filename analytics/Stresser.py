@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
-service = "http://192.170.227.234:80"
+# service = "http://192.170.227.234:80"
+service = "http://localhost:80"
 
-sites = ['AGLT2']  # , 'MWT2']
+sites = ['AGLT2', 'MWT2']
 dataset = 'AUG'
 
 GB = 1024 * 1024 * 1024
@@ -35,19 +36,21 @@ print('---------- start requests ----------')
 accesses = [0, 0, 0, 0]
 count = 0
 for index, row in all_data.iterrows():
-    if count > 3000:
+    if count > 31000000:
         break
-        # row['filesize']
-    payload = {'filename': index, 'site': row['site'], 'filesize': 2, 'time': row['transfer_start']}
+    fs = row['filesize']
+    payload = {'filename': index, 'site': row['site'], 'filesize': fs, 'time': row['transfer_start']}
     # print(payload)
-    r = requests.get(service + '/simulate', params=payload)
-    if r.status_code != 200:
-        print(r, r.content)
-        break
-    #accesses[int(r.content[-1])] += 1
+    try:
+        r = requests.get(service + '/simulate', params=payload)
+        if r.status_code != 200:
+            print(r, r.content)
+        accesses[int(r.content[3:])] += 1
+    except:
+        print("Stupid issue.")
 
     if not count % 1000:
-        print(count, 'accesses finished.')
+        print(count, 'accesses finished.', accesses)
     count += 1
 
 print(accesses)

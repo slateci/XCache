@@ -30,6 +30,7 @@ app.use(express.static('public'));
 app.use(bodyParser.json('application/json'));
 
 var requests = [];
+var nrequests = 0;
 
 String.prototype.hashCode = function () {
     var hash = 0, i, chr;
@@ -71,8 +72,8 @@ app.get('/simulate', function (req, res) {
     // console.log(server_set);
     rfileid = req.query.filename.hashCode();
     redge = req.query.site;
-    rsize = req.query.filesize;
-    rtime = req.query.time;
+    rsize = parseInt(req.query.filesize);
+    rtime = parseInt(req.query.time);
     lf = 3
     path = 'root://';
     if (server_set.has(redge)) {
@@ -116,6 +117,12 @@ app.get('/simulate', function (req, res) {
         path += s3.hostname + '//';
         // }
         // }
+
+        if (nrequests % 10000 == 0) {
+            console.log(server_set);
+        }
+        nrequests += 1
+
         // console.log(path);
         res.statusCode = 200;
         res.end('lf_' + lf);
