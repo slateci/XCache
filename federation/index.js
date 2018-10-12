@@ -191,7 +191,7 @@ async function reload_servers() {
 // }).listen(80);
 
 // for testing
-var httpsServer = http.createServer(app).listen(8080);
+var httpsServer = http.createServer(app).listen(80);
 
 async function main() {
     try {

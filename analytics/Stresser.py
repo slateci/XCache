@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
+service = "http://192.170.227.234:80"
+
 sites = ['AGLT2']  # , 'MWT2']
 dataset = 'AUG'
 
@@ -37,7 +39,7 @@ for index, row in all_data.iterrows():
         break
     payload = {'filename': index, 'site': row['site'], 'filesize': row['filesize'], 'time': row['transfer_start']}
     # print(payload)
-    r = requests.get('http://localhost:8080/simulate', params=payload)
+    r = requests.get(service + '/simulate', params=payload)
     if r.status_code != 200:
         print(r, r.content)
         break
