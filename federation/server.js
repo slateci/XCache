@@ -70,7 +70,7 @@ module.exports = class Server {
         // sort array in increasing last access time order.
         n.sort(function (a, b) { return a[1][2] - b[1][2]; });
         var i = 0;
-        while (this.current_utilization > this.capacity * lwm) {
+        while (this.current_utilization > this.capacity * this.lwm) {
             files.delete(n[i][0]);
             this.current_utilization -= n[i][1][0];
         }

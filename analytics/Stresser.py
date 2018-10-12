@@ -37,13 +37,14 @@ count = 0
 for index, row in all_data.iterrows():
     if count > 3000:
         break
-    payload = {'filename': index, 'site': row['site'], 'filesize': row['filesize'], 'time': row['transfer_start']}
+        # row['filesize']
+    payload = {'filename': index, 'site': row['site'], 'filesize': 2, 'time': row['transfer_start']}
     # print(payload)
     r = requests.get(service + '/simulate', params=payload)
     if r.status_code != 200:
         print(r, r.content)
         break
-    accesses[int(r.content[-1])] += 1
+    #accesses[int(r.content[-1])] += 1
 
     if not count % 1000:
         print(count, 'accesses finished.')
