@@ -134,6 +134,62 @@ app.get('/simulate', function (req, res) {
     res.end();
 });
 
+
+app.post('/simulate', function (req, res) {
+    // console.log('got path request');
+    // console.log(req.query);
+    // console.log(server_set);
+    var result = [0, 0, 0, 0]
+    for (var i = 0, len = req.body.length; i < len; i++) {
+        rfileid = req.body[i].filename.hashCode();
+        redge = req.body[i].site;
+        rsize = parseInt(req.body[i].filesize);
+        rtime = parseInt(req.body[i].time);
+        lf = 3;
+        l1 = server_set.get(redge);
+        s1 = l1.get_server(rfileid);
+        found = s1.add_request(rfileid, rsize, rtime);
+        l1.requests_received += 1;
+        if (found) {
+            lf = 0;
+            l1.files_delivered += 1;
+            l1.data_delivered += rsize;
+        }
+
+        l2 = server_set.get(l1.upstream_site);
+        s2 = l2.get_server(rfileid);
+        if (!found) {
+            l2.requests_received += 1;
+            found = s2.add_request(rfileid, rsize, rtime)
+            if (found) {
+                lf = 1
+                l2.files_delivered += 1;
+                l2.data_delivered += rsize;
+            }
+        }
+
+        l3 = server_set.get(l2.upstream_site);
+        s3 = l3.get_server(rfileid);
+        if (!found) {
+            l3.requests_received += 1;
+            found = s3.add_request(rfileid, rsize, rtime)
+            if (found) {
+                lf = 2
+                l3.files_delivered += 1;
+                l3.data_delivered += rsize;
+            }
+        }
+        if (nrequests % 100000 == 0) {
+            console.log(server_set);
+        }
+        nrequests += 1
+
+        res.statusCode = 200;
+        result[lf] += 1
+    }
+    res.end(result);
+});
+
 // add function that serves clients based on their geoip.
 // req.connection.remoteAddress
 // could hold cache of proximity for known addresses.
@@ -172,7 +228,11 @@ app.delete('/server/:server_id', async function (req, res) {
     res.status(200).send('OK');
 });
 
-
+app.get('/wipe', async function (req, res) {
+    console.log('WIPING all caches!!!');
+    // loop over sites and servers in server_set and wipe them.
+    res.status(200).send('OK');
+});
 
 
 

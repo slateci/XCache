@@ -1,10 +1,10 @@
-import requests
 import matplotlib.pyplot as plt
 
+import requests
 import pandas as pd
 
-# service = "http://192.170.227.234:80"
-service = "http://localhost:80"
+service = "http://192.170.227.234:80"
+# service = "http://localhost:80"
 
 sites = ['AGLT2', 'MWT2']
 dataset = 'AUG'
@@ -34,6 +34,7 @@ print(all_data.filesize.mean() / GB, "GB avg. file size")
 print('---------- start requests ----------')
 
 accesses = [0, 0, 0, 0]
+dataaccc = [0, 0, 0, 0]
 count = 0
 for index, row in all_data.iterrows():
     if count > 31000000:
@@ -46,11 +47,13 @@ for index, row in all_data.iterrows():
         if r.status_code != 200:
             print(r, r.content)
         accesses[int(r.content[3:])] += 1
+        dataaccc[int(r.content[3:])] += fs
     except:
         print("Stupid issue.")
 
     if not count % 1000:
-        print(count, 'accesses finished.', accesses)
+        
+        print(count, 'accesses finished.', accesses, dataaccc)
     count += 1
 
 print(accesses)

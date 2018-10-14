@@ -13,6 +13,10 @@ curl  --header "Content-Type: application/json" -X POST "localhost:80/add_server
 echo "update server."
 curl  --header "Content-Type: application/json" -X POST "localhost:80/update_server" -d @server_1.json
 
+
+echo "delete server."
+curl   -X DELETE "localhost:80/server/xc_test_123" 
+
 echo "making server tree"
 curl  --header "Content-Type: application/json" -X POST "localhost:80/add_server" -d @xc_MWT2_0.json
 curl  --header "Content-Type: application/json" -X POST "localhost:80/add_server" -d @xc_MWT2_1.json

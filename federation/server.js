@@ -41,10 +41,8 @@ module.exports = class Server {
         if (params.hasOwnProperty('created')) { this.created = params.created; }
         if (params.hasOwnProperty('last_update')) { this.last_update = params.last_update; }
 
-        if (config.SIMULATION == true) {
-            this.files = new Map();
-            this.current_utilization = 0;
-        }
+        this.wipe();
+
         return true;
     }
 
@@ -61,6 +59,13 @@ module.exports = class Server {
     }
     set_fallback(fallback) {
         this.upstream_fallback = fallback;
+    }
+
+    wipe() {
+        if (config.SIMULATION == true) {
+            this.files = new Map();
+            this.current_utilization = 0;
+        }
     }
 
     cleanup() {
