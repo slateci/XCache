@@ -137,7 +137,7 @@ app.get('/simulate', function (req, res) {
 
 app.post('/simulate', function (req, res) {
     // console.log('got path request');
-    // console.log(req.query);
+    console.log(req.body);
     // console.log(server_set);
     var result = [0, 0, 0, 0]
     for (var i = 0, len = req.body.length; i < len; i++) {
@@ -187,7 +187,7 @@ app.post('/simulate', function (req, res) {
         res.statusCode = 200;
         result[lf] += 1
     }
-    res.end(result);
+    res.end(result.toString());
 });
 
 // add function that serves clients based on their geoip.

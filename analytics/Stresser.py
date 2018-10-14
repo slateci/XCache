@@ -36,23 +36,24 @@ print('---------- start requests ----------')
 accesses = [0, 0, 0, 0]
 dataaccc = [0, 0, 0, 0]
 count = 0
+payload = []
 for index, row in all_data.iterrows():
-    if count > 31000000:
+    if count > 31:
         break
     fs = row['filesize']
-    payload = {'filename': index, 'site': row['site'], 'filesize': fs, 'time': row['transfer_start']}
+    payload.append({'filename': index, 'site': row['site'], 'filesize': fs, 'time': row['transfer_start']})
     # print(payload)
     try:
-        r = requests.get(service + '/simulate', params=payload)
-        if r.status_code != 200:
-            print(r, r.content)
-        accesses[int(r.content[3:])] += 1
-        dataaccc[int(r.content[3:])] += fs
-    except:
-        print("Stupid issue.")
+        if count % 10 == 1:
+            r = requests.post(service + '/simulate', json=payload)
+            if r.status_code != 200:
+                print(r, r.content)
+            # accesses[int(r.content[3:])] += 1
+            # dataaccc[int(r.content[3:])] += fs
+    except requests.exceptions.RequestException as e:
+        print(e)
 
     if not count % 1000:
-        
         print(count, 'accesses finished.', accesses, dataaccc)
     count += 1
 
