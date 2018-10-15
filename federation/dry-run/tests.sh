@@ -21,6 +21,21 @@ echo "delete server."
 curl   -X DELETE "$SERV/server/xc_test_123" 
 
 echo "making server tree"
+
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_0.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_1.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_2.json
+
+
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_NET2_0.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_NET2_1.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_NET2_2.json
+
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_0.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_1.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_2.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_3.json
+
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_MWT2_0.json
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_MWT2_1.json
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_MWT2_2.json
@@ -30,20 +45,10 @@ curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @x
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_AGLT2_1.json
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_AGLT2_2.json
 
-
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_0.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_1.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_2.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_MW_3.json
-
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_0.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_1.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_BNL_2.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_SW_0.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_Sw_1.json
+curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_SW_2.json
 
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_SWT2_0.json
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_SWT2_1.json
 curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_SWT2_2.json
-
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_SW_0.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_Sw_1.json
-curl  --header "Content-Type: application/json" -X POST "$SERV/add_server" -d @xc_Int2T_SW_2.json

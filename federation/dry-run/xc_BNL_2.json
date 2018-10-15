@@ -1,6 +1,6 @@
 {
     "site": "xc_BNL",
-    "upstream_site": "none",
+    "upstream_site": "xc_Origin",
     "upstream_fallback": "xc_CERN",
     "hostname": "444.444.444.2",
     "capacity": 21990232555520,

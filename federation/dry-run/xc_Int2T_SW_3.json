@@ -1,0 +1,11 @@
+{
+    "site": "xc_Int2_SW",
+    "upstream_site": "xc_BNL",
+    "upstream_fallback": "xc_CERN",
+    "hostname": "Int2_SW_3.xcache.org",
+    "capacity": 10995116277760,
+    "index": 3,
+    "lat": 15.123,
+    "long": -45.123,
+    "status": "active"
+}

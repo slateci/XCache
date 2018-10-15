@@ -140,9 +140,7 @@ app.get('/status', function (req, res) {
 });
 
 app.post('/simulate', function (req, res) {
-    // console.log('got path request');
     // console.log(req.body);
-    // console.log(server_set);
     var counts = [0, 0, 0, 0]
     var sizes = [0, 0, 0, 0]
     pt = 0;
@@ -151,52 +149,58 @@ app.post('/simulate', function (req, res) {
         redge = req.body[i].site;
         rsize = parseInt(req.body[i].filesize);
         rtime = parseInt(req.body[i].time);
-        if (rtime < pt) {
-            console.log('sorting issue!!!!');
-            pt = rtime;
-        }
+
         lf = 3;
         l1 = server_set.get(redge);
         s1 = l1.get_server(rfileid);
         found = s1.add_request(rfileid, rsize, rtime);
         l1.requests_received += 1;
         if (found) {
-            lf = 0;
             l1.files_delivered += 1;
             l1.data_delivered += rsize;
+            counts[0] += 1;
+            sizes[0] += rsize;
+            continue
+        }
+
+        if (l1.upstream_site == 'xc_Origin') {
+            counts[3] += 1
+            sizes[3] += rsize
+            continue
         }
 
         l2 = server_set.get(l1.upstream_site);
         s2 = l2.get_server(rfileid);
-        if (!found) {
-            l2.requests_received += 1;
-            found = s2.add_request(rfileid, rsize, rtime)
-            if (found) {
-                lf = 1
-                l2.files_delivered += 1;
-                l2.data_delivered += rsize;
-            }
+        l2.requests_received += 1;
+        found = s2.add_request(rfileid, rsize, rtime)
+        if (found) {
+            l2.files_delivered += 1;
+            l2.data_delivered += rsize;
+            counts[1] += 1;
+            sizes[1] += rsize;
+            continue
+        }
+
+        if (l2.upstream_site == 'xc_Origin') {
+            counts[3] += 1
+            sizes[3] += rsize
+            continue
         }
 
         l3 = server_set.get(l2.upstream_site);
         s3 = l3.get_server(rfileid);
-        if (!found) {
-            l3.requests_received += 1;
-            found = s3.add_request(rfileid, rsize, rtime)
-            if (found) {
-                lf = 2
-                l3.files_delivered += 1;
-                l3.data_delivered += rsize;
-            }
+        l3.requests_received += 1;
+        found = s3.add_request(rfileid, rsize, rtime)
+        if (found) {
+            l3.files_delivered += 1;
+            l3.data_delivered += rsize;
+            counts[2] += 1;
+            sizes[2] += rsize;
         }
-        if (nrequests % 1000000 == 0) {
-            console.log(server_set);
-        }
-        nrequests += 1
 
-        res.statusCode = 200;
-        counts[lf] += 1;
-        sizes[lf] += rsize;
+        counts[3] += 1
+        sizes[3] += rsize
+
     }
     res.json({
         counts: counts,
