@@ -134,17 +134,27 @@ app.get('/simulate', function (req, res) {
     res.end();
 });
 
+app.get('/status', function (req, res) {
+    console.log(server_set);
+    res.json(JSON.stringify([...server_set]));
+});
 
 app.post('/simulate', function (req, res) {
     // console.log('got path request');
-    console.log(req.body);
+    // console.log(req.body);
     // console.log(server_set);
-    var result = [0, 0, 0, 0]
+    var counts = [0, 0, 0, 0]
+    var sizes = [0, 0, 0, 0]
+    pt = 0;
     for (var i = 0, len = req.body.length; i < len; i++) {
         rfileid = req.body[i].filename.hashCode();
         redge = req.body[i].site;
         rsize = parseInt(req.body[i].filesize);
         rtime = parseInt(req.body[i].time);
+        if (rtime < pt) {
+            console.log('sorting issue!!!!');
+            pt = rtime;
+        }
         lf = 3;
         l1 = server_set.get(redge);
         s1 = l1.get_server(rfileid);
@@ -179,15 +189,20 @@ app.post('/simulate', function (req, res) {
                 l3.data_delivered += rsize;
             }
         }
-        if (nrequests % 100000 == 0) {
+        if (nrequests % 1000000 == 0) {
             console.log(server_set);
         }
         nrequests += 1
 
         res.statusCode = 200;
-        result[lf] += 1
+        counts[lf] += 1;
+        sizes[lf] += rsize;
     }
-    res.end(result.toString());
+    res.json({
+        counts: counts,
+        sizes: sizes
+    })
+    // res.end(result.toString());
 });
 
 // add function that serves clients based on their geoip.

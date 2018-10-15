@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 
 import requests
+import json
 import pandas as pd
 
-service = "http://192.170.227.234:80"
-# service = "http://localhost:80"
+#service = "http://192.170.227.234:80"
+service = "http://localhost:80"
 
 sites = ['AGLT2', 'MWT2']
 dataset = 'AUG'
@@ -38,18 +39,21 @@ dataaccc = [0, 0, 0, 0]
 count = 0
 payload = []
 for index, row in all_data.iterrows():
-    if count > 31:
+    if count > 31000:
         break
     fs = row['filesize']
     payload.append({'filename': index, 'site': row['site'], 'filesize': fs, 'time': row['transfer_start']})
     # print(payload)
     try:
-        if count % 10 == 1:
+        if count % 100 == 1:
             r = requests.post(service + '/simulate', json=payload)
             if r.status_code != 200:
-                print(r, r.content)
-            # accesses[int(r.content[3:])] += 1
-            # dataaccc[int(r.content[3:])] += fs
+                print(r)
+            accs = r.json()
+            for i, j in enumerate(accs['counts']):
+                accesses[i] += int(j)
+                dataaccc[i] += accs['sizes'][i]
+            payload = []
     except requests.exceptions.RequestException as e:
         print(e)
 
@@ -57,9 +61,16 @@ for index, row in all_data.iterrows():
         print(count, 'accesses finished.', accesses, dataaccc)
     count += 1
 
-print(accesses)
-asdf
+print('final: ', accesses, dataaccc)
 
+res = requests.get(service + '/status')
+status = json.loads(res.json())
+# print(status)
+for site in status:
+    print(site[0])
+    print(site[1])
+
+asdf
 
 data = (25, 32, 34, 20, 25)
 
