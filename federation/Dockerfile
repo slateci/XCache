@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 80
 EXPOSE 433
 
-CMD [ "node","index.js" ]
+CMD [ "node","--max-old-space-size=4096","index.js" ]

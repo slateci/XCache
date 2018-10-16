@@ -7,7 +7,7 @@ import pandas as pd
 # service = "http://192.170.227.234:80"
 service = "http://localhost:80"
 
-sites = ['AGLT2', 'MWT2']
+sites = ['AGLT2', 'MWT2', 'NET2', 'SWT2']
 dataset = 'AUG'
 
 GB = 1024 * 1024 * 1024
@@ -17,19 +17,20 @@ PB = 1024 * TB
 
 # ### Import data
 
-all_accesses = []
-for si, site in enumerate(sites):
+all_data = pd.DataFrame()
+for site in sites:
     print('Loading:', site)
-    all_accesses.append(pd.read_hdf(site + '_' + dataset + '.h5', key=site, mode='r'))
-    all_accesses[si]['site'] = 'xc_' + site
-    # print(all_accesses[si].head())
-    print(all_accesses[si].filesize.count(), "files")
-    print(all_accesses[si].index.unique().shape[0], " unique files")
-    print(all_accesses[si].filesize.sum() / PB, "PB")
-    print(all_accesses[si].filesize.mean() / GB, "GB avg. file size")
+    all_accesses = pd.read_hdf(site + '_' + dataset + '.h5', key=site, mode='r')
+    all_accesses['site'] = 'xc_' + site
+    # print(all_accesses.head())
+    print(all_accesses.filesize.count(), "files")
+    print(all_accesses.index.unique().shape[0], " unique files")
+    print(all_accesses.filesize.sum() / PB, "PB")
+    print(all_accesses.filesize.mean() / GB, "GB avg. file size")
     print('----------------------------')
+    all_data = pd.concat([all_data, all_accesses])
 
-all_data = pd.concat(all_accesses).sort_values('transfer_start')
+all_data = all_data.sort_values('transfer_start')
 
 print('---------- merged data -----------')
 print(all_data.shape[0], 'files\t\t', all_data.index.unique().shape[0], 'unique files')
@@ -53,7 +54,7 @@ with requests.Session() as session:
         payload.append({'filename': index, 'site': row['site'], 'filesize': fs, 'time': row['transfer_start']})
         # print(payload)
         try:
-            if count % 100 and count > 0:
+            if count % 500 and count > 0:
                 r = session.post(service + '/simulate', json=payload)
                 if r.status_code != 200:
                     print(r)

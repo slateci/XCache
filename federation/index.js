@@ -150,7 +150,6 @@ app.post('/simulate', function (req, res) {
         rsize = parseInt(req.body[i].filesize);
         rtime = parseInt(req.body[i].time);
 
-        lf = 3;
         l1 = server_set.get(redge);
         s1 = l1.get_server(rfileid);
         found = s1.add_request(rfileid, rsize, rtime);
