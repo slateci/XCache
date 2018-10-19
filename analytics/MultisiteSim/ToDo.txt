@@ -1,0 +1,4 @@
+* add removal of HC files
+* add printout of most frequently accessed files per site
+* add plot of average number of accesses per site (at the end)
+* add plot of average time of last access (at the end) 
