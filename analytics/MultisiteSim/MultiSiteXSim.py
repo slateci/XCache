@@ -1,13 +1,12 @@
 '''
 This always runs against data downloaded from ES.
 '''
-import logging
 
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from cache import XCacheSite
+from cache import XCacheSite, load_data
 
 matplotlib.rc('xtick', labelsize=14)
 matplotlib.rc('ytick', labelsize=14)
@@ -20,54 +19,50 @@ TB = 1024 * GB
 PB = 1024 * TB
 
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
-# sites = ['MWT2']
-dataset = 'AUG'
-title = ','.join(sites)
+# sites = ['UKI-SCOTGRID-ECDF']
+periods = ['AUG', 'SEP']  # must be listed in order
+kinds = ['anal']
+skipFiles = [':AOD.']
 
-all_data = pd.DataFrame()
-for site in sites:
-    site_data = pd.read_hdf("../data/" + dataset + '/' + site + '_' + dataset + '.h5', key=site, mode='r')
-    print(site)
-    site_data['site'] = 'xc_' + site
-    print(site_data.filesize.count(), "files")
-    print(site_data.index.unique().shape[0], " unique files")
-    print(site_data.filesize.sum() / PB, "PB")
-    print(site_data.filesize.mean() / GB, "GB avg. file size")
-    print('----------------------------')
-    all_data = pd.concat([all_data, site_data])
+label = 'NOAOD'
+output = label + '_' + '_'.join(kinds) + '_' + '_'.join(periods) + '_' + '_'.join(sites)
+title = label + '\n' + ','.join(kinds) + ' ' + ' '.join(periods) + '\n' + ','.join(sites)
 
-# print(all_data.head())
-all_data = all_data.sort_values('transfer_start')
-
-print('---------- merged data -----------')
-print(all_data.shape[0], 'files\t\t', all_data.index.unique().shape[0], 'unique files')
-print(all_data.filesize.sum() / PB, "PB")
-print(all_data.filesize.mean() / GB, "GB avg. file size")
-
-logging.getLogger('cache').setLevel(logging.DEBUG)
+all_data = load_data(sites, periods, kinds, skipFiles)
 
 # all_data = all_data[:100000]
 
 # create caching network
 all_sites = {}
-# all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2_MW', servers=4, size=10 * TB)
+
+# all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2_MW', servers=3, size=10 * TB)
 # all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2_MW', servers=4, size=10 * TB)
 # all_sites['xc_Int2_MW'] = XCacheSite('xc_Int2_MW', upstream='Origin', servers=4, size=10 * TB)
-
 # all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2_NE', servers=3, size=10 * TB)
 # all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2_NE', servers=10, size=30 * TB)
 # all_sites['xc_Int2_NE'] = XCacheSite('xc_Int2_NE', upstream='Origin', servers=4, size=10 * TB)
-
 # all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2_SW', servers=3, size=10 * TB)
 # all_sites['xc_Int2_SW'] = XCacheSite('xc_Int2_SW', upstream='Origin', servers=4, size=10 * TB)
 
+# flat US with one central cache.
 all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=4, size=10 * TB)
 all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=4, size=10 * TB)
 all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=4, size=10 * TB)
 all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=4, size=30 * TB)
 all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=4, size=10 * TB)
-
 all_sites['xc_Int2'] = XCacheSite('xc_Int2', upstream='Origin', servers=5, size=30 * TB)
+
+
+# all_sites['xc_UKI-SCOTGRID-ECDF'] = XCacheSite('xc_scot', upstream='Origin', servers=1, size=10 * TB)
+# all_sites['xc_UKI-SCOTGRID-GLASGOW'] = XCacheSite('xc_scot', upstream='Origin', servers=1, size=10 * TB)
+# all_sites['xc_UKI-SCOTGRID-adsf'] = XCacheSite('xc_scot', upstream='Origin', servers=1, size=10 * TB)
+# all_sites['xc_UKI-LT2-...'] = XCacheSite('xc_lt2', upstream='Origin', servers=1, size=10 * TB)
+# all_sites['xc_UKI-LT2-...'] = XCacheSite('xc_lt2', upstream='Origin', servers=1, size=10 * TB)
+
+# all_sites['xc_scot'] = XCacheSite('xc_scot', upstream='Origin', servers=1, size=30 * TB)
+# all_sites['xc_lt2'] = XCacheSite('xc_lt2', upstream='Origin', servers=1, size=30 * TB)
+# all_sites['xc_north'] = XCacheSite('xc_north', upstream='Origin', servers=1, size=30 * TB)
+# all_sites['xc_south'] = XCacheSite('xc_south', upstream='Origin', servers=1, size=30 * TB)
 
 all_sites['Origin'] = XCacheSite('Origin', upstream='none')
 
@@ -163,16 +158,18 @@ dacdf = dacdf.div(dacdf.sum(axis=1), axis=0)
 accdf.plot(ax=axs[0][1])
 axs[0][1].set_ylabel('hits [%]')
 axs[0][1].set_xlabel('requests [x' + str(step) + ']')
+axs[0][1].grid(axis='y')
 axs[0][1].legend()
 
 dacdf.plot(ax=axs[1][1])
 axs[1][1].set_ylabel('data delivered [%]')
 axs[1][1].set_xlabel('requests [x' + str(step) + ']')
+axs[1][1].grid(axis='y')
 axs[1][1].legend()
 
 # plt.show()
 
-fig.savefig('filling_up_' + title.replace(',', '_') + '.png')
+fig.savefig('filling_up_' + output + '.png')
 
 
 # Network states
@@ -198,4 +195,4 @@ fig, ax = plt.subplots(figsize=(8, 8))
 fig.suptitle(title, fontsize=18)
 sites.plot(kind="bar", ax=ax, secondary_y=['data asked for', 'delivered from cache'])
 ax.right_ax.set_ylabel('[TB]')
-fig.savefig('xcache_sites_' + title.replace(',', '_') + '.png')
+fig.savefig('xcache_sites_' + output + '.png')

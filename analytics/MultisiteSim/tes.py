@@ -1,16 +1,31 @@
+#! /usr/bin/python
+import logging
+
 import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
-import math
 
-fig, ax = plt.subplots(figsize=(8, 8))
-bs = []
-b = [1, 2, 3, 4, 5, 10, 20, 30, 100, 200, 300, 1000, 2000, 3000, 10000]
-for i in b:
-    bs.append(math.log(i))
-print(bs)
-gc=pd.Series([1,1,1,1,1,1,2,2,100,10000])
-plt.xticks(bs, ["%s" % i for i in bs])
-plt.hist(np.log(gc), log=True, bins=bs)
-plt.show()
+from cache import XCacheSite
+
+matplotlib.rc('xtick', labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
+
+step = 10000
+
+MB = 1024 * 1024
+GB = 1024 * MB
+TB = 1024 * GB
+PB = 1024 * TB
+
+site = 'MWT2'
+dataset = 'AUG'
+
+site_data = pd.read_hdf("../data/" + dataset + '/' + site + '_' + dataset + '.h5', key=site, mode='r')
+print(site_data.shape[0], 'files\t\t', site_data.index.unique().shape[0], 'unique files')
+print(site_data)
+site_data.reset_index(level=0, inplace=True)
+
+print(site_data[site_data.filename.str.contains(".15231333.", regex=False)].filename)
+sel = site_data[site_data.filename.str.contains(".15231333.", regex=False)]
+print(sel.shape)
+# site_data = site_data[~site_data.index.str.contains('panda')]

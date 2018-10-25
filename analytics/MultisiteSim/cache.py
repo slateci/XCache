@@ -1,4 +1,3 @@
-import logging
 import pandas as pd
 import hashlib
 
@@ -7,6 +6,48 @@ MB = 1024 * 1024
 GB = 1024 * MB
 TB = 1024 * GB
 PB = 1024 * TB
+
+
+def load_data(sites, periods, kinds, skipFiles=[]):
+
+    all_data = pd.DataFrame()
+    counts = []
+    for site in sites:
+        for month in periods:
+            for kind in kinds:
+                site_data = pd.read_hdf("../data/" + month + '/' + site + '_' + kind + '_' + month + '.h5', key=site, mode='r')
+                site_data['site'] = 'xc_' + site
+                nfiles = site_data.filesize.count()
+                print(site, month, kind, nfiles)
+                ufiles = site_data.index.unique().shape[0]
+                totsize = site_data.filesize.sum() / PB
+                avgfilesize = site_data.filesize.mean() / GB
+                all_data = pd.concat([all_data, site_data])
+                counts.append([site, month, kind, nfiles, ufiles, totsize, avgfilesize])
+
+    df = pd.DataFrame(counts, columns=['site', 'month', 'kind', 'files', 'unique files', 'total size [PB]', 'avg. filesize [GB]'])
+    print(df)
+
+    if len(counts) == 1:
+        return all_data
+
+    print('---------- merged data -----------')
+    print(all_data.shape[0], 'files\t', all_data.index.unique().shape[0], 'unique\t',
+          all_data.filesize.sum() / PB, "PB\t", all_data.filesize.mean() / GB, "GB avg. file size")
+    all_data = all_data.sort_values('transfer_start')
+
+    if len(skipFiles) == 0:
+        return all_data
+
+    for rem in skipFiles:
+        print('removing: ', rem)
+        all_data = all_data[~all_data.index.str.contains(rem)]
+
+    print('---------- after removing files not to cache -----------')
+    print(all_data.shape[0], 'files\t', all_data.index.unique().shape[0], 'unique\t',
+          all_data.filesize.sum() / PB, "PB\t", all_data.filesize.mean() / GB, "GB avg. file size")
+
+    return all_data
 
 
 class XCacheServer(object):
@@ -60,7 +101,6 @@ class XCacheSite(object):
 
     def __init__(self, name, upstream='Origin', servers=1, size=TB, lwm=0.85, hwm=0.95):
         """ cache size is in bytes """
-        self.logger = logging.getLogger(__name__)
         self.name = name
         self.upstream = upstream
         self.nservers = servers

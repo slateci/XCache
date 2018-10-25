@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-from cache import XCacheSite
+from cache import XCacheSite, load_data
 
 matplotlib.rc('xtick', labelsize=14)
 matplotlib.rc('ytick', labelsize=14)
@@ -17,7 +17,9 @@ PB = 1024 * TB
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
 # sites = ['AGLT2', 'SWT2']
 filetypes = []
-dataset = 'AUG'
+
+periods = ['AUG', 'SEP']  # must be listed in order
+kinds = ['prod']
 title = ','.join(sites)
 
 bs = [1, 2, 10, 100, 1000, 10000, 100000]
@@ -30,14 +32,7 @@ def get_type(s):
 
 
 for site in sites:
-    site_data = pd.read_hdf("../data/" + dataset + '/' + site + '_' + dataset + '.h5', key=site, mode='r')
-    print(site)
-    site_data['site'] = 'xc_' + site
-    print(site_data.shape[0], "accesses\t",)
-    print(site_data.index.unique().shape[0], " unique files")
-    print(site_data.filesize.sum() / PB, "PB")
-    print(site_data.filesize.mean() / GB, "GB avg. file size")
-
+    site_data = load_data([site], periods, kinds)
     gc = site_data.groupby('filename').size().sort_values(ascending=False)  # series
 
     count, division = np.histogram(gc, bins=bs)
@@ -53,7 +48,9 @@ for site in sites:
     # print('single access: ')
     sa = gc[gc == 1].groupby(by=get_type).size().sort_values(ascending=False)
 
-    print(mt1.to_frame(name='multiple').merge(sa.to_frame(name='single'), left_index=True, right_index=True))
+    cacheability = mt1.to_frame(name='multiple').merge(sa.to_frame(name='single'), left_index=True, right_index=True)
+    cacheability['prc'] = cacheability.multiple / cacheability.single
+    print(cacheability)
     # print(pd.concat([mt1, sa]))
 
     sites_data.append(site_data)
