@@ -21,10 +21,10 @@ PB = 1024 * TB
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
 # sites = ['UKI-SCOTGRID-ECDF']
 periods = ['AUG', 'SEP']  # must be listed in order
-kinds = ['anal']
-skipFiles = [':AOD.']
+kinds = ['prod']
+skipFiles = []  # ':AOD.']
 
-label = 'NOAOD'
+label = 'flat_US'
 output = label + '_' + '_'.join(kinds) + '_' + '_'.join(periods) + '_' + '_'.join(sites)
 title = label + '\n' + ','.join(kinds) + ' ' + ' '.join(periods) + '\n' + ','.join(sites)
 
