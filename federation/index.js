@@ -275,16 +275,16 @@ async function reload_servers() {
 }
 
 
-// var httpsServer = https.createServer(credentials, app).listen(443);
+var httpsServer = https.createServer(credentials, app).listen(443);
 
-//// redirects to https if someone comes on http.
-// http.createServer(function (req, res) {
-//     res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
-//     res.end();
-// }).listen(80);
+// redirects to https if someone comes on http.
+http.createServer(function (req, res) {
+    res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
+    res.end();
+}).listen(80);
 
-// for testing
-var httpsServer = http.createServer(app).listen(80);
+// // for testing
+// var httpsServer = http.createServer(app).listen(80);
 
 async function main() {
     try {
