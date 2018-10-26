@@ -246,6 +246,14 @@ app.delete('/server/:server_id', async function (req, res) {
     res.status(200).send('OK');
 });
 
+app.get('/stress_test/:nfiles', async function (req, res) {
+    console.log('stress requested');
+    console.log(req.params.nfiles);
+    var es = new elastic();
+    files = await es.get_stress_files(req.params.nfiles);
+    res.json(JSON.stringify([...files]));
+});
+
 app.get('/wipe', async function (req, res) {
     console.log('WIPING all caches!!!');
     // loop over sites and servers in server_set and wipe them.

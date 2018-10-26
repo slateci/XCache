@@ -129,6 +129,37 @@ module.exports = class Elastic {
         return server_tree;
     };
 
+    async get_stress_files(nfiles) {
+        // console.log("loading all server info...");
+        var test_files = [];
+        try {
+            const response = await this.es.search({
+                index: 'stress', type: 'docs',
+                body: {
+                    size: nfiles,
+                    query: { bool: { must: [{ match: { status: "in queue" } }] } }
+                }
+            });
+            // console.log(response);
+            if (response.hits.total == 0) {
+                console.log("No files in queued");
+                return false;
+            }
+            else {
+                console.log("Files found.");
+                for (var i = 0; i < response.hits.hits.length; i++) {
+                    var si = response.hits.hits[i]._source;
+                    console.log(si);
+                    var tf = si;
+                    test_files.push(tf);
+                }
+            };
+        } catch (err) {
+            console.error(err)
+        }
+        console.log('Done.');
+        return test_files;
+    };
 }
 
 

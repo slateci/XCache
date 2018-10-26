@@ -30,10 +30,10 @@ my_query = {
 
 rc = ReplicaClient()
 
-USsites = ['root://fax.mwt2.org', 'root://dcdoor16.usa', 'root://gk06.atlas-s', 'root://griddev03.sl', 'root://xrootd.aglt2']
-exclude = ['root://se.reef.man.', 'root://golias100.fa', 'root://grid-cert-03',
-           'root://ccsrm.ihep.a', 'root://f-dpm000.gri', 'root://sdrm.t1.grid',
-           'root://agh3.atlas.u', 'root://gridftp-a1-1']
+USsites = ['MWT2', 'AGLT2', 'BNL-OSG2', 'SWT2_CPB', 'SLACXRD']
+exclude = ['RO-07-NIPNE', 'UNI-FREIBURG', 'TOKYO-LCG2', 'TOKYO-LCG2_LOCALGROUPDISK', 'GOEGRID', 'TAIWAN-LCG2',
+           'INFN-COSENZA', 'INFN-MILANO-ATLASC', 'INFN-NAPOLI-ATLAS', 'JINR-LCG2',
+           'RRC-KI-T1', 'AUSTRALIA-ATLAS', 'BEIJING-LCG2', 'INFN-ROMA1', 'PRAGUELCG2', 'UAM-LCG2']
 scroll = scan(client=es, index="traces", query=my_query)
 count = 0
 requests = []
@@ -49,8 +49,9 @@ for res in scroll:
         co = 0
         for r in i['rses']:
             path = i['rses'][r][0]
-            # print(path[:19], path[19:])
-            if (co == 0 or path[0:19] in USsites) and path[0:19] not in exclude:
+            origin = r.replace('_DATADISK', '')
+            # print(origin)
+            if (co == 0 or origin in USsites) and origin not in exclude:
                 print(i['rses'][r][0])
                 requests.append({
                     "_index": "stress",
@@ -61,7 +62,7 @@ for res in scroll:
                         "filesize": files,
                         "timestamp": times,
                         "status": "in queue",
-                        "origin": r
+                        "origin": origin
                     }
                 })
                 co += 1
