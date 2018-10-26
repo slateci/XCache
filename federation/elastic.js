@@ -149,8 +149,9 @@ module.exports = class Elastic {
                 console.log("Files found.");
                 for (var i = 0; i < response.hits.hits.length; i++) {
                     var si = response.hits.hits[i]._source;
-                    console.log(si);
+                    // console.log(si);
                     var tf = si;
+                    tf['_id'] = response.hits.hits[i]._id;
                     test_files.push(tf);
                 }
             };

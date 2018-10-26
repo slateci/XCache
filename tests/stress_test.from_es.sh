@@ -22,24 +22,30 @@ export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
 
 
-SERVER="http://localhost"
+#SERVER="http://localhost"
 #SERVER="https://xcache.org"
+SERVER=$1
+
+# XCACHE_SERVER='https://fax.mwt2.org'
+XCACHE_SERVER=$2
+
 NFILES=10
-curl -X GET "$SERVER/stress_test/$NFILES" > res.json
 
-fns=( $(jq  '.hits.hits[]._source.filename' res.json) )
-scps=( $(jq  '.hits.hits[]._source.scope' res.json) )
+while true
+do
 
-for ((i=0;i<${#fns[@]};++i)); do
-    printf "%s is in %s\n" "${fns[i]}" "${scps[i]}"
+    # get next n files in queue and save them as json file
+    curl -k -X GET "$SERVER/stress_test/$NFILES" > res.json
+
+    # parse filenames and paths
+    fns=( $(jq -C -r '.[]|.filename'  res.json) )
+    pths=( $(jq -C -r '.[]|.path'  res.json) )
+
+    # loop over them    
+    for ((i=0;i<${#fns[@]};++i)); do
+        DA=$(date)
+        printf "$DA copying %s\n" "${fns[i]}" "${pths[i]}"
+        xrdcp -f $XCACHE_SERVER/${pths[i]} /dev/null
+    done
+
 done
-
-# while true
-# do
-# # get next n files in queue and save them as json file
-#     while read fp; do
-#         date
-#         echo $1//$fp
-#         xrdcp -f $1//$fp /dev/null
-#     done </tests/$2
-# done

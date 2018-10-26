@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stress-test
+  labels:
+    app: stress-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stress-test
+  template:
+    metadata:
+      labels:
+        app: stress-test
+    spec:
+
+      volumes:
+      - name: x509-data
+        emptyDir: {}
+      - name: x509-certs-volume
+        secret:
+          secretName: xcache-cert-secret
+          items:
+          - key: userkey
+            path: userkey.pem
+            mode: 256 
+          - key: usercert
+            path: usercert.pem
+
+      containers:
+
+      - name: stresser
+        image: slateci/xcache:latest
+        command: ["/tests/stress_test.from_es.sh"]
+        args: ["root://xcache.mwt2.org:1094","https://192.170.227.234"]
+        volumeMounts:
+        - name: x509-data
+          mountPath: "/etc/grid-security/"
+          readOnly: false
+        - name: x509-certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
+
+      - name: x509
+        image: slateci/xcache:latest
+        command: ["/run_x509_updater.sh"]
+        volumeMounts:
+        - name: x509-data
+          mountPath: "/etc/grid-security/"
+          readOnly: false
+        - name: x509-certs-volume
+          mountPath: "/etc/grid-certs/"
+          readOnly: true
