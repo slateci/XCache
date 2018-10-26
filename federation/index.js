@@ -5,20 +5,24 @@ var http = require('http');
 
 var bodyParser = require('body-parser');
 
-
-
 const elastic = require('./elastic.js');
 const server = require('./server.js');
 const site = require('./site.js');
 
-// var config = require('/etc/backend-conf/config.json');
-var config = {
-    SITENAME: "xcache.org",
-    ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
-    SERVERS_INDEX: "xc_servers",
-    REQUESTS_INDEX: "xc_requests",
-    SIMULATION: true
-};
+var config = require('/etc/backend-conf/config.json');
+
+// var config = {
+//     SITENAME: "xcache.org",
+//     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
+//     SERVERS_INDEX: "xc_servers",
+//     REQUESTS_INDEX: "xc_requests",
+//     SIMULATION: true
+// };
+
+var privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
+var certificate = fs.readFileSync('/etc/https-certs/cert.pem');
+
+var credentials = { key: privateKey, cert: certificate };
 
 console.log('XCache backend server starting ... ');
 
@@ -283,7 +287,7 @@ http.createServer(function (req, res) {
     res.end();
 }).listen(80);
 
-// // for testing
+// for testing
 // var httpsServer = http.createServer(app).listen(80);
 
 async function main() {

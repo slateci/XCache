@@ -21,23 +21,25 @@ echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
 
-# this does not work as we have no access to rucio
-#
-# curl -X GET "https://xcache.org:/stress_test/nfiles/10" > res.json
 
-# fns=( $(jq  '.hits.hits[]._source.filename' res.json) )
-# scps=( $(jq  '.hits.hits[]._source.scope' res.json) )
+SERVER="http://localhost"
+#SERVER="https://xcache.org"
+NFILES=10
+curl -X GET "$SERVER/stress_test/$NFILES" > res.json
 
-# for ((i=0;i<${#fns[@]};++i)); do
-#     printf "%s is in %s\n" "${fns[i]}" "${scps[i]}"
-# done
+fns=( $(jq  '.hits.hits[]._source.filename' res.json) )
+scps=( $(jq  '.hits.hits[]._source.scope' res.json) )
 
-while true
-do
-# get next n files in queue and save them as json file
-    while read fp; do
-        date
-        echo $1//$fp
-        xrdcp -f $1//$fp /dev/null
-    done </tests/$2
+for ((i=0;i<${#fns[@]};++i)); do
+    printf "%s is in %s\n" "${fns[i]}" "${scps[i]}"
 done
+
+# while true
+# do
+# # get next n files in queue and save them as json file
+#     while read fp; do
+#         date
+#         echo $1//$fp
+#         xrdcp -f $1//$fp /dev/null
+#     done </tests/$2
+# done

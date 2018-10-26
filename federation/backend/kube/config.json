@@ -1,4 +1,7 @@
 {
     "SITENAME": "xcache.org",
-    "ELASTIC_HOST": "atlas-kibana.mwt2.org:9200"
+    "ELASTIC_HOST": "atlas-kibana.mwt2.org:9200",
+    "SERVERS_INDEX": "xc_servers",
+    "REQUESTS_INDEX": "xc_requests",
+    "SIMULATION": true
 }
