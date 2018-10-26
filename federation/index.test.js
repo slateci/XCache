@@ -9,20 +9,13 @@ const elastic = require('./elastic.js');
 const server = require('./server.js');
 const site = require('./site.js');
 
-var config = require('/etc/backend-conf/config.json');
-
-// var config = {
-//     SITENAME: "xcache.org",
-//     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
-//     SERVERS_INDEX: "xc_servers",
-//     REQUESTS_INDEX: "xc_requests",
-//     SIMULATION: true
-// };
-
-var privateKey = fs.readFileSync('/etc/https-certs/key.pem');//, 'utf8'
-var certificate = fs.readFileSync('/etc/https-certs/cert.pem');
-
-var credentials = { key: privateKey, cert: certificate };
+var config = {
+    SITENAME: "xcache.org",
+    ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
+    SERVERS_INDEX: "xc_servers",
+    REQUESTS_INDEX: "xc_requests",
+    SIMULATION: true
+};
 
 console.log('XCache backend server starting ... ');
 
@@ -279,16 +272,8 @@ async function reload_servers() {
 }
 
 
-var httpsServer = https.createServer(credentials, app).listen(443);
-
-// redirects to https if someone comes on http.
-http.createServer(function (req, res) {
-    res.writeHead(302, { 'Location': 'https://' + config.SITENAME });
-    res.end();
-}).listen(80);
-
 // for testing
-// var httpsServer = http.createServer(app).listen(80);
+var httpsServer = http.createServer(app).listen(80);
 
 async function main() {
     try {
