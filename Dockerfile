@@ -26,7 +26,8 @@ RUN yum install -y supervisor fetch-crl
 
 RUN yum install -y \
     python-pip \
-    python36
+    python36 \
+    jq
 
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir \
