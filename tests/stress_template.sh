@@ -1,4 +1,4 @@
-# Elasticsearch template. To be used only once.
+# Elasticsearch template. To be used only once.    .
 curl -XPOST  'atlas-kibana.mwt2.org:9200/_template/stress' -d '{
     "order": 0,
     "index_patterns": "stress",
