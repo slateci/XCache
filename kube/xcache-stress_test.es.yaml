@@ -33,7 +33,7 @@ spec:
       - name: stresser
         image: slateci/xcache:latest
         command: ["/tests/stress_test.from_es.sh"]
-        args: ["root://xcache.mwt2.org:1094","https://192.170.227.234"]
+        args: ["https://192.170.227.234", "root://xcache.mwt2.org:1094"]
         volumeMounts:
         - name: x509-data
           mountPath: "/etc/grid-security/"

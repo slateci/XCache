@@ -1,5 +1,7 @@
 #!/bin/sh
 
+#getting paths from a service.given as a parameter 1 and transferting through xcache given as a parameter 2.
+
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR do not have to be defined/provided
 # but then it won't really be useful
 
