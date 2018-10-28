@@ -14,6 +14,7 @@ echo $X509_USER_PROXY $X509_CERT_DIR $X509_VOMS_DIR
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
 
+export TIMEFORMAT='%3R'
 
 #SERVER="http://localhost"
 #SERVER="https://xcache.org"
@@ -33,12 +34,19 @@ do
     # parse filenames and paths
     fns=( $(jq -C -r '.[]|.filename'  res.json) )
     pths=( $(jq -C -r '.[]|.path'  res.json) )
+    ids=( $(jq -C -r '.[]|._id'  res.json) )
 
     # loop over them    
     for ((i=0;i<${#fns[@]};++i)); do
         DA=$(date)
-        printf "$DA copying %s\n" "${fns[i]}" "${pths[i]}"
-        xrdcp -f $XCACHE_SERVER${pths[i]} /dev/null
+        printf "$DA copying %s\n" "${pths[i]}"
+        export XRD_LOGFILE=${ids[i]}.LOG
+        { time timeout 270 xrdcp -f -d 2 -N $XCACHE_SERVER${pths[i]} /dev/null  2>&1 ; } 2> ${ids[i]}.tim
+
+        # check output code
+        # get time from time file
+        # do curl of result
+        # curl -k -X GET "$SERVER/stress_result/$id/$code/$rate" > res.json
     done
 
 done
