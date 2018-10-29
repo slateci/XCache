@@ -16,7 +16,19 @@ module.exports = class Elastic {
 
     constructor() {
         this.es = new elasticsearch.Client({ host: config.ELASTIC_HOST, log: 'error' });
+        this.requests = [];
+        this.stress_requests = [];
+        this.stress_results = [];
     }
+
+    async add_request(request) {
+        console.log("Adding request to ES ...");
+        this.requests.push(request);
+        if (this.requests.length > 1) {
+            this.save_requests(this.requests);
+            this.requests = [];
+        }
+    };
 
     async save_requests(requests) {
         console.log("saving requests to ES...");
@@ -129,15 +141,22 @@ module.exports = class Elastic {
         return server_tree;
     };
 
-    async get_stress_files(nfiles) {
-        // console.log("loading all server info...");
-        var test_files = [];
+    async get_stress_file() {
+        if (this.stress_requests.length == 0) {
+            await this.load_stress_files();
+        }
+        return this.stress_requests.shift();
+    }
+
+    async load_stress_files(nfiles = 50) {
+        console.log("loading batch of stress paths ...");
         try {
             const response = await this.es.search({
                 index: 'stress', type: 'docs',
                 body: {
                     size: nfiles,
-                    query: { bool: { must: [{ match: { status: "in queue" } }] } }
+                    query: { bool: { must: [{ match: { status: "in queue" } }] } },
+                    sort: [{ timestamp: { order: "asc" } }]
                 }
             });
             // console.log(response);
@@ -152,15 +171,40 @@ module.exports = class Elastic {
                     // console.log(si);
                     var tf = si;
                     tf['_id'] = response.hits.hits[i]._id;
-                    test_files.push(tf);
+                    this.stress_requests.push(tf);
                 }
             };
         } catch (err) {
             console.error(err)
         }
         console.log('Done.');
-        return test_files;
     };
+
+    add_stress_result(result) {
+        this.stress_results.push(result);
+        if (this.stress_results.length > 1) {
+            this.save_stress_results(this.stress_results);
+            this.stress_results = [];
+        }
+    };
+
+    async save_stress_results() {
+        console.log("saving stress results...");
+
+        var docs = { body: [] }
+        for (var i = 0, len = this.stress_results.length; i < len; i++) {
+            var res = this.stress_results.pop();
+            docs.body.push({ update: { _index: 'stress', _type: 'docs', _id: res._id } });
+            docs.body.push({ doc: { rate: res.rate, status: res.status, updated_at: new Date().getTime() } });
+        }
+        try {
+            await this.es.bulk(docs);
+        } catch (err) {
+            console.error(err)
+        }
+        console.log("Done.");
+    };
+
 }
 
 

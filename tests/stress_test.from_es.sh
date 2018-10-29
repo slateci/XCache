@@ -23,30 +23,27 @@ SERVER=$1
 # XCACHE_SERVER='https://fax.mwt2.org//'
 XCACHE_SERVER=$2
 
-NFILES=10
-
 while true
 do
 
     # get next n files in queue and save them as json file
-    curl -k -X GET "$SERVER/stress_test/$NFILES" > res.json
+    curl -k -X GET "$SERVER/stress_test/" > res.json
 
     # parse filenames and paths
-    fns=( $(jq -C -r '.[]|.filename'  res.json) )
-    pths=( $(jq -C -r '.[]|.path'  res.json) )
-    ids=( $(jq -C -r '.[]|._id'  res.json) )
+    fn=( $(jq -C -r '.filename'  res.json) )
+    pth=( $(jq -C -r '.path'  res.json) )
+    id=( $(jq -C -r '._id'  res.json) )
 
-    # loop over them    
-    for ((i=0;i<${#fns[@]};++i)); do
-        DA=$(date)
-        printf "$DA copying %s\n" "${pths[i]}"
-        export XRD_LOGFILE=${ids[i]}.LOG
-        { time timeout 270 xrdcp -f -d 2 -N $XCACHE_SERVER${pths[i]} /dev/null  2>&1 ; } 2> ${ids[i]}.tim
+    printf "$(date) copying %s\n" "${pth}"
+    export XRD_LOGFILE=${id}.LOG
+    { time timeout 270 xrdcp -f -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> ${id}.tim
+    # { time timeout 270 sleep 5  2>&1 ; } 2> ${id}.tim
 
-        # check output code
-        # get time from time file
-        # do curl of result
-        # curl -k -X GET "$SERVER/stress_result/$id/$code/$rate" > res.json
-    done
+    code=$?
+    rate=`cat ${id}.tim`
+
+    echo "ret code: $code   duration: $rate"
+
+    curl -k -X GET "$SERVER/stress_result/$id/$code/$rate"
 
 done

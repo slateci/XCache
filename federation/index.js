@@ -33,8 +33,10 @@ app.use(express.static('public'));
 // app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json('application/json'));
 
-var requests = [];
 var nrequests = 0;
+
+
+var es = new elastic();
 
 String.prototype.hashCode = function () {
     var hash = 0, i, chr;
@@ -55,18 +57,14 @@ String.prototype.hashCode = function () {
 app.get('/path/:filename/:edgecache/:originpath', function (req, res) {
     console.log('got path request');
     // console.log(req.params.filename, req.params.edgecache, req.params.originpath);
-    requests.push({
+
+    es.add_request({
         filename: req.params.filename,
         edgecache: req.params.edgecache,
         origin: req.params.originpath,
         timestamp: new Date().getTime()
     });
 
-    if (requests.length > 1) {
-        var es = new elastic();
-        es.save_requests(requests);
-        requests = [];
-    }
     res.status(200).send('OK');
 });
 
@@ -222,7 +220,6 @@ app.post('/add_server', async function (req, res) {
     if (!serv.initialize(req.body)) {
         res.status(400).send({ error: 'Not all required parameters provided.' });
     } else {
-        var es = new elastic();
         await es.add_server(serv);
         await reload_servers();
         res.status(200).send('OK');
@@ -235,7 +232,6 @@ will update everything except: index, site, long, lat,
 app.post('/update_server', async function (req, res) {
     console.log('updating server');
     // console.log(req.body);
-    var es = new elastic();
     await es.update_server(req.body);
     await reload_servers();
     res.status(200).send('OK');
@@ -244,19 +240,24 @@ app.post('/update_server', async function (req, res) {
 app.delete('/server/:server_id', async function (req, res) {
     console.log('removing server');
     console.log(req.params.server_id);
-    var es = new elastic();
     await es.delete_server(req.params.server_id);
     await reload_servers();
     res.status(200).send('OK');
 });
 
-app.get('/stress_test/:nfiles', async function (req, res) {
-    console.log('stress requested');
-    console.log(req.params.nfiles);
-    var es = new elastic();
-    files = await es.get_stress_files(req.params.nfiles);
-    res.json([...files]);
+app.get('/stress_test/', async function (req, res) {
+    console.log('stress file requested');
+    sfile = await es.get_stress_file();
+    res.json(sfile);
 });
+
+app.get('/stress_result/:_id/:status/:rate', function (req, res) {
+    console.log('stress result');
+    console.log(req.params);
+    es.add_stress_result(req.params);
+    res.status(200).send('OK');
+});
+
 
 app.get('/wipe', async function (req, res) {
     console.log('WIPING all caches!!!');
@@ -274,7 +275,6 @@ app.get('/wipe', async function (req, res) {
 
 async function reload_servers() {
     console.log('reloading servers');
-    var es = new elastic();
     server_set = await es.load_server_tree();
 }
 
