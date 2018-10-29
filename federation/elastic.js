@@ -8,6 +8,7 @@ var config = {
     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
     SERVERS_INDEX: "xc_servers",
     REQUESTS_INDEX: "xc_requests",
+    STRESS_INDEX: "stress",
     SIMULATION: true
 };
 
@@ -145,14 +146,16 @@ module.exports = class Elastic {
         if (this.stress_requests.length == 0) {
             await this.load_stress_files();
         }
-        return this.stress_requests.shift();
+        var sf = this.stress_requests.shift();
+        this.update_stress_file(sf, 'processing');
+        return sf;
     }
 
     async load_stress_files(nfiles = 50) {
         console.log("loading batch of stress paths ...");
         try {
             const response = await this.es.search({
-                index: 'stress', type: 'docs',
+                index: config.STRESS_INDEX, type: 'docs',
                 body: {
                     size: nfiles,
                     query: { bool: { must: [{ match: { status: "in queue" } }] } },
@@ -188,13 +191,21 @@ module.exports = class Elastic {
         }
     };
 
+    async update_stress_file(sf, newstatus) {
+        // console.log("updating stress file:", sf);
+        this.es.update({
+            index: config.STRESS_INDEX, type: 'docs', id: sf._id,
+            body: { doc: { status: newstatus } }
+        });
+    };
+
     async save_stress_results() {
         console.log("saving stress results...");
 
         var docs = { body: [] }
         for (var i = 0, len = this.stress_results.length; i < len; i++) {
             var res = this.stress_results.pop();
-            docs.body.push({ update: { _index: 'stress', _type: 'docs', _id: res._id } });
+            docs.body.push({ update: { _index: config.STRESS_INDEX, _type: 'docs', _id: res._id } });
             docs.body.push({ doc: { rate: res.rate, status: res.status, updated_at: new Date().getTime() } });
         }
         try {

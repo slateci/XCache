@@ -14,6 +14,7 @@ var config = {
     ELASTIC_HOST: "atlas-kibana.mwt2.org:9200",
     SERVERS_INDEX: "xc_servers",
     REQUESTS_INDEX: "xc_requests",
+    STRESS_INDEX: "stress",
     SIMULATION: true
 };
 

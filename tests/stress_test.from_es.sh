@@ -27,7 +27,7 @@ while true
 do
 
     # get next n files in queue and save them as json file
-    curl -k -X GET "$SERVER/stress_test/" > res.json
+    curl -s -k -X GET "$SERVER/stress_test/" > res.json
 
     # parse filenames and paths
     fn=( $(jq -C -r '.filename'  res.json) )
