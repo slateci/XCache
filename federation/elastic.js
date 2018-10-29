@@ -195,7 +195,7 @@ module.exports = class Elastic {
         // console.log("updating stress file:", sf);
         this.es.update({
             index: config.STRESS_INDEX, type: 'docs', id: sf._id,
-            body: { doc: { status: newstatus } }
+            body: { doc: { status: newstatus, updated_at: new Date().getTime() } }
         });
     };
 

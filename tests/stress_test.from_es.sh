@@ -36,14 +36,14 @@ do
 
     printf "$(date) copying %s\n" "${pth}"
     export XRD_LOGFILE=${id}.LOG
-    { time timeout 270 xrdcp -f -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> ${id}.tim
+    { time timeout 270 xrdcp -f -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> timing.txt
     # { time timeout 270 sleep 5  2>&1 ; } 2> ${id}.tim
 
     code=$?
-    rate=`cat ${id}.tim`
-
+    rate=`cat timing.txt`
+    rm timing.txt
     echo "ret code: $code   duration: $rate"
 
-    curl -k -X GET "$SERVER/stress_result/$id/$code/$rate"
+    curl -s -k -X GET "$SERVER/stress_result/$id/$code/$rate"
 
 done
