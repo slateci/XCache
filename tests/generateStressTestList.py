@@ -58,7 +58,7 @@ for res in scroll:
                     "_type": "docs",
                     "_source": {
                         "filename": scope + ':' + filen,
-                        "path": i['rses'][r][0],
+                        "path": i['rses'][r][0].replace('root://dcdoor16.usatlas.bnl.gov:1094', 'root://dcgftp.usatlas.bnl.gov:1096'),
                         "filesize": files,
                         "timestamp": times,
                         "status": "in queue",
