@@ -18,7 +18,7 @@ export TIMEFORMAT='%3R'
 MB=1048576
 
 #SERVER="http://localhost"
-#SERVER="https://xcache.org"
+#SERVER="https:/atlas.xcache.org"
 SERVER=$1
 
 # XCACHE_SERVER='https://fax.mwt2.org//'
@@ -42,7 +42,9 @@ do
     # timeout is calculated for 10 MB/s + 5s. 
     tout=$(( fs/MB/10 + 5)) 
 
-    printf "$(date) copying %s\n" "${pth}"
+    echo "$(date) copying ${fn}"
+    echo "from $XCACHE_SERVER${pth}"
+    echo "size ${fs} with timeout at ${tout} seconds."
     export XRD_LOGFILE=${id}.LOG
     { time timeout ${tout} xrdcp -f -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> timing.txt
 
@@ -63,7 +65,7 @@ do
 
     rate=`cat timing.txt`
     rm timing.txt
-    echo "ret code: $result   duration: $rate"
+    echo "ret code: $result  duration: $rate  rate: ${rate} MB/s"
 
     curl -s -k -X GET "$SERVER/stress_result/$id/$result/$rate"
 

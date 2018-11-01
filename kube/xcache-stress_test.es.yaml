@@ -5,7 +5,7 @@ metadata:
   labels:
     app: stress-test
 spec:
-  replicas: 10  
+  replicas: 30  
   selector:
     matchLabels:
       app: stress-test
@@ -33,7 +33,7 @@ spec:
       - name: stresser
         image: slateci/xcache:latest
         command: ["/tests/stress_test.from_es.sh"]
-        args: ["https://192.170.227.234","root://192.41.233.197:1094//"]
+        args: ["https://atlas.xcache.org","root://192.41.233.196:1094//"]
         volumeMounts:
         - name: x509-data
           mountPath: "/etc/grid-security/"
