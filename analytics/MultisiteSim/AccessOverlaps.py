@@ -15,10 +15,10 @@ TB = 1024 * GB
 PB = 1024 * TB
 
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
-# sites = ['AGLT2', 'SWT2']
+# sites = ['MWT2', 'SWT2']
 filetypes = []
 
-periods = ['AUG', 'SEP']  # must be listed in order
+periods = ['AUG']  # , 'SEP']  # must be listed in order
 kinds = ['prod']
 title = ','.join(sites)
 

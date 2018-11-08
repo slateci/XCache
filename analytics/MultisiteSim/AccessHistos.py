@@ -19,8 +19,8 @@ sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
 filetypes = []
 
 periods = ['AUG', 'SEP']  # must be listed in order
-kinds = ['anal']  # prod
-title = ','.join(sites)
+kinds = ['prod']  # prod
+title = 'Production inputs ' + ','.join(periods) + '\n'
 
 bs = [1, 2, 10, 100, 1000, 10000, 100000]
 sites_data = []
@@ -57,6 +57,9 @@ for site in sites:
     totdf = pd.DataFrame(totalacc, index=fts, columns=['total', 'unique'])
     totdf['inf. cache hit rate'] = (totdf.total - totdf.unique) / totdf.total
     totdf.sort_values('inf. cache hit rate', ascending=False, inplace=True)
+
+    totdf = totdf[totdf.total / site_data.shape[0] > 0.01]
+
     print(totdf)
 
     accdf = accdf[0:5]
@@ -64,15 +67,14 @@ for site in sites:
 
     # put together in a stacked plot.
     fig, ax = plt.subplots(1, 2, figsize=(15, 8))
-    title = 'accesses per file type ' + site
-    fig.suptitle(title, fontsize=18)
+    fig.suptitle(title + site, fontsize=18)
     accdf.transpose().plot(ax=ax[0], kind='bar', stacked=False, logy=False, rot=45)
 
     totdf = totdf.drop(columns=["total", "unique"])
     ax[1].tick_params(axis='x', which='major', labelsize=7)
     totdf.plot(ax=ax[1], kind='bar', rot=45)
 
-    fig.savefig(title.replace(' ', '_') + '.png')
+    fig.savefig('accesses_per_file_type_' + site + '.png')
 
     sites_data.append(site_data)
     print('----------------------------')
@@ -109,20 +111,23 @@ accdf = pd.DataFrame(accpft, index=fts, columns=['One', 'Two', '3-10', '11-100',
 accdf = accdf[0:5]
 print(accdf)
 
+
 totdf = pd.DataFrame(totalacc, index=fts, columns=['total', 'unique'])
 totdf['inf. cache hit rate'] = (totdf.total - totdf.unique) / totdf.total
 totdf.sort_values('inf. cache hit rate', ascending=False, inplace=True)
+
+totdf = totdf[totdf.total / site_data.shape[0] > 0.01]
+
 print(totdf)
 
 
 # put together in a stacked plot.
-fig, ax = plt.subplots(1, 2, figsize=(8, 8))
-title = 'accesses per file type ALL sites'
-fig.suptitle(title, fontsize=18)
+fig, ax = plt.subplots(1, 2, figsize=(15, 8))
+fig.suptitle(title + ','.join(sites), fontsize=18)
 accdf.transpose().plot(ax=ax[0], kind='bar', stacked=False, logy=False, rot=45)
 
 totdf = totdf.drop(columns=["total", "unique"])
 ax[1].tick_params(axis='x', which='major', labelsize=7)
 totdf.plot(ax=ax[1], kind='bar', rot=45)
 
-fig.savefig(title.replace(' ', '_') + '.png')
+fig.savefig('accesses_per_file_type_ALL_sites.png')

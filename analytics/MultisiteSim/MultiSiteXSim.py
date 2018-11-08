@@ -19,12 +19,12 @@ TB = 1024 * GB
 PB = 1024 * TB
 
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
-# sites = ['UKI-SCOTGRID-ECDF']
+# sites = ['MWT2']
 periods = ['AUG', 'SEP']  # must be listed in order
 kinds = ['prod']
 skipFiles = []  # ':AOD.']
 
-label = 'flat_US'
+label = 'flat_US_9x10TB_150int2'
 output = label + '_' + '_'.join(kinds) + '_' + '_'.join(periods) + '_' + '_'.join(sites)
 title = label + '\n' + ','.join(kinds) + ' ' + ' '.join(periods) + '\n' + ','.join(sites)
 
@@ -45,11 +45,11 @@ all_sites = {}
 # all_sites['xc_Int2_SW'] = XCacheSite('xc_Int2_SW', upstream='Origin', servers=4, size=10 * TB)
 
 # flat US with one central cache.
-all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=4, size=30 * TB)
-all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=4, size=10 * TB)
+all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=9, size=10 * TB)
+all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=9, size=10 * TB)
+all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=9, size=10 * TB)
+all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=9, size=30 * TB)
+all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=9, size=10 * TB)
 all_sites['xc_Int2'] = XCacheSite('xc_Int2', upstream='Origin', servers=5, size=30 * TB)
 
 
@@ -78,7 +78,7 @@ for index, row in all_data.iterrows():
 
     count += 1
 
-    if count > 10000000000:  # 00000:
+    if count > 200000000:
         break
 
     if not count % step and count > 0:
@@ -95,30 +95,31 @@ for index, row in all_data.iterrows():
     if row.site not in all_sites:
         continue
 
-    fs = row['filesize']
+    fs = row.filesize
+    ts = row.transfer_start
     l0 = all_sites[row.site]
-    found = l0.add_request(index, fs, row['transfer_start'])
+    found = l0.add_request(index, fs, ts)
     if found:
         accesses[0] += 1
         dataaccc[0] += fs
         continue
 
     l1 = all_sites[l0.upstream]
-    found = l1.add_request(index, fs, row['transfer_start'])
+    found = l1.add_request(index, fs, ts)
     if found:
         accesses[1] += 1
         dataaccc[1] += fs
         continue
 
     l2 = all_sites[l1.upstream]
-    found = l2.add_request(index, fs, row['transfer_start'])
+    found = l2.add_request(index, fs, ts)
     if found:
         accesses[2] += 1
         dataaccc[2] += fs
         continue
 
     l3 = all_sites[l2.upstream]
-    found = l3.add_request(index, fs, row['transfer_start'])
+    found = l3.add_request(index, fs, ts)
     if found:
         accesses[3] += 1
         dataaccc[3] += fs
@@ -182,6 +183,8 @@ for site in all_sites:
     if s.requests > 0 and site != 'Origin':
         st = pd.concat([st, s.get_servers_stats()])
     tp.append(si)
+    if s.requests > 0:
+        s.plot_throughput()
 
 print(st.groupby(['site']).mean())
 

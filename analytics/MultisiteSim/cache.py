@@ -1,11 +1,16 @@
 import pandas as pd
 import hashlib
-
+import matplotlib.pyplot as plt
 
 MB = 1024 * 1024
 GB = 1024 * MB
 TB = 1024 * GB
 PB = 1024 * TB
+
+PER_FILE_RATE = GB / 8 / 3  # one Gbps
+THROUGHPUT_BIN = 1800  # in seconds
+
+PER_FILE_RATE *= THROUGHPUT_BIN
 
 
 def load_data(sites, periods, kinds, skipFiles=[]):
@@ -16,6 +21,7 @@ def load_data(sites, periods, kinds, skipFiles=[]):
         for month in periods:
             for kind in kinds:
                 site_data = pd.read_hdf("../data/" + month + '/' + site + '_' + kind + '_' + month + '.h5', key=site, mode='r')
+                site_data = site_data.astype({"transfer_start": int})
                 site_data['site'] = 'xc_' + site
                 nfiles = site_data.filesize.count()
                 print(site, month, kind, nfiles)
@@ -112,6 +118,7 @@ class XCacheSite(object):
         self.data_from_cache = 0
         self.data_asked_for = 0
         self.servers = []
+        self.throughput = {}
         self.init()
 
     def init(self):
@@ -123,6 +130,20 @@ class XCacheSite(object):
         self.requests += 1
         self.data_asked_for += fs
 
+        # add egress
+        sizebin = fs
+        timebin = ts // THROUGHPUT_BIN
+        while True:
+            if timebin not in self.throughput:
+                self.throughput[timebin] = [0, 0]
+            if sizebin - PER_FILE_RATE > 0:
+                self.throughput[timebin][0] += PER_FILE_RATE
+                sizebin -= PER_FILE_RATE
+                timebin += 1
+            else:
+                self.throughput[timebin][0] += sizebin
+                break
+
         if self.name == 'Origin':
             self.hits += 1
             self.data_from_cache += fs
@@ -133,6 +154,18 @@ class XCacheSite(object):
         if found:
             self.hits += 1
             self.data_from_cache += fs
+        else:
+            # add ingress
+            sizebin = fs
+            timebin = ts // THROUGHPUT_BIN
+            while True:
+                if sizebin - PER_FILE_RATE > 0:
+                    self.throughput[timebin][1] += PER_FILE_RATE
+                    sizebin -= PER_FILE_RATE
+                    timebin += 1
+                else:
+                    self.throughput[timebin][1] += sizebin
+                    break
 
         return found
 
@@ -144,6 +177,22 @@ class XCacheSite(object):
         df.columns = ['cleanups', 'avg. filesize', 'avg. accesses', 'avg. age']
         df['site'] = self.name
         return df
+
+    def plot_throughput(self):
+        df = pd.DataFrame.from_dict(self.throughput, orient='index')
+        df.columns = ['egress', 'ingress']
+        df.index *= THROUGHPUT_BIN
+        # df = df[df.index > 1534626000]
+        # df = df[df.index < 1534669200]
+        df.ingress = -df.ingress
+        df = df * 8 / GB / THROUGHPUT_BIN
+        df.index = pd.to_datetime(df.index, unit='s')
+        fig, ax = plt.subplots(figsize=(18, 6))
+        fig.suptitle(self.name, fontsize=18)
+        fig.autofmt_xdate()
+        ax.set_ylabel('throughput [Gbps]')
+        df.plot(kind='line', ax=ax)
+        fig.savefig('thr_' + self.name + '.png')
 
     # def plot_cache_state(self):
     #     """ most important plots. """
