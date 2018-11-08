@@ -74,6 +74,14 @@
             
     <li class="toctree-l2"><a href="#simulating-xcache-on-historical-data">Simulating XCache on historical data</a></li>
     
+        <ul>
+        
+            <li><a class="toctree-l3" href="#rucio-traces">Rucio Traces</a></li>
+        
+            <li><a class="toctree-l3" href="#results">Results</a></li>
+        
+        </ul>
+    
 
     <li class="toctree-l2"><a href="#ab-testing">AB testing</a></li>
     
@@ -121,8 +129,23 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="simulating-xcache-on-historical-data">Simulating XCache on historical data</h2>
-<h2 id="ab-testing">AB testing</h2>
+                <h1 id="simulating-xcache-on-historical-data">Simulating XCache on historical data</h1>
+<h2 id="rucio-traces">Rucio Traces</h2>
+<p>Rucio runs a REST API that collects data from diffent clients requesting the data.
+This can be a user trying to download a file or dataset or Pilot trying to get path to data.
+Records are described <a href="https://twiki.cern.ch/twiki/bin/view/PanDA/PilotRucioTraces">here</a>.</p>
+<p>To destinguish type of access one uses field "eventType". The most important are:
+<em> get_sm - production job input download
+</em> get_sm_a - analysis job input download
+<em> put_sm - production job output upload
+</em> put_sm_a - analysis job output upload   </p>
+<h2 id="results">Results</h2>
+<ul>
+<li>understanding formats, simulation of single site <a href="https://docs.google.com/presentation/d/1pDKLF4Yxztf2dNZNUetcwWqaUD0Gigv2TVe7NbNsxGc/edit?usp=sharing">slides</a>.</li>
+<li>understanding multilayer cache, throughput needed, simulation of US network <a href="https://docs.google.com/presentation/d/1Z77OTskVHxywhdbNu9bY4jYRnc7eG-DZn7Hu0w6dhZA/edit?usp=sharing">slides</a>.</li>
+<li>simulation of cache optimized job scheduling.</li>
+</ul>
+<h1 id="ab-testing">AB testing</h1>
 <ul>
 <li>effect on jobs wall times</li>
 <li>effect on tasks turn-around times </li>

@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/",
-            "text": "XCache\n\n\nWhat is it?\n\n\nXCache is a service that provides caching of data accessed using \nxrootd protocol\n. It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested. To use it to cache file that is at \n\nroot://origin.org:1094/my_file.txt\n\nsimply prepend name of the caching server:\n\nroot://caching_server.org:1094//root://origin.org:1094/my_file.txt\n  \n\nWhen deployed using kubernetes all relevant parameters are configured throught the container environment variables.\n\n\nLinks\n\n\n\n\nDocker\n\n\nGitHub\n\n\nDocumentation\n\n\nMonitoring\n\n\n\n\nConfiguration\n\n\nMandatory variables\n\n\n\n\n\n\n\n\nVariable\n\n\nMeaning\n\n\n\n\n\n\n\n\n\n\nXC_SITE\n\n\nATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.\n\n\n\n\n\n\n\n\nOptional settings\n\n\n\n\n\n\n\n\nImplemented\n\n\nOption\n\n\nVariable\n\n\nDefault\n\n\nMeaning\n\n\n\n\n\n\n\n\n\n\nNo\n\n\nRucio N2N\n\n\nXC_RUCIO_N2N\n\n\nTrue\n\n\nThis is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.\n\n\n\n\n\n\nYes\n\n\nMonitoring\n\n\nXC_REPORT_COLLECTOR\n\n\nhttp://uct2-collectd.mwt2.org:8080\n\n\nThis is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.\n\n\n\n\n\n\nYes\n\n\nPort\n\n\nXC_PORT\n\n\n1094\n\n\n\n\n\n\n\n\nNo\n\n\nSubfile caching\n\n\nSUBFC\n\n\nTrue\n\n\n\n\n\n\n\n\nYes\n\n\nPrefetching\n\n\nXC_PREFETCH\n\n\n0\n\n\n\n\n\n\n\n\nYes\n\n\nBlock size\n\n\nXC_BLOCKSIZE\n\n\n1M\n\n\n\n\n\n\n\n\nYes\n\n\nDisk usage high watermark\n\n\nXC_SPACE_HIGH_WM\n\n\n95%\n\n\n\n\n\n\n\n\nYes\n\n\nDisk usage low watermark\n\n\nXC_SPACE_LOW_WM\n\n\n80%\n\n\n\n\n\n\n\n\nYes\n\n\nRAM size\n\n\nXC_RAMSIZE\n\n\nhalf of the free RAM\n\n\nAt least 1g. Units are ...\n\n\n\n\n\n\n\n\nTo Do\n\n\n\n\nAdd AGIS updating secreet. \n\n\nAdd subfile caching option\n\n\nTest\n\n\nCreate core collecting pod.\n\n\nCreate Helm deployment\n\n\nAdd summary stream monitoring",
+            "text": "XCache\n\n\nWhat is it?\n\n\nXCache is a service that provides caching of data accessed using \nxrootd protocol\n. It sits in between client and an upstream xrootd servers and can cache/prefetch full files or only blocks already requested. To use it to cache file that is at \n\nroot://origin.org:1094/my_file.txt\n\nsimply prepend name of the caching server:\n\nroot://caching_server.org:1094//root://origin.org:1094/my_file.txt\n  \n\nWhen deployed using kubernetes all relevant parameters are configured throught the container environment variables.\n\n\nLinks\n\n\n\n\nDocker\n\n\nGitHub\n\n\nDocumentation\n\n\nMonitoring\n\n\n\n\nConfiguration\n\n\nMandatory variables\n\n\n\n\n\n\n\n\nVariable\n\n\nMeaning\n\n\n\n\n\n\n\n\n\n\nXC_SITE\n\n\nATLAS specific. Used in registering cache in AGIS and in all monitoring. Has to correspond to ATLAS sitename.\n\n\n\n\n\n\n\n\nOptional settings\n\n\n\n\n\n\n\n\nImplemented\n\n\nOption\n\n\nVariable\n\n\nDefault\n\n\nMeaning\n\n\n\n\n\n\n\n\n\n\nNo\n\n\nRucio N2N\n\n\nXC_RUCIO_N2N\n\n\nTrue\n\n\nThis is ATLAS specific thing. To avoid multiple cache copies of the same file (obtained from different sources) it will strip source specific part of the path.\n\n\n\n\n\n\nYes\n\n\nMonitoring\n\n\nXC_REPORT_COLLECTOR\n\n\nhttp://uct2-collectd.mwt2.org:8080\n\n\nThis is xrootd internal monitoring info. Actual service status is monitored through the kubernetes infrastructure.\n\n\n\n\n\n\nYes\n\n\nPort\n\n\nXC_PORT\n\n\n1094\n\n\n\n\n\n\n\n\nNo\n\n\nSubfile caching\n\n\nSUBFC\n\n\nTrue\n\n\n\n\n\n\n\n\nYes\n\n\nPrefetching\n\n\nXC_PREFETCH\n\n\n0\n\n\n\n\n\n\n\n\nYes\n\n\nBlock size\n\n\nXC_BLOCKSIZE\n\n\n1M\n\n\n\n\n\n\n\n\nYes\n\n\nDisk usage high watermark\n\n\nXC_SPACE_HIGH_WM\n\n\n95%\n\n\n\n\n\n\n\n\nYes\n\n\nDisk usage low watermark\n\n\nXC_SPACE_LOW_WM\n\n\n80%\n\n\n\n\n\n\n\n\nYes\n\n\nRAM size\n\n\nXC_RAMSIZE\n\n\nhalf of the free RAM\n\n\nAt least 1g. Units are ...\n\n\n\n\n\n\n\n\nTo Do\n\n\n\n\nAdd AGIS updating secreet. \n\n\nAdd subfile caching option\n\n\nTest\n\n\nCreate core collecting pod.\n\n\nAdd summary stream monitoring",
             "title": "Home"
         },
         {
@@ -37,7 +37,7 @@
         },
         {
             "location": "/#to-do",
-            "text": "Add AGIS updating secreet.   Add subfile caching option  Test  Create core collecting pod.  Create Helm deployment  Add summary stream monitoring",
+            "text": "Add AGIS updating secreet.   Add subfile caching option  Test  Create core collecting pod.  Add summary stream monitoring",
             "title": "To Do"
         },
         {
@@ -137,13 +137,23 @@
         },
         {
             "location": "/analytics/",
-            "text": "Simulating XCache on historical data\n\n\nAB testing\n\n\n\n\neffect on jobs wall times\n\n\neffect on tasks turn-around times",
+            "text": "Simulating XCache on historical data\n\n\nRucio Traces\n\n\nRucio runs a REST API that collects data from diffent clients requesting the data.\nThis can be a user trying to download a file or dataset or Pilot trying to get path to data.\nRecords are described \nhere\n.\n\n\nTo destinguish type of access one uses field \"eventType\". The most important are:\n\n get_sm - production job input download\n\n get_sm_a - analysis job input download\n\n put_sm - production job output upload\n\n put_sm_a - analysis job output upload   \n\n\nResults\n\n\n\n\nunderstanding formats, simulation of single site \nslides\n.\n\n\nunderstanding multilayer cache, throughput needed, simulation of US network \nslides\n.\n\n\nsimulation of cache optimized job scheduling.\n\n\n\n\nAB testing\n\n\n\n\neffect on jobs wall times\n\n\neffect on tasks turn-around times",
             "title": "Analytics"
         },
         {
             "location": "/analytics/#simulating-xcache-on-historical-data",
             "text": "",
             "title": "Simulating XCache on historical data"
+        },
+        {
+            "location": "/analytics/#rucio-traces",
+            "text": "Rucio runs a REST API that collects data from diffent clients requesting the data.\nThis can be a user trying to download a file or dataset or Pilot trying to get path to data.\nRecords are described  here .  To destinguish type of access one uses field \"eventType\". The most important are:  get_sm - production job input download  get_sm_a - analysis job input download  put_sm - production job output upload  put_sm_a - analysis job output upload",
+            "title": "Rucio Traces"
+        },
+        {
+            "location": "/analytics/#results",
+            "text": "understanding formats, simulation of single site  slides .  understanding multilayer cache, throughput needed, simulation of US network  slides .  simulation of cache optimized job scheduling.",
+            "title": "Results"
         },
         {
             "location": "/analytics/#ab-testing",
