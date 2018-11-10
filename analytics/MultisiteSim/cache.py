@@ -21,7 +21,7 @@ def load_data(sites, periods, kinds, skipFiles=[]):
         for month in periods:
             for kind in kinds:
                 site_data = pd.read_hdf("../data/" + month + '/' + site + '_' + kind + '_' + month + '.h5', key=site, mode='r')
-                site_data = site_data.astype({"transfer_start": int})
+                site_data = site_data.astype({"transfer_start": float})
                 site_data['site'] = 'xc_' + site
                 nfiles = site_data.filesize.count()
                 print(site, month, kind, nfiles)
@@ -110,7 +110,7 @@ class XCacheSite(object):
         self.name = name
         self.upstream = upstream
         self.nservers = servers
-        self.size = servers * size
+        self.server_size = size
         self.lwm = lwm
         self.hwm = hwm
         self.hits = 0
@@ -123,7 +123,7 @@ class XCacheSite(object):
 
     def init(self):
         for s in range(self.nservers):
-            self.servers.append(XCacheServer(self.size, self.lwm, self.hwm))
+            self.servers.append(XCacheServer(self.server_size, self.lwm, self.hwm))
 
     def add_request(self, fn, fs, ts):
         # determine server

@@ -19,7 +19,7 @@ TB = 1024 * GB
 PB = 1024 * TB
 
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
-# sites = ['MWT2']
+# sites = ['AGLT2']
 periods = ['AUG', 'SEP']  # must be listed in order
 kinds = ['prod']
 skipFiles = []  # ':AOD.']
