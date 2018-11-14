@@ -63,11 +63,11 @@ RUN chmod 755 /tests/stress_test.sh
 RUN groupmod -o -g 10940 xrootd
 RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
-# change ownership of directories
-RUN chown -R xrootd:xrootd /data/xrd/var
-RUN chown -R xrootd:xrootd /data/xrd
+# if needed change ownership of directories
+RUN if [ $(stat -c "%U:%G" /data/xrd/var ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd/var; fi
+RUN if [ $(stat -c "%U:%G" /data/xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd; fi
 
-# build info
+# build  
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
 CMD [ "/runme.sh" ]

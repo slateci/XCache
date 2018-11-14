@@ -65,7 +65,8 @@ do
 
     rate=`cat timing.txt`
     rm timing.txt
-    echo "ret code: $result  duration: $rate  rate: ${rate} MB/s"
+    rrate=$((fs/rate)) 
+    echo "ret code: $result  duration: $rate  rate: ${rrate} MB/s"
 
     curl -s -k -X GET "$SERVER/stress_result/$id/$result/$rate"
 

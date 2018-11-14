@@ -33,7 +33,7 @@ spec:
       - name: stresser
         image: slateci/xcache:latest
         command: ["/tests/stress_test.from_es.sh"]
-        args: ["https://atlas.xcache.org","root://192.41.233.196:1094//"]
+        args: ["https://atlas.xcache.org","root://140.221.199.165:1094//"]
         volumeMounts:
         - name: x509-data
           mountPath: "/etc/grid-security/"

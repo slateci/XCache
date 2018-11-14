@@ -45,11 +45,11 @@ all_sites = {}
 # all_sites['xc_Int2_SW'] = XCacheSite('xc_Int2_SW', upstream='Origin', servers=4, size=10 * TB)
 
 # flat US with one central cache.
-all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=9, size=10 * TB)
-all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=9, size=10 * TB)
-all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=9, size=10 * TB)
-all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=9, size=30 * TB)
-all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=9, size=10 * TB)
+all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=4, size=10 * TB)
+all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=4, size=10 * TB)
+all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=4, size=10 * TB)
+all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=4, size=30 * TB)
+all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=4, size=10 * TB)
 all_sites['xc_Int2'] = XCacheSite('xc_Int2', upstream='Origin', servers=5, size=30 * TB)
 
 
