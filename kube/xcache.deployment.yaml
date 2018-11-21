@@ -46,15 +46,17 @@ spec:
         - name: XC_SPACE_HIGH_WM
           value: "0.95"
         - name: XC_SPACE_LOW_WM
-          value: "0.80"
+          value: "0.85"
         - name: XC_PORT
           value: "1094"
         - name: XC_RAMSIZE
-          value: "1g"
+          value: "16g"
         - name: XC_BLOCKSIZE
           value: "1M"
         - name: XC_PREFETCH
           value: "0"
+        - name: AGIS_PROTOCOL_ID
+          value: "433"
         volumeMounts:
         - name: x509-data
           mountPath: "/etc/grid-security/"

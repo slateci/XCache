@@ -15,7 +15,11 @@ XCache is a service that provides caching of data accessed using [xrootd protoco
 
 ### To do
 * Cache performance collection should start only after 5 cache clean ups in order to avoid startup effect.
-* USA scale XCache simulation. 
+* Job submission with XCache in mind at US scale simulation.
+* DISABLING endpoint in AGIS when service is out.
+* Make a central registration service for multi-server caches. Rucio will periodically ask it for active servers at site.
+   * endpoints to enable/disable XCache server
+   * endpoint to deliver active servers to RUCIO
 
 ## Federation
 

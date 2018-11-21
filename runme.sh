@@ -30,10 +30,11 @@ if [ -z "$XC_RAMSIZE" ]; then
   XC_RAMSIZE=$(free | tail -2 | head -1 | awk '{printf("%d", $NF/1024/1024/2)}')
   [ $XC_RAMSIZE -lt 1 ] && XC_RAMSIZE=1
   XC_RAMSIZE=${XC_RAMSIZE}g
+  echo "will use ${XC_RAMSIZE}g for memory."
 fi
 
-[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.75"
-[ -z "$XC_SPACE_HI_MARK" ] && XC_SPACE_HI_MARK="0.85"
+[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.85"
+[ -z "$XC_SPACE_HI_MARK" ] && XC_SPACE_HI_MARK="0.95"
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
@@ -42,5 +43,12 @@ env
 echo "Starting cache ..."
 
 su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7 & "
+
+if  [ -z "$AGIS_PROTOCOL_ID" ]; then
+  echo 'not updating AGIS protocol status.'
+else
+  echo "making AGIS protocol ${AGIS_PROTOCOL_ID} active..."
+  ./updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
+fi
 
 sleep infinity

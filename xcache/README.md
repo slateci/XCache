@@ -10,6 +10,7 @@ To set it up one needs to change values in values.yaml, all other variables have
 ```
 SiteConfig:
   Name: MWT2
+  AGISprotocolID: 433
 
 XCacheConfig:
   CacheDirectory: /scratch
