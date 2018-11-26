@@ -73,6 +73,7 @@ def get_info(filename):
         print 'access:', a, 'attached at:', datetime.fromtimestamp(attach_time), 'detached at:', datetime.fromtimestamp(detach_time), 'bytes disk:', bytes_disk, 'bytes ram:', bytes_ram, 'bytes missed:', bytes_missed
         if detach_time > start_time and detach_time < end_time:
             dp = rec.copy()
+            dp['access'] = a
             dp['attached_at'] = attach_time * 1000
             dp['detached_at'] = detach_time * 1000
             dp['bytes_disk'] = bytes_disk

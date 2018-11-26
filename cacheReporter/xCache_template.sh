@@ -27,6 +27,9 @@ curl -XPOST  'atlas-kibana.mwt2.org:9200/_template/xcache' -d '{
           "file": {
             "type": "keyword"
           },
+          "access": {
+            "type": "integer"
+          },
           "size": {
             "type": "long"
           },
