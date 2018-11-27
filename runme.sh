@@ -3,7 +3,8 @@
 # make cache space owned by xrootd user
 mkdir -p /cache/xrdcinfos/
 mkdir -p /cache/datafiles/
-chown -R xrootd:xrootd /cache
+
+if [ $(stat -c "%U:%G" /cache ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache; fi
 
 # sleep long enough to get x509 things set up.
 echo "Waiting 2 min for other containers to start."
