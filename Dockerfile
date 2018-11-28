@@ -48,6 +48,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
+# not sure this line is needed
 RUN mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
 
 COPY xcache.cfg /etc/xrootd/
@@ -63,6 +64,7 @@ RUN chmod 755 /tests/stress_test.sh
 RUN groupmod -o -g 10940 xrootd
 RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
+# not sure the two lines bellow are needed at all
 # if needed change ownership of directories
 RUN if [ $(stat -c "%U:%G" /data/xrd/var ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd/var; fi
 RUN if [ $(stat -c "%U:%G" /data/xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd; fi
