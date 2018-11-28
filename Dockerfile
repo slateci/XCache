@@ -51,6 +51,7 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
 # not sure this line is needed
 RUN mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
 
+COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
 COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/reporter.py /
 RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh /reporter.py
