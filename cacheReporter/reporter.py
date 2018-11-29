@@ -8,17 +8,17 @@ import time
 from datetime import datetime
 import requests
 
-base_dir = '/cache/xrdcinfos/meta'
+base_dir = '/cache/namespace'
 
 ct = time.time()
 start_time = ct - 3600
 end_time = ct
 
 if 'XC_SITE' not in os.environ:
-    print "Must set $XC_SITE. Exiting."
+    print("Must set $XC_SITE. Exiting.")
     sys.exit(1)
 if 'XC_REPORT_COLLECTOR' not in os.environ:
-    print "Must set $XC_REPORT_COLLECTOR. Exiting."
+    print("Must set $XC_REPORT_COLLECTOR. Exiting.")
     sys.exit(1)
 
 site = os.environ['XC_SITE']
@@ -55,7 +55,7 @@ def get_info(filename):
         'sender': 'xCache',
         'type': 'docs',
         'site': site,
-        'file': filename.replace(base_dir, ''),
+        'file': filename.replace(base_dir, '').replace('/atlas/rucio/', '').replace('.cinfo', ''),
         'size': fs,
         'created_at': time_of_creation * 1000
     }
@@ -70,7 +70,7 @@ def get_info(filename):
         bytes_disk, = struct.unpack('q', fin.read(8))
         bytes_ram, = struct.unpack('q', fin.read(8))
         bytes_missed, = struct.unpack('q', fin.read(8))
-        print 'access:', a, 'attached at:', datetime.fromtimestamp(attach_time), 'detached at:', datetime.fromtimestamp(detach_time), 'bytes disk:', bytes_disk, 'bytes ram:', bytes_ram, 'bytes missed:', bytes_missed
+        # print ('access:', a, 'attached at:', datetime.fromtimestamp(attach_time), 'detached at:', datetime.fromtimestamp(detach_time), 'bytes disk:', bytes_disk, 'bytes ram:', bytes_ram, 'bytes missed:', bytes_missed)
         if detach_time > start_time and detach_time < end_time:
             dp = rec.copy()
             dp['access'] = a
@@ -83,16 +83,16 @@ def get_info(filename):
 
 
 files = [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*.cinfo'))]
-files += [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*%'))]
+# files += [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*%'))]
 for filename in files:
     last_modification_time = os.stat(filename).st_mtime
     print(filename, last_modification_time)
     if last_modification_time > start_time and last_modification_time < end_time:
         get_info(filename)
 
-print(reports)
+print("reports:", len(reports))
 if len(reports) > 0:
     r = requests.post(collector, json=reports)
-    print 'response:', r.status_code
+    print('response:', r.status_code)
 else:
-    print "Nothing to report"
+    print("Nothing to report")
