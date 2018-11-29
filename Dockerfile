@@ -49,7 +49,7 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
 # not sure this line is needed
-RUN mkdir -p /xrd/namespace /xrd/var/log /xrd/var/spool /xrd/var/run
+RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
