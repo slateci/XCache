@@ -49,12 +49,12 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
 # not sure this line is needed
-RUN mkdir -p /data/xrd/namespace /data/xrd/xrdcinfos /data/xrd/datafiles /data/xrd/var/log /data/xrd/var/spool /data/xrd/var/run
+RUN mkdir -p /xrd/namespace /xrd/var/log /xrd/var/spool /xrd/var/run
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/reporter.py /
-RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh /reporter.py
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/reporter.py updateAGISstatus.sh /
+RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh /reporter.py /updateAGISstatus.sh
 
 RUN mkdir /tests
 COPY tests/* /tests/
@@ -67,8 +67,8 @@ RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
 # not sure the two lines bellow are needed at all
 # if needed change ownership of directories
-RUN if [ $(stat -c "%U:%G" /data/xrd/var ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd/var; fi
-RUN if [ $(stat -c "%U:%G" /data/xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /data/xrd; fi
+RUN if [ $(stat -c "%U:%G" /xrd/var ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /xrd/var; fi
+RUN if [ $(stat -c "%U:%G" /xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xrootd /xrd; fi
 
 # build  
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
