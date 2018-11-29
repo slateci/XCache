@@ -3,7 +3,7 @@ FROM centos:latest
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
 
-RUN mkdir -p /etc/grid-security/certificates /etc/grid-security/vomsdir /etc/grid-security/xrd /data
+RUN mkdir -p /etc/grid-security/certificates /etc/grid-security/vomsdir /etc/grid-security/xrd
 
 RUN yum -y update
 

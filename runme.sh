@@ -1,10 +1,12 @@
 #!/bin/sh
 
 # make cache space owned by xrootd user
-mkdir -p /cache/xrdcinfos/
-mkdir -p /cache/datafiles/
+mkdir -p /cache/xrdcinfos
+mkdir -p /cache/datafiles
 
 if [ $(stat -c "%U:%G" /cache ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache; fi
+if [ $(stat -c "%U:%G" /cache/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache/xrdcinfos; fi
+if [ $(stat -c "%U:%G" /cache/datafiles ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache/datafiles; fi
 
 # sleep long enough to get x509 things set up.
 echo "Waiting 2 min for other containers to start."
@@ -43,7 +45,7 @@ export TCMALLOC_RELEASE_RATE=10
 env
 echo "Starting cache ..."
 
-su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /data/xrd/var/log/xrootd.log -k 7 & "
+su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /xrd/var/log/xrootd.log -k 7 & "
 
 if  [ -z "$AGIS_PROTOCOL_ID" ]; then
   echo 'not updating AGIS protocol status.'
