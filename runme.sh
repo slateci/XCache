@@ -1,12 +1,25 @@
 #!/bin/sh
 
-# make cache space owned by xrootd user
-mkdir -p /cache/xrdcinfos
-mkdir -p /cache/datafiles
+# find all cache mounts
+# export them as variables understandable by xcache config
+# make sure their ownership is right
+COUNTER=0
+for dir in /xcache-data_*
+do
+    echo "Found ${dir}."
+    let COUNTER=COUNTER+1
+    echo "exporting it as CACHE_${COUNTER}"
+    export CACHE_${COUNTER}=${dir}
+    echo "making it owned by xrootd if not already."
+    if [ $(stat -c "%U:%G" ${dir} ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd ${dir}; fi
+done
 
-if [ $(stat -c "%U:%G" /cache ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache; fi
-if [ $(stat -c "%U:%G" /cache/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache/xrdcinfos; fi
-if [ $(stat -c "%U:%G" /cache/datafiles ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /cache/datafiles; fi
+
+# the same for metadata mount
+echo "adding metadata directory."
+export META=/xcache-meta
+mkdir -p /xcache-meta/xrdcinfos
+if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
 # sleep long enough to get x509 things set up.
 echo "Waiting 2 min for other containers to start."

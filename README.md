@@ -14,9 +14,9 @@ XCache is a service that provides caching of data accessed using [xrootd protoco
 ## Analytics / Simulation
 
 ### To do
-* reports to contain real file names.
 * Job submission with XCache in mind at US scale simulation.
-* DISABLING endpoint in AGIS when service is out.
+* DISABLING endpoint in AGIS when service is out. Reenabling liveness probe.
+* Test separate disk mounting. metadata on separate disk.
 * Make a central registration service for multi-server caches. Rucio will periodically ask it for active servers at site.
    * endpoints to enable/disable XCache server
    * endpoint to deliver active servers to RUCIO

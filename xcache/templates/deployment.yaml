@@ -45,9 +45,14 @@ spec:
             mode: 256 
           - key: usercert
             path: usercert.pem
-      - name: xcache-data
+      {{- range $index, $dir := .Values.XCacheConfig.CacheDirectories }}
+      - name: xcache-data-{{ $index }}
         hostPath:
-          path: {{ .Values.XCacheConfig.CacheDirectory }}
+          path: {{ $dir }}
+      {{- end }}
+      - name: xcache-meta
+        hostPath:
+          path: {{ .Values.XCacheConfig.MetaDirectory }}
       
       containers:
         - name: {{ .Chart.Name }}
@@ -82,9 +87,12 @@ spec:
           - name: x509-certs-volume
             mountPath: "/etc/grid-certs/"
             readOnly: true
-          - name: xcache-data
-            mountPath: "/cache"
-            readOnly: false
+          {{- range $index, $dir := .Values.XCacheConfig.CacheDirectories }}
+          - name: xcache-data-{{ $index }}
+            mountPath: "/xcache-data_{{ $index }}"
+          {{- end }}
+          - name: xcache-meta
+            mountPath: "/xcache-meta"
 
         - name: x509
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -106,6 +114,6 @@ spec:
           - name: XC_REPORT_COLLECTOR
             value: "{{ .Values.Monitoring.Collector }}"
           volumeMounts:
-          - name: xcache-data
-            mountPath: "/cache"
+          - name: xcache-meta
+            mountPath: "/xcache-meta"
             readOnly: true

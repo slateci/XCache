@@ -35,7 +35,10 @@ spec:
             mode: 256 
           - key: usercert
             path: usercert.pem
-      - name: xcache-data
+      - name: xcache-data-0
+        hostPath:
+          path: /scratch
+      - name: xcache-meta
         hostPath:
           path: /scratch
 
@@ -46,7 +49,7 @@ spec:
         - name: XC_SPACE_HIGH_WM
           value: "0.95"
         - name: XC_SPACE_LOW_WM
-          value: "0.85"
+          value: "0.90"
         - name: XC_PORT
           value: "1094"
         - name: XC_RAMSIZE
@@ -64,9 +67,10 @@ spec:
         - name: x509-certs-volume
           mountPath: "/etc/grid-certs/"
           readOnly: true
-        - name: xcache-data
-          mountPath: "/cache"
-          readOnly: false
+        - name: xcache-data-0
+          mountPath: "/xcache-data_1"
+        - name: xcache-meta
+          mountPath: "/xcache-meta"
         livenessProbe:
           tcpSocket:
             port: 1094
@@ -95,7 +99,7 @@ spec:
         - name: XC_REPORT_COLLECTOR
           value: "http://uct2-collectd.mwt2.org:8080"
         volumeMounts:
-        - name: xcache-data
-          mountPath: "/cache"
+        - name: xcache-meta
+          mountPath: "/xcache-meta"
           readOnly: true
           
