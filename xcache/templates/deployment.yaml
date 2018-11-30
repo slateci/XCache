@@ -87,9 +87,9 @@ spec:
           - name: x509-certs-volume
             mountPath: "/etc/grid-certs/"
             readOnly: true
-          {{- range $index, $dir := .Values.XCacheConfig.CacheDirectories }}
-          - name: xcache-data-{{ $index }}
-            mountPath: "/xcache-data_{{ $index }}"
+          {{- range $nindex, $ndir := .Values.XCacheConfig.CacheDirectories }}
+          - name: xcache-data-{{ $nindex }}
+            mountPath: "/xcache-data_{{ $nindex }}"
           {{- end }}
           - name: xcache-meta
             mountPath: "/xcache-meta"
