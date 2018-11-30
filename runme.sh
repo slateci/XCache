@@ -9,7 +9,7 @@ do
     echo "Found ${dir}."
     let COUNTER=COUNTER+1
     echo "exporting it as CACHE_${COUNTER}"
-    export CACHE_${COUNTER}=${dir}
+    export CACHE${COUNTER}=${dir}
     echo "making it owned by xrootd if not already."
     if [ $(stat -c "%U:%G" ${dir} ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd ${dir}; fi
 done
