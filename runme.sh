@@ -19,6 +19,7 @@ done
 echo "adding metadata directory."
 export META=/xcache-meta
 mkdir -p /xcache-meta/xrdcinfos
+if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
 # sleep long enough to get x509 things set up.
