@@ -9,6 +9,8 @@ from datetime import datetime
 import requests
 
 base_dir = '/cache/namespace'
+if 'META' in os.environ:
+    base_dir = os.environ['META'] + '/namespace'
 
 ct = time.time()
 start_time = ct - 3600
