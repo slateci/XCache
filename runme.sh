@@ -59,7 +59,7 @@ export TCMALLOC_RELEASE_RATE=10
 env
 echo "Starting cache ..."
 
-su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg -l /xrd/var/log/xrootd.log -k 7 & "
+su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg &"
 
 if  [ -z "$AGIS_PROTOCOL_ID" ]; then
   echo 'not updating AGIS protocol status.'
