@@ -18,7 +18,7 @@ sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
 # sites = ['MWT2', 'SWT2']
 filetypes = []
 
-periods = ['AUG']  # , 'SEP']  # must be listed in order
+periods = ['AUG', 'SEP', 'OCT', 'NOV']  # must be listed in order
 kinds = ['prod']
 title = ','.join(sites)
 

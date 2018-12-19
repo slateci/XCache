@@ -20,11 +20,11 @@ PB = 1024 * TB
 
 sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
 # sites = ['AGLT2']
-periods = ['AUG', 'SEP']  # must be listed in order
+periods = ['AUG', 'SEP', 'OCT', 'NOV']  # must be listed in order
 kinds = ['prod']
 skipFiles = []  # ':AOD.']
 
-label = 'flat_US_9x10TB_150int2'
+label = 'US_2x40TB_2x500TB_Int2'
 output = label + '_' + '_'.join(kinds) + '_' + '_'.join(periods) + '_' + '_'.join(sites)
 title = label + '\n' + ','.join(kinds) + ' ' + ' '.join(periods) + '\n' + ','.join(sites)
 
@@ -44,13 +44,20 @@ all_sites = {}
 # all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2_SW', servers=3, size=10 * TB)
 # all_sites['xc_Int2_SW'] = XCacheSite('xc_Int2_SW', upstream='Origin', servers=4, size=10 * TB)
 
+# # flat US with one central cache.
+# all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=2, size=40 * TB)
+# all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=2, size=40 * TB)
+# all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=2, size=40 * TB)
+# all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=4, size=40 * TB)
+# all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=2, size=40 * TB)
+# all_sites['xc_Int2'] = XCacheSite('xc_Int2', upstream='Origin', servers=2, size=500 * TB)
+
 # flat US with one central cache.
-all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='xc_Int2', servers=4, size=30 * TB)
-all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='xc_Int2', servers=4, size=10 * TB)
-all_sites['xc_Int2'] = XCacheSite('xc_Int2', upstream='Origin', servers=5, size=30 * TB)
+all_sites['xc_MWT2'] = XCacheSite('xc_MWT2', upstream='Origin', servers=10, size=100 * TB)
+all_sites['xc_AGLT2'] = XCacheSite('xc_AGLT2', upstream='Origin', servers=10, size=100 * TB)
+all_sites['xc_NET2'] = XCacheSite('xc_NET2', upstream='Origin', servers=10, size=100 * TB)
+all_sites['xc_BNL'] = XCacheSite('xc_BNL', upstream='Origin', servers=10, size=100 * TB)
+all_sites['xc_SWT2'] = XCacheSite('xc_SWT2', upstream='Origin', servers=10, size=100 * TB)
 
 
 # all_sites['xc_UKI-SCOTGRID-ECDF'] = XCacheSite('xc_scot', upstream='Origin', servers=1, size=10 * TB)

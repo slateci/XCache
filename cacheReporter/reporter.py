@@ -15,10 +15,10 @@ start_time = ct - 3600
 end_time = ct
 
 if 'XC_SITE' not in os.environ:
-    print("Must set $XC_SITE. Exiting.")
+    print "xcache reporter - Must set $XC_SITE. Exiting."
     sys.exit(1)
 if 'XC_REPORT_COLLECTOR' not in os.environ:
-    print("Must set $XC_REPORT_COLLECTOR. Exiting.")
+    print "xcache reporter - Must set $XC_REPORT_COLLECTOR. Exiting."
     sys.exit(1)
 
 site = os.environ['XC_SITE']
@@ -86,13 +86,13 @@ files = [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*.cinfo'
 # files += [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*%'))]
 for filename in files:
     last_modification_time = os.stat(filename).st_mtime
-    print(filename, last_modification_time)
+    # print(filename, last_modification_time)
     if last_modification_time > start_time and last_modification_time < end_time:
         get_info(filename)
 
-print("reports:", len(reports))
+print "xcache reporter - files touched:", len(reports)
 if len(reports) > 0:
     r = requests.post(collector, json=reports)
-    print('response:', r.status_code)
+    print 'xcache reporter - indexing response:', r.status_code
 else:
-    print("Nothing to report")
+    print "xcache reporter - Nothing to report"
