@@ -13,10 +13,11 @@ es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
 # ### select time period
 
 #%%
-start_date = '2018-11-01 00:00:00'
-end_date = '2018-12-01 00:00:00'
+start_date = '2018-08-01 00:00:00'
+end_date = '2018-09-01 00:00:00'
 
-dataset = 'managed_NOV'
+type = 'prod'  # anal
+period = 'AUG'
 
 print("start:", start_date, "end:", end_date)
 start = int(pd.Timestamp(start_date).timestamp()) * 1000
@@ -30,12 +31,12 @@ print("start:", start, "end:", end)
 
 #%%
 task_query = {
-    "_source": ["endtime", "creationdate"],
+    "_source": ["endtime", "creationdate", "processingtype"],
     'query': {
         'bool': {
             'must': [
                 {'term': {'status': 'done'}},
-                {'term': {'tasktype': 'prod'}},
+                {'term': {'tasktype': type}},
                 {'range': {'endtime': {'gte': start, 'lt': end}}}
             ]
         }
@@ -47,7 +48,7 @@ count = 0
 requests = []
 for res in scroll:
     r = res['_source']
-    requests.append([res['_id'], r['creationdate'],r['endtime']])
+    requests.append([res['_id'], r['creationdate'], r['endtime'], r['processingtype']])
 
     if not count % 10000:
         print(count)
@@ -58,7 +59,7 @@ for res in scroll:
 
 #%%
 all_tasks = pd.DataFrame(requests).sort_values(0)
-all_tasks.columns = ['taskid', 'created', 'finished']
+all_tasks.columns = ['taskid', 'created_at', 'finished_at', 'processing_type']
 mintid = int(all_tasks.taskid.min())
 maxtid = int(all_tasks.taskid.max())
 print("tasks:", all_tasks.shape[0], "min", mintid, "max", maxtid)
@@ -66,5 +67,4 @@ print("tasks:", all_tasks.shape[0], "min", mintid, "max", maxtid)
 
 #%%
 print(all_tasks.head())
-all_tasks.to_hdf(dataset + '.h5', key="prod", mode='w', complevel=1)
-
+all_tasks.to_hdf('tasks_' + type + '_' + period + '.h5', key=type, mode='w', complevel=1)

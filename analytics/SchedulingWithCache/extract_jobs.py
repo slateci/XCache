@@ -13,9 +13,9 @@ es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
 # ### load tasks data
 
 #%%
-type = 'managed'
-period = 'AUG'
-tasks = pd.read_hdf('analytics/SchedulingWithCache/data/' + type + '_' + period + '.h5', key='prod', mode='r')
+type = 'prod'  # anal
+period = 'SEP'
+tasks = pd.read_hdf('analytics/SchedulingWithCache/data/tasks_' + type + '_' + period + '.h5', key=type, mode='r')
 
 print("tasks:", tasks.shape[0])
 
@@ -27,14 +27,14 @@ print("tasks:", tasks.shape[0])
 count = 0
 full_data = []
 for task in tasks.itertuples():
-    if count > 3:
-        break
+    # if count > 100:
+    #     break
     if not count % 1000:
         print(count)
     count += 1
     jobs_query = {
         "size": 1,
-        "_source": ["actualcorecount", "wall_time", "ninputdatafiles", "proddblock"],
+        "_source": ["proddblock"],
         "query": {
             "bool": {
                 "must": [
@@ -50,32 +50,22 @@ for task in tasks.itertuples():
         }
     }
     res = es.search(body=jobs_query, index="jobs")
-
-    requests = []
-    job_count = 0
-    cores = 0
-    wall_time = 0
-    ninputfiles = 0
-    dataset = ''
-    for res in scroll:
-        r = res['_source']
-        cores += r['actualcorecount']
-        wall_time += r['wall_time']
-        ninputfiles += r['ninputdatafiles']
-        job_count += 1
-    full_data.append([int(task.taskid), task.created, task.finished, job_count, cores, wall_time, ninputfiles, r['proddblock']])
-    print('tid:', task.taskid, '\tjobs:', job_count, '\tcores:', cores, '\tnfiles:', ninputfiles)
+    job_count = res['hits']['total']
+    if job_count == 0:
+        continue
+    cores = res['aggregations']['cores']['value']
+    wall_time = res['aggregations']['wtime']['value']
+    ninputfiles = res['aggregations']['nfiles']['value']
+    dataset = res['hits']['hits'][0]['_source']['proddblock']
+    full_data.append([int(task.taskid), task.created_at, task.finished_at,
+                      task.processing_type, job_count, cores, wall_time, ninputfiles, dataset])
+    print('tid:', task.taskid, '\tjobs:', job_count, '\tcores:', cores, '\tnfiles:', ninputfiles, '\ttype:', task.processing_type)
 
 #%%
-print(full_data)
-
 filled_tasks = pd.DataFrame(full_data)
-filled_tasks.columns = ['taskid', 'created', 'finished', 'jobs', 'cores', 'wall_time', 'inputfiles', 'dataset']
-filled_tasks.sort_values('created', inplace=True)
-print(filled_tasks.head())
-print("tasks:", filled_tasks.shape[0])
-
+filled_tasks.columns = ['taskid', 'created_at', 'finished_at', 'processing_type', 'jobs', 'cores', 'wall_time', 'inputfiles', 'dataset']
+filled_tasks.sort_values('created_at', inplace=True)
 
 #%%
 print(filled_tasks.head())
-filled_tasks.to_hdf('analytics/SchedulingWithCache/data/' + type + '_' + period + '_filled.h5', key="filled", mode='w', complevel=1)
+filled_tasks.to_hdf('analytics/SchedulingWithCache/data/jobs_' + type + '_' + period + '.h5', key=type, mode='w', complevel=1)
