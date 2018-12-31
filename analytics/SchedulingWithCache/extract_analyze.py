@@ -5,36 +5,70 @@
 import pandas as pd
 
 #%%
-type = 'prod'  # anal
-period = 'AUG'
-data = pd.read_hdf('analytics/SchedulingWithCache/data/full_' + type + '_' + period + '.h5', key=type, mode='r')
+jtype = 'prod'  # anal
+periods = ['SEP']  # AUG
+
+data = pd.DataFrame()
+for period in periods:
+    pdata = pd.read_hdf('analytics/SchedulingWithCache/data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
+    print(period, pdata.shape[0])
+    data = pd.concat([data, pdata])
+
+data['files_processed'] = data.inputfiles / data.files_in_ds
 
 #%%
 print("tasks:", data.shape[0])
+gpt = data.groupby('processing_type')
 print('unique datasets:', data.dataset.nunique())
-print('unique datasets per processing type:')
-gr = data.groupby('processing_type').dataset.nunique()
-print(gr)
+all = pd.DataFrame(
+    dict(
+        tasks=gpt.size(),
+        datasets=gpt.dataset.count(),
+        unique_datasets=gpt.dataset.nunique(),
+        jobs=gpt.jobs.sum(),
+        input_files=gpt.inputfiles.sum()
+    )
+)
+all = all[['tasks', 'datasets', 'unique_datasets', 'jobs', 'input_files']]
+all
+
+# print(data.head())
 
 #%%
-print(data.head())
-
-#%%
-unfound = data[data.datatype == 0]
+unfound = data[(data.datatype == 0) & (data.dataset)]
 print('tasks where dataset deleted:', unfound.shape[0])
-gr = unfound.groupby('processing_type')
-print('unique datasets:\n', gr.dataset.nunique())
-print('tasks:\n', gr.dataset.count())
+gun = unfound.groupby('processing_type')
+
+unf = pd.DataFrame(
+    dict(
+        tasks=gun.size(),
+        unique_datasets=gun.dataset.nunique(),
+        jobs=gun.jobs.sum(),
+        input_files=gun.inputfiles.sum()
+    )
+)
+unf = unf[['tasks', 'unique_datasets', 'jobs', 'input_files']]
+unf
+
 
 #%%
-found = data[data.datatype != 0]
-found['files_processed'] = found.inputfiles / found.files_in_ds * 100
+found = data[(data.datatype != 0) & (data.files_in_ds > 0)]
 print('tasks where dataset found:', found.shape[0])
-gr1 = found.groupby('processing_type')
-print('unique datasets:\n', gr1.dataset.nunique())
-print('tasks:\n', gr1.dataset.count())
+grfo = found.groupby('processing_type')
 
-print('perc. files used:', gr1.files_processed.mean())
+fou = pd.DataFrame(
+    dict(
+        tasks=grfo.size(),
+        datasets=grfo.dataset.count(),
+        unique_datasets=grfo.dataset.nunique(),
+        jobs=grfo.jobs.sum(),
+        input_files=grfo.inputfiles.sum(),
+        input_data=grfo.ds_bytes.sum() / 1024 / 1024 / 1024 / 1024 / 1024,
+        perc_files_used=grfo.files_processed.mean()
+    )
+)
+fou = fou[['tasks', 'datasets', 'unique_datasets', 'jobs', 'input_files', 'input_data', 'perc_files_used']]
+fou
 
 #%% [markdown]
 # # overlays

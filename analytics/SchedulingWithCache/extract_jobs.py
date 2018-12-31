@@ -14,7 +14,7 @@ es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
 
 #%%
 type = 'prod'  # anal
-period = 'SEP'
+period = 'OCT'
 tasks = pd.read_hdf('analytics/SchedulingWithCache/data/tasks_' + type + '_' + period + '.h5', key=type, mode='r')
 
 print("tasks:", tasks.shape[0])
