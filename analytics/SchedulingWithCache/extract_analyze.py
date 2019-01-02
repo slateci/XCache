@@ -6,7 +6,7 @@ import pandas as pd
 
 #%%
 jtype = 'prod'  # anal
-periods = ['SEP']  # AUG
+periods = ['SEP','OCT','NOV']  # AUG, SEP
 
 data = pd.DataFrame()
 for period in periods:

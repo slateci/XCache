@@ -76,6 +76,10 @@ spec:
             port: 1094
           initialDelaySeconds: 180
           periodSeconds: 60
+        lifecycle:
+          preStop:
+            exec:
+              command: ["./updateAGISstatus.sh","433","DISABLED"]
         ports:
           - containerPort: 1094
 
