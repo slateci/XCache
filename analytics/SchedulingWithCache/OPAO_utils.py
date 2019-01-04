@@ -13,7 +13,7 @@ HWM = 0.95
 def load_compute():
     exists = os.path.isfile('data/compute.h5')
     if exists:
-        CEs = pd.read_hdf('compute.h5', key='AGIS', mode='r')
+        CEs = pd.read_hdf('data/compute.h5', key='AGIS', mode='r')
     else:
         # get AGIS info
         sites = []
@@ -61,44 +61,20 @@ def load_compute():
     return CEs
 
 
-def load_data(sites, periods, kinds, skipFiles=[]):
+def load_data(periods, types):
 
-    all_data = pd.DataFrame()
-    counts = []
-    for site in sites:
-        for month in periods:
-            for kind in kinds:
-                site_data = pd.read_hdf("../data/" + month + '/' + site + '_' + kind + '_' + month + '.h5', key=site, mode='r')
-                site_data = site_data.astype({"transfer_start": float})
-                site_data['site'] = 'xc_' + site
-                nfiles = site_data.filesize.count()
-                print(site, month, kind, nfiles)
-                ufiles = site_data.index.unique().shape[0]
-                totsize = site_data.filesize.sum() / PB
-                avgfilesize = site_data.filesize.mean() / GB
-                all_data = pd.concat([all_data, site_data])
-                counts.append([site, month, kind, nfiles, ufiles, totsize, avgfilesize])
-
-    df = pd.DataFrame(counts, columns=['site', 'month', 'kind', 'files', 'unique files', 'total size [PB]', 'avg. filesize [GB]'])
-    print(df)
-
-    if len(counts) == 1:
-        return all_data
-
+    data = pd.DataFrame()
+    for jtype in types:
+        for period in periods:
+            pdata = pd.read_hdf('data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
+            print(period, pdata.shape[0])
+            data = pd.concat([data, pdata])
     print('---------- merged data -----------')
-    print(all_data.shape[0], 'files\t', all_data.index.unique().shape[0], 'unique\t',
-          all_data.filesize.sum() / PB, "PB\t", all_data.filesize.mean() / GB, "GB avg. file size")
-    all_data = all_data.sort_values('transfer_start')
+    print('total:', data.shape[0])
+    print(data.head())
+    data = data.sort_values('created_at')
+    data.created_at = (data.created_at / 1000.0).astype(int)
+    data.finished_at = (data.finished_at / 1000.0).astype(int)
 
-    if len(skipFiles) == 0:
-        return all_data
-
-    for rem in skipFiles:
-        print('removing: ', rem)
-        all_data = all_data[~all_data.index.str.contains(rem)]
-
-    print('---------- after removing files not to cache -----------')
-    print(all_data.shape[0], 'files\t', all_data.index.unique().shape[0], 'unique\t',
-          all_data.filesize.sum() / PB, "PB\t", all_data.filesize.mean() / GB, "GB avg. file size")
-
-    return all_data
+    print('problematic tasks:', data[(data.inputfiles > 0) & (data.files_in_ds == 0)].shape[0])
+    return data

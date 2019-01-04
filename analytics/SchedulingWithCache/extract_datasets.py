@@ -7,7 +7,7 @@ from rucio.common import exception as rex
 dc = DIDClient()
 
 type = 'prod'  # anal
-period = 'OCT'
+period = 'DEC'
 jobs = pd.read_hdf('analytics/SchedulingWithCache/data/jobs_' + type + '_' + period + '.h5', key=type, mode='r')
 
 print("jobs:", jobs.shape[0])
