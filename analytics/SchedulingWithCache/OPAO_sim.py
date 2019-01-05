@@ -14,7 +14,6 @@ from cache import XCacheSite
 # load computing grid.
 grid = compute.Grid()
 
-grid.stats()
 # loop through jobs.
 # "randomly" assign to sites.
 
@@ -23,7 +22,7 @@ KINDS = ['prod']  # anal
 DONT_CACHE = []
 data = ou.load_data(PERIODS, KINDS)
 
-data = data[100:300]
+data = data[100:150]
 
 # creating jobs
 counter = 0

@@ -105,24 +105,24 @@ class Grid(object):
         while True:
             ts += self.JOB_START_DELAY
             if not ts % 600:
-                (srunning, squeued, sfinished) = self.stats()
-                print('time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(ts)),
-                      '\trunning:', srunning, '\tqueued:', squeued, '\tfinished:', sfinished)
-                self.status_in_time.append([ts, srunning, squeued, sfinished])
-                if sfinished == counter:
+                if self.stats(ts) == counter:
                     print('All DONE.')
                     break
             # loop over sites
             for CE in self.dfCEs.itertuples():
                 self.CEs[CE[0]].process_events(ts)
 
-    def stats(self):
-        running = queued = finished = 0
+    def stats(self, ts):
+        srunning = squeued = sfinished = 0
         for CE in self.dfCEs.itertuples():
-            running += self.CEs[CE[0]].status["running"]
-            queued += self.CEs[CE[0]].status["queued"]
-            finished += self.CEs[CE[0]].status["finished"]
-        return (running, queued, finished)
+            self.CEs[CE[0]].collect_stats(ts)
+            srunning += self.CEs[CE[0]].srunning
+            squeued += self.CEs[CE[0]].squeued
+            sfinished += self.CEs[CE[0]].sfinished
+        self.status_in_time.append([ts, srunning, squeued, sfinished])
+        print('time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)),
+              '\trunning:', srunning, '\tqueued:', squeued, '\tfinished:', sfinished)
+        return sfinished
 
     def plot_stats(self):
 
@@ -151,6 +151,9 @@ class Grid(object):
         ax3.legend()
         fig.savefig('plots/totals.png')
 
+        for CE in self.dfCEs.itertuples():
+            self.CEs[CE[0]].plot_stats()
+
 
 class Compute(object):
 
@@ -164,7 +167,8 @@ class Compute(object):
         self.finish_events = []  # [time, cores]
 
         self.queue = []
-        self.status = {'running': 0, 'queued': 0, 'finished': 0, 'cores_used': 0}
+
+        self.srunning = self.squeued = self.sfinished = self.scores_used = 0
         self.status_in_time = []
 
         self.init()
@@ -185,33 +189,68 @@ class Compute(object):
         for event in self.finish_events:
             if event[0] > ts:
                 break
-            self.status['cores_used'] -= event[1]
-            self.status['finished'] += 1
-            self.status['running'] -= 1
+            self.scores_used -= event[1]
+            self.sfinished += 1
+            self.srunning -= 1
             events_processed += 1
         if events_processed:
             del self.finish_events[:events_processed]
 
-        self.status['queued'] = 0
-        jobs_started = 0
-        for job in self.queue:
+        jobs_started = []
+        self.squeued = 0
+        for ji, job in enumerate(self.queue):
             if job[0] > ts:  # no jobs to execute at this time.
                 break
             # print(ts, 'job starts at:', job[0])
 
-            if (self.cores - self.status['cores_used']) < job[1]:
+            if (self.cores - self.scores_used) < job[1]:
                 # print("can't start.")
-                self.status['queued'] += 1
+                self.squeued += 1
             else:
                 # print("can start.")
                 self.finish_events.append([ts + job[2], job[1]])
-                self.status['running'] += 1
-                self.status['cores_used'] += job[1]
-                jobs_started += 1
+                self.srunning += 1
+                self.scores_used += job[1]
+                jobs_started.append(ji)
                 # add files to cache
                 for filen in job[3]:
                     self.cache.add_request(filen, job[4], ts)
-        del self.queue[:jobs_started]
+        # shorten queue
+        for ji in reversed(jobs_started):
+            self.queue.pop(ji)
 
-    def get_ce_stats(self):
-        print(self.name, '\trunning:', self.running, '\tqueued:', self.queued, '\tfinished:', self.finished)
+    def collect_stats(self, ts):
+        self.status_in_time.append([ts, self.srunning, self.squeued, self.sfinished, self.scores_used])
+        # print(self.name, '\trunning:', self.srunning, '\tqueued:', self.squeued, '\tfinished:', self.sfinished)
+
+    def plot_stats(self):
+        stats = pd.DataFrame(self.status_in_time)
+        stats.columns = ['time', 'running', 'queued', 'finished', 'cores_used']
+        stats.set_index('time', drop=True)
+        # print(stats)
+        stats.index = pd.to_datetime(stats.index, unit='s')
+
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(8, 9))
+        fig.suptitle(self.name, fontsize=18)
+
+        ax1.plot(stats.index, stats.running)
+        ax1.set_ylabel('running')
+        ax1.set_xlabel('time')
+        ax1.legend()
+
+        ax2.plot(stats.index, stats.queued)
+        ax2.set_ylabel('queued')
+        ax2.set_xlabel('time')
+        ax2.legend()
+
+        ax3.plot(stats.index, stats.finished)
+        ax3.set_ylabel('finished')
+        ax3.set_xlabel('time')
+        ax3.legend()
+
+        ax4.plot(stats.index, stats.cores_used)
+        ax4.set_ylabel('cores used')
+        ax4.set_xlabel('time')
+        ax4.legend()
+
+        fig.savefig('plots/' + self.name + '.png')
