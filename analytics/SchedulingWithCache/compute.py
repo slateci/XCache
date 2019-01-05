@@ -1,5 +1,13 @@
+import time
 from bisect import bisect
 import pandas as pd
+
+import matplotlib
+import matplotlib.pyplot as plt
+
+matplotlib.rc('xtick', labelsize=14)
+matplotlib.rc('ytick', labelsize=14)
+
 import OPAO_utils as ou
 from cache import XCacheSite
 
@@ -10,8 +18,7 @@ class Grid(object):
         self.dfCEs = None
         self.origins = []
         self.total_cores = 0
-        self.running = 0
-        self.finished = 0
+        self.status_in_time = []  # ts, running, queued, finished
         self.ds_assignements = {}
         self.JOB_START_DELAY = 1
         self.CORE_NUMBERS = [1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
@@ -45,7 +52,7 @@ class Grid(object):
     def add_task(self, task):
         # find sites to execute task at
         sites = self.get_dataset_vp(task.dataset)
-        # print(task, sites)
+        # print('adding task:\n', task, sites)
 
         files_per_job = 0
         per_file_bytes = 0
@@ -89,17 +96,60 @@ class Grid(object):
             if not counter % 1000:
                 print('creating jobs:', counter)
 
-        print('all job submitted. processing queues.')
+        print('all', counter, 'jobs submitted. processing queues.')
+
         # loop over times
-        for ts in range(self.all_jobs[0][0], self.all_jobs[-1][0] + 86400, self.JOB_START_DELAY):
-            if not ts % 60:
-                print(ts)
+        print('start time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[0][0])))
+        print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[-1][0])))
+        ts = self.all_jobs[0][0]
+        while True:
+            ts += self.JOB_START_DELAY
+            if not ts % 600:
+                (srunning, squeued, sfinished) = self.stats()
+                print('time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(ts)),
+                      '\trunning:', srunning, '\tqueued:', squeued, '\tfinished:', sfinished)
+                self.status_in_time.append([ts, srunning, squeued, sfinished])
+                if sfinished == counter:
+                    print('All DONE.')
+                    break
             # loop over sites
             for CE in self.dfCEs.itertuples():
                 self.CEs[CE[0]].process_events(ts)
 
     def stats(self):
-        print('running:', self.running, '\tfinished:', self.finished)
+        running = queued = finished = 0
+        for CE in self.dfCEs.itertuples():
+            running += self.CEs[CE[0]].status["running"]
+            queued += self.CEs[CE[0]].status["queued"]
+            finished += self.CEs[CE[0]].status["finished"]
+        return (running, queued, finished)
+
+    def plot_stats(self):
+
+        stats = pd.DataFrame(self.status_in_time)
+        stats.columns = ['time', 'running', 'queued', 'finished']
+        stats.set_index('time', drop=True)
+        print(stats)
+        stats.index = pd.to_datetime(stats.index, unit='s')
+
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, sharex=True, figsize=(10, 9))
+        fig.suptitle('Totals', fontsize=18)
+
+        ax1.plot(stats.index, stats.running)
+        ax1.set_ylabel('running')
+        ax1.set_xlabel('time')
+        ax1.legend()
+
+        ax2.plot(stats.index, stats.queued)
+        ax2.set_ylabel('queued')
+        ax2.set_xlabel('time')
+        ax2.legend()
+
+        ax3.plot(stats.index, stats.finished)
+        ax3.set_ylabel('finished')
+        ax3.set_xlabel('time')
+        ax3.legend()
+        fig.savefig('plots/totals.png')
 
 
 class Compute(object):
@@ -125,22 +175,29 @@ class Compute(object):
         self.cache = XCacheSite('xc_' + self.name, servers=xservers, size=20 * ou.TB)
 
     def add_job(self, ts, cores, duration, files, per_file_bytes):
+        # print([ts, cores, duration, files, per_file_bytes])
         self.queue.append([ts, cores, duration, files, per_file_bytes])
 
     def process_events(self, ts):
         """ Process events up to and including ts. """
         # check if any jobs finished and reclaim cores.
+        events_processed = 0
         for event in self.finish_events:
             if event[0] > ts:
-                continue
+                break
             self.status['cores_used'] -= event[1]
             self.status['finished'] += 1
             self.status['running'] -= 1
+            events_processed += 1
+        if events_processed:
+            del self.finish_events[:events_processed]
 
         self.status['queued'] = 0
+        jobs_started = 0
         for job in self.queue:
             if job[0] > ts:  # no jobs to execute at this time.
                 break
+            # print(ts, 'job starts at:', job[0])
 
             if (self.cores - self.status['cores_used']) < job[1]:
                 # print("can't start.")
@@ -150,10 +207,11 @@ class Compute(object):
                 self.finish_events.append([ts + job[2], job[1]])
                 self.status['running'] += 1
                 self.status['cores_used'] += job[1]
-
+                jobs_started += 1
                 # add files to cache
                 for filen in job[3]:
                     self.cache.add_request(filen, job[4], ts)
+        del self.queue[:jobs_started]
 
     def get_ce_stats(self):
         print(self.name, '\trunning:', self.running, '\tqueued:', self.queued, '\tfinished:', self.finished)

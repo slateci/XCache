@@ -4,16 +4,12 @@ All CEs are connected to a local XCache.
 Job durations are input data are taken from historical data. 
 '''
 
-import matplotlib
-import matplotlib.pyplot as plt
 import pandas as pd
 
 import OPAO_utils as ou
 import compute
 from cache import XCacheSite
 
-matplotlib.rc('xtick', labelsize=14)
-matplotlib.rc('ytick', labelsize=14)
 
 # load computing grid.
 grid = compute.Grid()
@@ -22,14 +18,12 @@ grid.stats()
 # loop through jobs.
 # "randomly" assign to sites.
 
-step = 10000
-
 PERIODS = ['SEP', 'OCT', 'NOV']  # must be listed in order
 KINDS = ['prod']  # anal
 DONT_CACHE = []
 data = ou.load_data(PERIODS, KINDS)
 
-data = data[:100]
+data = data[100:300]
 
 # creating jobs
 counter = 0
@@ -38,9 +32,10 @@ for task in data.itertuples():
     counter += 1
     if not counter % 500:
         print('creating tasks:', counter)
+print('total tasks created:', counter)
 
 grid.process_jobs()
-
+grid.plot_stats()
 
 #     if not count % step and count > 0:
 #         # print(count, accesses, dataaccc)

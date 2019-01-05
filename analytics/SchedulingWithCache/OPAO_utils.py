@@ -71,7 +71,7 @@ def load_data(periods, types):
             data = pd.concat([data, pdata])
     print('---------- merged data -----------')
     print('total:', data.shape[0])
-    print(data.head())
+    # print(data.head())
     data = data.sort_values('created_at')
     data.created_at = (data.created_at / 1000.0).astype(int)
     data.finished_at = (data.finished_at / 1000.0).astype(int)
