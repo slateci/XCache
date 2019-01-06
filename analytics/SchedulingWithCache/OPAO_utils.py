@@ -1,6 +1,6 @@
+import os
 import requests
 import pandas as pd
-import os
 
 MB = 1024 * 1024
 GB = 1024 * MB
@@ -9,11 +9,14 @@ PB = 1024 * TB
 LWM = 0.90
 HWM = 0.95
 
+BASE_DIR = 'analytics/SchedulingWithCache/'
+
 
 def load_compute():
-    exists = os.path.isfile('data/compute.h5')
+    filename = BASE_DIR + 'data/compute.h5'
+    exists = os.path.isfile(filename)
     if exists:
-        CEs = pd.read_hdf('data/compute.h5', key='AGIS', mode='r')
+        CEs = pd.read_hdf(filename, key='AGIS', mode='r')
     else:
         # get AGIS info
         sites = []
@@ -43,20 +46,20 @@ def load_compute():
         sites.set_index('name', drop=True, inplace=True)
         capacity.set_index('name', drop=True, inplace=True)
 
-        all = sites.join(capacity, how='inner')
+        all_sites = sites.join(capacity, how='inner')
 
-        print('mean cores per tier:\n', all.groupby(['tier'])['cores'].mean())
-        print('sum of cores per tier:\n', all.groupby(['tier'])['cores'].sum())
-        print('tier 0\n', all[all.tier == 0])
-        print('tier 1\n', all[all.tier == 1])
-        print('tier 2\n', all[all.tier == 2])
+        print('mean cores per tier:\n', all_sites.groupby(['tier'])['cores'].mean())
+        print('sum of cores per tier:\n', all_sites.groupby(['tier'])['cores'].sum())
+        print('tier 0\n', all_sites[all_sites.tier == 0])
+        print('tier 1\n', all_sites[all_sites.tier == 1])
+        print('tier 2\n', all_sites[all_sites.tier == 2])
         # print('tier 3\n', sites[sites.tier == 3].head(100))
-        # print(all)
+        # print(all_sites)
 
-        CEs = all[(all.tier != 3) & (all.cores > 200)]
+        CEs = all_sites[(all_sites.tier != 3) & (all_sites.cores > 200)]
         print('CEs to use:\n', CEs)
 
-        CEs.to_hdf('data/compute.h5', key="AGIS", mode='w')
+        CEs.to_hdf(filename, key="AGIS", mode='w')
     print('CEs loaded:', CEs.shape[0])
     return CEs
 
@@ -66,7 +69,7 @@ def load_data(periods, types):
     data = pd.DataFrame()
     for jtype in types:
         for period in periods:
-            pdata = pd.read_hdf('data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
+            pdata = pd.read_hdf(BASE_DIR + 'data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
             print(period, pdata.shape[0])
             data = pd.concat([data, pdata])
     print('---------- merged data -----------')
