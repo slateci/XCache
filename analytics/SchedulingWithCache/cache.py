@@ -1,18 +1,7 @@
 import hashlib
 import pandas as pd
 import matplotlib.pyplot as plt
-
-import OPAO_utils as ou
-
-MB = 1024 * 1024
-GB = 1024 * MB
-TB = 1024 * GB
-PB = 1024 * TB
-
-PER_FILE_RATE = GB / 8 / 3  # one Gbps
-THROUGHPUT_BIN = 1800  # in seconds
-
-PER_FILE_RATE *= THROUGHPUT_BIN
+import conf
 
 
 class Storage(object):
@@ -30,7 +19,7 @@ class Storage(object):
 
     def add_cache_site(self, cloud, name, cores):
         xservers = cores // 1000 + 1
-        self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=20 * TB)
+        self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=20 * conf.TB)
 
     def add_access(self, endpoint, filename, filesize, timestamp):
         self.total_files += 1
@@ -68,10 +57,10 @@ class Storage(object):
         dacdf = dacdf.set_index('time', drop=True)
         dacdf.index = pd.to_datetime(dacdf.index, unit='s')
 
-        dacdf = dacdf / TB
+        dacdf = dacdf / conf.TB
 
         fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 10), sharex=True,)
-        fig.suptitle('Cache levels', fontsize=18)
+        fig.suptitle('Cache levels\n' + conf.TITLE, fontsize=18)
 
         accdf.plot(ax=axs[0][0])
         axs[0][0].set_ylabel('hits')
@@ -103,12 +92,12 @@ class Storage(object):
         fig.autofmt_xdate()
         fig.subplots_adjust(hspace=0)
 
-        fig.savefig(ou.BASE_DIR + 'plots/cache/filling_up.png')
+        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
 
 
 class XCacheServer(object):
 
-    def __init__(self, size=TB, lwm=0.90, hwm=0.95):
+    def __init__(self, size=conf.TB, lwm=0.90, hwm=0.95):
         self.size = size
         self.lwm_bytes = size * lwm
         self.hwm_bytes = size * hwm
@@ -155,7 +144,7 @@ class XCacheServer(object):
 
 class XCacheSite(object):
 
-    def __init__(self, name, cloud='US',  servers=1, size=TB, lwm=0.90, hwm=0.95, origin=False):
+    def __init__(self, name, cloud='US',  servers=1, size=conf.TB, lwm=0.90, hwm=0.95, origin=False):
         """ cache size is in bytes """
         self.name = name
         self.cloud = cloud
@@ -183,13 +172,13 @@ class XCacheSite(object):
 
         # add egress
         sizebin = fs
-        timebin = ts // THROUGHPUT_BIN
+        timebin = ts // conf.THROUGHPUT_BIN
         while True:
             if timebin not in self.throughput:
                 self.throughput[timebin] = [0, 0]
-            if sizebin - PER_FILE_RATE > 0:
-                self.throughput[timebin][0] += PER_FILE_RATE
-                sizebin -= PER_FILE_RATE
+            if sizebin - conf.PER_FILE_RATE > 0:
+                self.throughput[timebin][0] += conf.PER_FILE_RATE
+                sizebin -= conf.PER_FILE_RATE
                 timebin += 1
             else:
                 self.throughput[timebin][0] += sizebin
@@ -208,11 +197,11 @@ class XCacheSite(object):
         else:
             # add ingress
             sizebin = fs
-            timebin = ts // THROUGHPUT_BIN
+            timebin = ts // conf.THROUGHPUT_BIN
             while True:
-                if sizebin - PER_FILE_RATE > 0:
-                    self.throughput[timebin][1] += PER_FILE_RATE
-                    sizebin -= PER_FILE_RATE
+                if sizebin - conf.PER_FILE_RATE > 0:
+                    self.throughput[timebin][1] += conf.PER_FILE_RATE
+                    sizebin -= conf.PER_FILE_RATE
                     timebin += 1
                 else:
                     self.throughput[timebin][1] += sizebin
@@ -232,18 +221,18 @@ class XCacheSite(object):
     def plot_throughput(self):
         df = pd.DataFrame.from_dict(self.throughput, orient='index')
         df.columns = ['egress', 'ingress']
-        df.index *= THROUGHPUT_BIN
+        df.index *= conf.THROUGHPUT_BIN
         # df = df[df.index > 1534626000]
         # df = df[df.index < 1534669200]
         df.ingress = -df.ingress
-        df = df * 8 / GB / THROUGHPUT_BIN
+        df = df * 8 / conf.GB / conf.THROUGHPUT_BIN
         df.index = pd.to_datetime(df.index, unit='s')
         fig, ax = plt.subplots(figsize=(18, 6))
-        fig.suptitle(self.name, fontsize=18)
+        fig.suptitle(self.name + '\n' + conf.TITLE, fontsize=18)
         fig.autofmt_xdate()
         ax.set_ylabel('throughput [Gbps]')
         df.plot(kind='line', ax=ax)
-        fig.savefig('thr_' + self.name + '.png')
+        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/thr_' + self.name + '.png')
 
     # def plot_cache_state(self):
     #     """ most important plots. """

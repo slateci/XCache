@@ -6,7 +6,7 @@ import pandas as pd
 
 #%%
 jtype = 'prod'  # anal
-periods = ['SEP','OCT','NOV']  # AUG, SEP
+periods = ['SEP', 'OCT', 'NOV', 'DEC']  # AUG, SEP
 
 data = pd.DataFrame()
 for period in periods:
@@ -75,3 +75,9 @@ fou
 
 #%%
 print(found[found.processing_type == 'overlay'].tail())
+
+#%%
+fig, ax = plt.subplots()
+data.hist('jobs', ax=ax, bins=100, bottom=0.9)
+ax.set_yscale('log')
+

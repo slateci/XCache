@@ -2,18 +2,11 @@ import os
 import requests
 import pandas as pd
 
-MB = 1024 * 1024
-GB = 1024 * MB
-TB = 1024 * GB
-PB = 1024 * TB
-LWM = 0.90
-HWM = 0.95
-
-BASE_DIR = 'analytics/SchedulingWithCache/'
+import conf
 
 
 def load_compute():
-    filename = BASE_DIR + 'data/compute.h5'
+    filename = conf.BASE_DIR + 'data/compute.h5'
     exists = os.path.isfile(filename)
     if exists:
         CEs = pd.read_hdf(filename, key='AGIS', mode='r')
@@ -64,12 +57,12 @@ def load_compute():
     return CEs
 
 
-def load_data(periods, types):
+def load_data():
 
     data = pd.DataFrame()
-    for jtype in types:
-        for period in periods:
-            pdata = pd.read_hdf(BASE_DIR + 'data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
+    for jtype in conf.KINDS:
+        for period in conf.PERIODS:
+            pdata = pd.read_hdf(conf.BASE_DIR + 'data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
             print(period, pdata.shape[0])
             data = pd.concat([data, pdata])
     print('---------- merged data -----------')

@@ -3,6 +3,7 @@ import time
 from bisect import bisect
 
 import OPAO_utils as ou
+import conf
 from cache import Storage  # , XCacheSite
 import pandas as pd
 
@@ -11,9 +12,6 @@ import matplotlib.pyplot as plt
 
 matplotlib.rc('xtick', labelsize=12)
 matplotlib.rc('ytick', labelsize=14)
-
-JOB_START_DELAY = 1
-CORE_NUMBERS = [1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 
 class Grid(object):
@@ -25,6 +23,13 @@ class Grid(object):
         self.status_in_time = []  # ts, running, queued, finished
         self.ds_assignements = {}
         self.all_jobs = []
+
+        self.core_seconds = 0
+        self.queue_seconds = 0
+
+        self.cloud_weights = None
+        self.site_weights = {}
+        self.vps = []
         self.loadCEs()
 
     def loadCEs(self):
@@ -35,11 +40,29 @@ class Grid(object):
             self.CEs[CE[0]] = Compute(CE[0], CE.tier, CE.cloud, CE.cores, self.storage)
             self.storage.add_cache_site(CE.cloud, CE[0], CE.cores)
 
+        self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
+        self.cloud_weights /= self.cloud_weights.sum()
+        for cl, clv in self.dfCEs.groupby('cloud'):
+            self.site_weights[cl] = clv['cores']
+            self.site_weights[cl] /= self.site_weights[cl].sum()
+        # print(self.cloud_weights,  self.site_weights)
+
+    def generate_VPs(self):
+        n = 10000
+        cloud_samples = self.cloud_weights.sample(n, replace=True, weights=self.cloud_weights).index.values
+        # print(cloud_samples)
+        for i in range(n):
+            sw = self.site_weights[cloud_samples[i]]
+            site_samples = sw.sample(len(sw), weights=sw).index.values
+            # print(site_samples)
+            self.vps.append(site_samples)
+
     def get_dataset_vp(self, name):
-        # TODO
-        # check if name is defined at all. If not return weighted without adding to dict
+        if len(self.vps) < 5:
+            self.generate_VPs()
+
         if name not in self.ds_assignements:
-            self.ds_assignements[name] = self.dfCEs.sample(3, weights='cores').index.values
+            self.ds_assignements[name] = self.vps.pop()
 
         # print(self.ds_assignements[name])
         return self.ds_assignements[name]
@@ -56,7 +79,7 @@ class Grid(object):
             per_file_bytes = round(task.ds_bytes / task.files_in_ds)
 
         job_duration = int(task.wall_time / task.jobs)
-        cores = CORE_NUMBERS[bisect(CORE_NUMBERS, task.cores / task.jobs)]
+        cores = conf.CORE_NUMBERS[bisect(conf.CORE_NUMBERS, task.cores / task.jobs)]
 
         # print('jobs:', task.jobs, '\tcores:', cores, '\tfiles per job', files_per_job, '\tduration:', job_duration)
 
@@ -68,7 +91,7 @@ class Grid(object):
                 file_counter += 1
 
             self.all_jobs.append([
-                task.created_at + JOB_START_DELAY * job_number,
+                task.created_at + conf.JOB_START_DELAY * job_number,
                 cores,
                 job_duration,
                 files,
@@ -77,36 +100,94 @@ class Grid(object):
             ]
             )
 
+    # def process_jobs_old(self):
+    #     """ gives jobs to CEs to process. """
+    #     print('sort jobs')
+    #     self.all_jobs.sort(key=lambda x: x[0])
+
+    #     print('starting submitting...')
+    #     counter = 0
+    #     for job in self.all_jobs:
+    #         sites = job[5]
+    #         self.CEs[sites[0]].add_job(job[0], job[1], job[2], job[3], job[4])
+    #         counter += 1
+    #         if not counter % 1000:
+    #             print('creating jobs:', counter)
+
+    #     print('all', counter, 'jobs submitted. processing queues.')
+
+    #     # loop over times
+    #     print('start time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[0][0])))
+    #     print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[-1][0])))
+    #     ts = self.all_jobs[0][0]
+    #     while True:
+    #         ts += conf.JOB_START_DELAY
+    #         if not ts % 600:
+    #             self.storage.stats(ts)
+    #             if self.stats(ts) == counter:
+    #                 print('All DONE.')
+    #                 break
+    #         # loop over sites
+    #         for CE in self.dfCEs.itertuples():
+    #             ncores, nqueued = self.CEs[CE[0]].process_events(ts)
+    #             self.core_seconds += ncores * conf.JOB_START_DELAY
+    #             self.queue_seconds += nqueued * conf.JOB_START_DELAY
+
     def process_jobs(self):
         """ gives jobs to CEs to process. """
         print('sort jobs')
         self.all_jobs.sort(key=lambda x: x[0])
-
+        total_jobs = len(self.all_jobs)
+        print('jobs to do:', total_jobs)
         print('starting submitting...')
-        counter = 0
-        for job in self.all_jobs:
-            sites = job[5]
-            self.CEs[sites[0]].add_job(job[0], job[1], job[2], job[3], job[4])
-            counter += 1
-            if not counter % 1000:
-                print('creating jobs:', counter)
 
-        print('all', counter, 'jobs submitted. processing queues.')
-
-        # loop over times
-        print('start time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[0][0])))
-        print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[-1][0])))
-        ts = self.all_jobs[0][0]
+       # loop over times
+        print('start time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[0][0])))
+        print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[-1][0])))
+        ts = self.all_jobs[0][0] - conf.JOB_START_DELAY
         while True:
-            ts += JOB_START_DELAY
+            ts += conf.JOB_START_DELAY
             if not ts % 600:
                 self.storage.stats(ts)
-                if self.stats(ts) == counter:
+                print('remaining jobs: ', len(self.all_jobs))
+                if self.stats(ts) == total_jobs:
                     print('All DONE.')
                     break
-            # loop over sites
+
+            # loop over sites process events get ce statuses
+            nqueued = {}
             for CE in self.dfCEs.itertuples():
-                self.CEs[CE[0]].process_events(ts)
+                ncores, nqueued[CE[0]] = self.CEs[CE[0]].process_events(ts)
+                self.core_seconds += ncores * conf.JOB_START_DELAY
+                self.queue_seconds += nqueued[CE[0]] * conf.JOB_START_DELAY
+
+            jobs_added = 0
+            for job in self.all_jobs:
+                if job[0] > ts + conf.JOB_START_DELAY:
+                    break
+                sites = job[5]
+
+                # the first site not having anything in the queue gets the job
+                found_empty = False
+                minocc = 99999999.0
+                minsi = 99
+                for si, site in enumerate(sites):
+                    occ = len(self.CEs[site].queue) / self.CEs[site].cores
+                    if not occ:
+                        self.CEs[site].add_job(job[0], job[1], job[2], job[3], job[4])
+                        found_empty = True
+                        break
+                    if occ < minocc:
+                        minocc = occ
+                        minsi = si
+
+                # if job unassigned give it to the one with the smallest ratio
+                if not found_empty:
+                    self.CEs[sites[minsi]].add_job(job[0], job[1], job[2], job[3], job[4])
+
+                jobs_added += 1
+
+            del self.all_jobs[:jobs_added]
 
     def stats(self, ts):
         srunning = squeued = sfinished = 0
@@ -121,7 +202,8 @@ class Grid(object):
         return sfinished
 
     def plot_stats(self):
-
+        print('core hours:', self.core_seconds / 3600)
+        print('queue job hours:', self.queue_seconds / 3600)
         stats = pd.DataFrame(self.status_in_time)
         stats.columns = ['time', 'running', 'queued', 'finished']
         stats = stats.set_index('time', drop=True)
@@ -129,13 +211,18 @@ class Grid(object):
         # print(stats)
 
         fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 9))
-        fig.suptitle('Totals', fontsize=18)
+        fig.suptitle('Totals\n' + conf.TITLE, fontsize=18)
 
         ax1.plot(stats.index, stats.running)
         ax1.plot(stats.index, stats.queued)
         ax1.set_ylabel('jobs')
         ax1.set_xlabel('time')
         ax1.legend()
+
+        textstr = "core hours used:" + str(self.core_seconds // 3600)
+        textstr += "\njob queue hours:" + str(self.queue_seconds // 3600)
+        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+        ax1.text(0.05, 0.95, textstr, transform=ax1.transAxes, fontsize=12, verticalalignment='top', bbox=props)
 
         ax2.plot(stats.index, stats.finished)
         ax2.set_ylabel('finished')
@@ -146,7 +233,7 @@ class Grid(object):
         fig.subplots_adjust(hspace=0)
 
         # plt.tight_layout()
-        fig.savefig(ou.BASE_DIR + 'plots/totals.png')
+        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/totals.png')
 
         for CE in self.dfCEs.itertuples():
             self.CEs[CE[0]].plot_stats()
@@ -163,21 +250,12 @@ class Compute(object):
         self.cloud = cloud
         self.cores = cores
         self.storage = storage
-        print(name, tier, cloud)
         self.finish_events = []  # [time, cores]
 
         self.queue = []
 
         self.srunning = self.squeued = self.sfinished = self.scores_used = 0
         self.status_in_time = []
-
-        # self.init()
-
-    # def init(self):
-    #     pass
-    #     # # attach cache - now scaled according to ncores, later take it from AGIS for large sites.
-    #     # xservers = self.cores // 1000 + 1
-    #     # self.cache = XCacheSite('xc_' + self.name, servers=xservers, size=20 * ou.TB)
 
     def add_job(self, ts, cores, duration, files, per_file_bytes):
         # print([ts, cores, duration, files, per_file_bytes])
@@ -221,6 +299,8 @@ class Compute(object):
         for ji in reversed(jobs_started):
             self.queue.pop(ji)
 
+        return (self.scores_used, self.squeued)
+
     def collect_stats(self, ts):
         self.status_in_time.append([ts, self.srunning, self.squeued, self.sfinished, self.scores_used])
         # print(self.name, '\trunning:', self.srunning, '\tqueued:', self.squeued, '\tfinished:', self.sfinished)
@@ -232,7 +312,7 @@ class Compute(object):
         stats.index = pd.to_datetime(stats.index, unit='s')
 
         fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=True, figsize=(8, 9))
-        fig.suptitle(self.name, fontsize=18)
+        fig.suptitle(self.name + '\n' + conf.TITLE, fontsize=18)
 
         ax1.plot(stats.index, stats.running)
         ax1.plot(stats.index, stats.queued)
@@ -252,4 +332,5 @@ class Compute(object):
         fig.autofmt_xdate()
         fig.subplots_adjust(hspace=0)
 
-        fig.savefig(ou.BASE_DIR + 'plots/' + self.name + '.png')
+        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/' + self.name + '.png')
+        plt.close(fig)
