@@ -94,6 +94,12 @@ class Storage(object):
 
         fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
 
+        self.origin_EU.plot_throughput()
+        self.origin_US.plot_throughput()
+
+        for site in self.endpoints:
+            self.endpoints[site].plot_throughput()
+
 
 class XCacheServer(object):
 
@@ -220,6 +226,8 @@ class XCacheSite(object):
 
     def plot_throughput(self):
         df = pd.DataFrame.from_dict(self.throughput, orient='index')
+        if not df.shape[0]:
+            return
         df.columns = ['egress', 'ingress']
         df.index *= conf.THROUGHPUT_BIN
         # df = df[df.index > 1534626000]

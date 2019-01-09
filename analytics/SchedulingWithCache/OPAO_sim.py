@@ -16,13 +16,11 @@ def main():
     # "randomly" assign to sites.
 
     data = ou.load_data()
-    data = data[101:10101]
+    data = data[101:201]
+    # data = data[101:10101]
 
 # TODO
 # - one origin for US. One cache per other cloud and one EU origin
-# - make second ce choice to be in the same cloud as the first.
-# - try using 2nd choice site if 1st choice has large queue.
-# - prefer large sites for large datasets.
 
     # creating jobs
     task_counter = 0

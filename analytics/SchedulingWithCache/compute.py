@@ -34,7 +34,7 @@ class Grid(object):
 
     def loadCEs(self):
         self.dfCEs = ou.load_compute()
-        print(self.dfCEs.head())
+        # print(self.dfCEs.head())
         # create CEs. CEs have local caches.
         for CE in self.dfCEs.itertuples():
             self.CEs[CE[0]] = Compute(CE[0], CE.tier, CE.cloud, CE.cores, self.storage)
@@ -293,7 +293,6 @@ class Compute(object):
                 jobs_started.append(ji)
                 # add files to cache
                 for filen in job[3]:
-                    # self.cache.add_request(filen, job[4], ts)
                     self.storage.add_access(self.name, filen, job[4], ts)
         # shorten queue
         for ji in reversed(jobs_started):
@@ -311,7 +310,7 @@ class Compute(object):
         stats = stats.set_index('time', drop=True)
         stats.index = pd.to_datetime(stats.index, unit='s')
 
-        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=True, figsize=(8, 9))
+        fig, (ax1, ax2, ax3) = plt.subplots(nrows=3, ncols=1, sharex=True, sharey=False, figsize=(8, 9))
         fig.suptitle(self.name + '\n' + conf.TITLE, fontsize=18)
 
         ax1.plot(stats.index, stats.running)
