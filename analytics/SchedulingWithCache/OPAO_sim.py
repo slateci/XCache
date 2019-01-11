@@ -16,9 +16,9 @@ def main():
     # "randomly" assign to sites.
 
     data = ou.load_data()
-    # data = data[101:201]
+    data = data[101:201]
     # data = data[101:1101]
-    data = data[101:]
+    # data = data[101:20101]
 
 # TODO
 # - one origin for US. One cache per other cloud and one EU origin

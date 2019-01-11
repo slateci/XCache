@@ -35,7 +35,8 @@ class Grid(object):
 
     def loadCEs(self):
         self.dfCEs = ou.load_compute()
-        # print(self.dfCEs.head())
+        self.total_cores = self.dfCEs.cores.sum()
+        print('total cores:', self.total_cores)
         # create CEs. CEs have local caches.
         for ce in self.dfCEs.itertuples():
             self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage))
@@ -117,7 +118,7 @@ class Grid(object):
         ts = (self.all_jobs[0][0] - conf.STEP) // conf.STEP * conf.STEP
         while True:
             ts += conf.STEP
-            if not ts % 600:
+            if not ts % conf.BINS:
                 self.storage.stats(ts)
                 print('remaining jobs: ', len(self.all_jobs))
                 if self.stats(ts) == total_jobs:
@@ -160,22 +161,25 @@ class Grid(object):
             del self.all_jobs[:jobs_added]
 
     def stats(self, ts):
-        srunning = squeued = sfinished = 0
+        srunning = susedcores = squeued = sfinished = 0
         for ce in self.comp_sites:
             ce.collect_stats(ts)
             srunning += ce.srunning
+            susedcores += ce.scores_used
             squeued += ce.squeued
             sfinished += ce.sfinished
-        self.status_in_time.append([ts, srunning, squeued, sfinished])
+        self.status_in_time.append([ts, srunning, squeued, sfinished, susedcores])
         print('time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)),
-              '\trunning:', srunning, '\tqueued:', squeued, '\tfinished:', sfinished)
+              '\trunning:', srunning, '\t cores used:',
+              susedcores, '\tqueued:', squeued, '\tfinished:', sfinished)
         return sfinished
 
     def plot_stats(self):
         print('core hours:', self.core_seconds / 3600)
         print('queue job hours:', self.queue_seconds / 3600)
         stats = pd.DataFrame(self.status_in_time)
-        stats.columns = ['time', 'running', 'queued', 'finished']
+        stats.columns = ['time', 'running', 'queued', 'finished', 'cores used']
+        stats['cores used'] /= self.total_cores
         stats = stats.set_index('time', drop=True)
         stats.index = pd.to_datetime(stats.index, unit='s')
         # print(stats)
@@ -194,10 +198,14 @@ class Grid(object):
         props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
         ax1.text(0.05, 0.95, textstr, transform=ax1.transAxes, fontsize=12, verticalalignment='top', bbox=props)
 
-        ax2.plot(stats.index, stats.finished)
-        ax2.set_ylabel('finished')
+        ax2.plot(stats.index, stats.finished, stats['cores used'], 'b')
+        ax2.set_ylabel('finished', color='b')
         ax2.set_xlabel('time')
         # ax2.legend()
+
+        ax12 = ax2.twinx()
+        ax12.plot(stats.index, stats['cores used'], 'r')
+        ax12.set_ylabel('cores used [%]', color='r')
 
         fig.autofmt_xdate()
         fig.subplots_adjust(hspace=0)

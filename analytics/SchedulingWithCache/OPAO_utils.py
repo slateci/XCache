@@ -67,7 +67,7 @@ def load_data():
             print(period, pdata.shape[0])
             data = pd.concat([data, pdata])
     print('---------- merged data -----------')
-    print('total:', data.shape[0])
+    print('total tasks:', data.shape[0])
     # print(data.head())
     data = data.sort_values('created_at')
     data.created_at = (data.created_at / 1000.0).astype(int)

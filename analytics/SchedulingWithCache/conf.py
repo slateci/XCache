@@ -23,3 +23,4 @@ DONT_CACHE = []
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
 TITLE = 'incloud_processing'
+BINS = 1800  # this is bin width in seconds. Only for printouts and plotting.
