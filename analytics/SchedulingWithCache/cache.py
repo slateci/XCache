@@ -1,4 +1,3 @@
-import hashlib
 import pandas as pd
 import matplotlib.pyplot as plt
 import conf
@@ -195,7 +194,7 @@ class XCacheSite(object):
             self.data_from_cache += fs
             return True
 
-        server = int(hashlib.md5(fn.encode('utf-8')).hexdigest(), 16) % self.nservers
+        server = int(fn, 16) % self.nservers
         found = self.servers[server].add_request(fn, fs, ts)
         if found:
             self.hits += 1
@@ -241,6 +240,7 @@ class XCacheSite(object):
         ax.set_ylabel('throughput [Gbps]')
         df.plot(kind='line', ax=ax)
         fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/thr_' + self.name + '.png')
+        plt.close(fig)
 
     # def plot_cache_state(self):
     #     """ most important plots. """

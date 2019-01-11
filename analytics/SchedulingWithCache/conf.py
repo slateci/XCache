@@ -5,6 +5,8 @@ PB = 1024 * TB
 
 # job processing related constants
 JOB_START_DELAY = 1
+STEP = 20
+MAX_CES_PER_TASK = 100
 CORE_NUMBERS = [1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 # cache related constants

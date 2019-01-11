@@ -1,5 +1,6 @@
 """ here all grid sites and processing """
 import time
+import hashlib
 from bisect import bisect
 
 import OPAO_utils as ou
@@ -16,7 +17,7 @@ matplotlib.rc('ytick', labelsize=14)
 
 class Grid(object):
     def __init__(self):
-        self.CEs = {}
+        self.comp_sites = []
         self.dfCEs = None
         self.storage = Storage()
         self.total_cores = 0
@@ -36,9 +37,9 @@ class Grid(object):
         self.dfCEs = ou.load_compute()
         # print(self.dfCEs.head())
         # create CEs. CEs have local caches.
-        for CE in self.dfCEs.itertuples():
-            self.CEs[CE[0]] = Compute(CE[0], CE.tier, CE.cloud, CE.cores, self.storage)
-            self.storage.add_cache_site(CE.cloud, CE[0], CE.cores)
+        for ce in self.dfCEs.itertuples():
+            self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage))
+            self.storage.add_cache_site(ce.cloud, ce.name, ce.cores)
 
         self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
         self.cloud_weights /= self.cloud_weights.sum()
@@ -53,7 +54,7 @@ class Grid(object):
         # print(cloud_samples)
         for i in range(n):
             sw = self.site_weights[cloud_samples[i]]
-            site_samples = sw.sample(len(sw), weights=sw).index.values
+            site_samples = sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values
             # print(site_samples)
             self.vps.append(site_samples)
 
@@ -87,7 +88,9 @@ class Grid(object):
         for job_number in range(task.jobs):
             files = []
             for _ in range(files_per_job):
-                files.append(task.dataset + '/f' + str(file_counter % task.files_in_ds))
+                fn = task.dataset + str(file_counter % task.files_in_ds)
+                fn = hashlib.md5(fn.encode('utf-8')).hexdigest()
+                files.append(fn)
                 file_counter += 1
 
             self.all_jobs.append([
@@ -100,39 +103,6 @@ class Grid(object):
             ]
             )
 
-    # def process_jobs_old(self):
-    #     """ gives jobs to CEs to process. """
-    #     print('sort jobs')
-    #     self.all_jobs.sort(key=lambda x: x[0])
-
-    #     print('starting submitting...')
-    #     counter = 0
-    #     for job in self.all_jobs:
-    #         sites = job[5]
-    #         self.CEs[sites[0]].add_job(job[0], job[1], job[2], job[3], job[4])
-    #         counter += 1
-    #         if not counter % 1000:
-    #             print('creating jobs:', counter)
-
-    #     print('all', counter, 'jobs submitted. processing queues.')
-
-    #     # loop over times
-    #     print('start time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[0][0])))
-    #     print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S',  time.gmtime(self.all_jobs[-1][0])))
-    #     ts = self.all_jobs[0][0]
-    #     while True:
-    #         ts += conf.JOB_START_DELAY
-    #         if not ts % 600:
-    #             self.storage.stats(ts)
-    #             if self.stats(ts) == counter:
-    #                 print('All DONE.')
-    #                 break
-    #         # loop over sites
-    #         for CE in self.dfCEs.itertuples():
-    #             ncores, nqueued = self.CEs[CE[0]].process_events(ts)
-    #             self.core_seconds += ncores * conf.JOB_START_DELAY
-    #             self.queue_seconds += nqueued * conf.JOB_START_DELAY
-
     def process_jobs(self):
         """ gives jobs to CEs to process. """
         print('sort jobs')
@@ -144,9 +114,9 @@ class Grid(object):
        # loop over times
         print('start time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[0][0])))
         print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[-1][0])))
-        ts = self.all_jobs[0][0] - conf.JOB_START_DELAY
+        ts = (self.all_jobs[0][0] - conf.STEP) // conf.STEP * conf.STEP
         while True:
-            ts += conf.JOB_START_DELAY
+            ts += conf.STEP
             if not ts % 600:
                 self.storage.stats(ts)
                 print('remaining jobs: ', len(self.all_jobs))
@@ -156,34 +126,34 @@ class Grid(object):
 
             # loop over sites process events get ce statuses
             nqueued = {}
-            for CE in self.dfCEs.itertuples():
-                ncores, nqueued[CE[0]] = self.CEs[CE[0]].process_events(ts)
-                self.core_seconds += ncores * conf.JOB_START_DELAY
-                self.queue_seconds += nqueued[CE[0]] * conf.JOB_START_DELAY
+            for ce in self.comp_sites:
+                ncores, nqueued[ce.name] = ce.process_events(ts)
+                self.core_seconds += ncores * conf.STEP
+                self.queue_seconds += nqueued[ce.name] * conf.STEP
 
             jobs_added = 0
             for job in self.all_jobs:
-                if job[0] > ts + conf.JOB_START_DELAY:
+                if job[0] > ts + conf.STEP:
                     break
                 sites = job[5]
 
                 # the first site not having anything in the queue gets the job
                 found_empty = False
                 minocc = 99999999.0
-                minsi = 99
-                for si, site in enumerate(sites):
-                    occ = len(self.CEs[site].queue) / self.CEs[site].cores
+                minsite = 999
+                for site in sites:
+                    occ = len(self.comp_sites[site].queue) / self.comp_sites[site].cores
                     if not occ:
-                        self.CEs[site].add_job(job[0], job[1], job[2], job[3], job[4])
+                        self.comp_sites[site].add_job(job[0], job[1], job[2], job[3], job[4])
                         found_empty = True
                         break
                     if occ < minocc:
                         minocc = occ
-                        minsi = si
+                        minsite = site
 
                 # if job unassigned give it to the one with the smallest ratio
                 if not found_empty:
-                    self.CEs[sites[minsi]].add_job(job[0], job[1], job[2], job[3], job[4])
+                    self.comp_sites[minsite].add_job(job[0], job[1], job[2], job[3], job[4])
 
                 jobs_added += 1
 
@@ -191,11 +161,11 @@ class Grid(object):
 
     def stats(self, ts):
         srunning = squeued = sfinished = 0
-        for CE in self.dfCEs.itertuples():
-            self.CEs[CE[0]].collect_stats(ts)
-            srunning += self.CEs[CE[0]].srunning
-            squeued += self.CEs[CE[0]].squeued
-            sfinished += self.CEs[CE[0]].sfinished
+        for ce in self.comp_sites:
+            ce.collect_stats(ts)
+            srunning += ce.srunning
+            squeued += ce.squeued
+            sfinished += ce.sfinished
         self.status_in_time.append([ts, srunning, squeued, sfinished])
         print('time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)),
               '\trunning:', srunning, '\tqueued:', squeued, '\tfinished:', sfinished)
@@ -235,8 +205,8 @@ class Grid(object):
         # plt.tight_layout()
         fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/totals.png')
 
-        for CE in self.dfCEs.itertuples():
-            self.CEs[CE[0]].plot_stats()
+        for ce in self.comp_sites:
+            ce.plot_stats()
 
         self.storage.plot_stats()
 

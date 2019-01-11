@@ -54,6 +54,7 @@ def load_compute():
 
         CEs.to_hdf(filename, key="AGIS", mode='w')
     print('CEs loaded:', CEs.shape[0])
+    CEs = CEs.reset_index()
     return CEs
 
 
