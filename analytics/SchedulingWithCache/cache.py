@@ -9,6 +9,7 @@ class Storage(object):
     def __init__(self):
         self.origin_US = XCacheSite('xc_US', origin=True)
         self.origin_EU = XCacheSite('xc_EU', origin=True)
+        self.cloud_caches = {}
         self.endpoints = {}
         self.accesses = [0, 0, 0]  # endpoint, xc_US, xc_EU
         self.dataaccc = [0, 0, 0]
@@ -16,9 +17,13 @@ class Storage(object):
         self.dac = []
         self.total_files = 0
 
-    def add_cache_site(self, cloud, name, cores):
+    def add_cloud_cache(self, cloud, name, cores):
         xservers = cores // 1000 + 1
-        self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=20 * conf.TB)
+        self.cloud_caches[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
+
+    def add_cache_endpoint(self, cloud, name, cores):
+        xservers = cores // 1000 + 1
+        self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
 
     def add_access(self, endpoint, filename, filesize, timestamp):
         self.total_files += 1
@@ -109,41 +114,55 @@ class XCacheServer(object):
         self.lwm = lwm
         self.hwm = hwm
         self.cleanups = 0
-        self.files = {}
+        self.files = {}  # fn:[timestamp, acccesses, filesize]
         self.used = 0
 
     def add_request(self, fn, fs, ts):
         if fn in self.files:
+            self.files[fn][0] = ts
             self.files[fn][1] += 1
-            self.files[fn][2] = ts
             return True
         else:
             if self.used + fs > self.hwm_bytes:
                 self.clean()
-            self.files[fn] = [fs, 1, ts]
+            self.files[fn] = [ts, 1, fs]
             self.used += fs
             return False
 
     def clean(self):
         # print("cleaning...")
         self.cleanups += 1
-        df = pd.DataFrame.from_dict(self.files, orient='index')
-        df.columns = ['filesize', 'accesses', 'access_time']
+        sorted_by_ts = sorted(self.files)
+        to_clean = self.hwm_bytes - self.lwm_bytes
+        space_freed = 0
+        counter = 0
+        while space_freed < to_clean:
+            space_freed += self.files[sorted_by_ts[counter]][2]
+            del self.files[sorted_by_ts[counter]]
+            counter += 1
+        self.used -= space_freed
+        # print('files deleted:', counter, '\tspace freed:', space_freed)
 
-        # here access time is last time file was accessed, sort it in ascending order.
-        df.sort_values(['access_time'], ascending=[True], inplace=True)
+    # def clean_old(self):
+    #     # print("cleaning...")
+    #     self.cleanups += 1
+    #     df = pd.DataFrame.from_dict(self.files, orient='index')
+    #     df.columns = ['access_time', 'accesses', 'filesize']
 
-        df['cum_sum'] = df.filesize.cumsum()
-        # print('files in cache:', df.shape[0], end='  ')
-        df = df[df.cum_sum < (self.hwm_bytes - self.lwm_bytes)]
-        # print('files to flush:', df.shape[0])
-        for fn in df.index.values:
-            cr = self.files.pop(fn)
-            self.used -= cr[0]
+    #     # here access time is last time file was accessed, sort it in ascending order.
+    #     df.sort_values(['access_time'], ascending=[True], inplace=True)
+
+    #     df['cum_sum'] = df.filesize.cumsum()
+    #     # print('files in cache:', df.shape[0], end='  ')
+    #     df = df[df.cum_sum < (self.hwm_bytes - self.lwm_bytes)]
+    #     # print('files to flush:', df.shape[0])
+    #     for fn in df.index.values:
+    #         cr = self.files.pop(fn)
+    #         self.used -= cr[2]
 
     def get_stats(self):
         df = pd.DataFrame.from_dict(self.files, orient='index')
-        df.columns = ['filesize', 'accesses', 'access_time']
+        df.columns = ['access_time', 'accesses', 'filesize']
         return [self.cleanups, df.filesize.mean(), df.accesses.mean(), df.access_time.max() - df.access_time.mean()]
 
 

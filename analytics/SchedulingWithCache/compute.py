@@ -32,6 +32,11 @@ class Grid(object):
         self.site_weights = {}
         self.vps = []
         self.loadCEs()
+        self.init()
+
+    def init(self):
+        if conf.STEPS_TO_FILE:
+            self.logfile = open(conf.BASE_DIR + conf.TITLE + ".log", "w", buffering=1)
 
     def loadCEs(self):
         self.dfCEs = ou.load_compute()
@@ -40,7 +45,7 @@ class Grid(object):
         # create CEs. CEs have local caches.
         for ce in self.dfCEs.itertuples():
             self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage))
-            self.storage.add_cache_site(ce.cloud, ce.name, ce.cores)
+            self.storage.add_cache_endpoint(ce.cloud, ce.name, ce.cores)
 
         self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
         self.cloud_weights /= self.cloud_weights.sum()
@@ -172,6 +177,10 @@ class Grid(object):
         print('time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)),
               '\trunning:', srunning, '\t cores used:',
               susedcores, '\tqueued:', squeued, '\tfinished:', sfinished)
+        if conf.STEPS_TO_FILE:
+            self.logfile.write(time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)) +
+                               '\trunning:' + str(srunning) + '\t cores used:' +
+                               str(susedcores) + '\tqueued:' + str(squeued) + '\tfinished:' + str(sfinished) + '\n')
         return sfinished
 
     def plot_stats(self):
