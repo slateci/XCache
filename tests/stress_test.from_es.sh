@@ -21,7 +21,7 @@ MB=1048576
 #SERVER="https:/atlas.xcache.org"
 SERVER=$1
 
-# XCACHE_SERVER='https://fax.mwt2.org//'
+# XCACHE_SERVER='root://fax.mwt2.org//'
 XCACHE_SERVER=$2
 
 # waiting for the security stuff to be done
