@@ -65,7 +65,8 @@ do
 
     rate=`cat timing.txt`
     rm timing.txt
-    rrate=$((fs/rate)) 
+    # rrate=$((fs/rate))  does not work ... 
+    rrate=$(echo $fs $rate | awk 'END {print $1/$2}')
     echo "ret code: $result  duration: $rate  rate: ${rrate} MB/s"
 
     curl -s -k -X GET "$SERVER/stress_result/$id/$result/$rate"
