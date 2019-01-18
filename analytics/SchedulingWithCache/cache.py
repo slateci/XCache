@@ -11,8 +11,8 @@ class Storage(object):
         self.origin_EU = XCacheSite('xc_EU', origin=True)
         self.cloud_caches = {}
         self.endpoints = {}
-        self.accesses = [0, 0, 0]  # endpoint, xc_US, xc_EU
-        self.dataaccc = [0, 0, 0]
+        self.accesses = [0, 0, 0, 0]  # endpoint, second level, xc_US, xc_EU
+        self.dataaccc = [0, 0, 0, 0]
         self.acs = []
         self.dac = []
         self.total_files = 0
@@ -34,30 +34,38 @@ class Storage(object):
             self.dataaccc[0] += filesize
             return
 
-        # next access through appropriate origin
-        if self.endpoints[endpoint].cloud == 'US':
-            self.origin_US.add_request(filename, filesize, timestamp)
+        # next access through cloud cache
+        cloud = self.endpoints[endpoint].cloud
+        found = self.cloud_caches[cloud].add_request(filename, filesize, timestamp)
+        if found:
             self.accesses[1] += 1
             self.dataaccc[1] += filesize
-        else:
-            self.origin_EU.add_request(filename, filesize, timestamp)
+            return
+
+        # next access through appropriate origin
+        if cloud == 'US':
+            self.origin_US.add_request(filename, filesize, timestamp)
             self.accesses[2] += 1
             self.dataaccc[2] += filesize
+        else:
+            self.origin_EU.add_request(filename, filesize, timestamp)
+            self.accesses[3] += 1
+            self.dataaccc[3] += filesize
 
     def stats(self, ts):
         print('XCache statistics:', self.accesses, self.dataaccc)
-        self.acs.append([ts, self.accesses[0], self.accesses[1], self.accesses[2]])
-        self.dac.append([ts, self.dataaccc[0], self.dataaccc[1], self.dataaccc[2]])
+        self.acs.append([ts, self.accesses[0], self.accesses[1], self.accesses[2], self.accesses[3]])
+        self.dac.append([ts, self.dataaccc[0], self.dataaccc[1], self.dataaccc[2], self.dataaccc[3]])
 
     def plot_stats(self):
 
         accdf = pd.DataFrame(self.acs)
-        accdf.columns = ['time', 'level 1', 'origin US', 'origin EU']
+        accdf.columns = ['time', 'site caches', 'cloud level', 'origin US', 'origin EU']
         accdf = accdf.set_index('time', drop=True)
         accdf.index = pd.to_datetime(accdf.index, unit='s')
 
         dacdf = pd.DataFrame(self.dac)
-        dacdf.columns = ['time', 'level 1', 'origin US', 'origin EU']
+        dacdf.columns = ['time', 'site caches', 'cloud level', 'origin US', 'origin EU']
         dacdf = dacdf.set_index('time', drop=True)
         dacdf.index = pd.to_datetime(dacdf.index, unit='s')
 
@@ -100,6 +108,9 @@ class Storage(object):
 
         self.origin_EU.plot_throughput()
         self.origin_US.plot_throughput()
+
+        for cloud in self.cloud_caches:
+            self.cloud_caches[cloud].plot_throughput()
 
         for site in self.endpoints:
             self.endpoints[site].plot_throughput()

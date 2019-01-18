@@ -48,6 +48,10 @@ class Grid(object):
             self.storage.add_cache_endpoint(ce.cloud, ce.name, ce.cores)
 
         self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
+        print(self.cloud_weights)
+        for cloud, sum_cores in self.cloud_weights.items():
+            self.storage.add_cloud_cache(cloud, cloud, sum_cores)
+
         self.cloud_weights /= self.cloud_weights.sum()
         for cl, clv in self.dfCEs.groupby('cloud'):
             self.site_weights[cl] = clv['cores']
@@ -86,7 +90,8 @@ class Grid(object):
             per_file_bytes = round(task.ds_bytes / task.files_in_ds)
 
         job_duration = int(task.wall_time / task.jobs)
-        cores = conf.CORE_NUMBERS[bisect(conf.CORE_NUMBERS, task.cores / task.jobs)]
+        # cores = conf.CORE_NUMBERS[bisect(conf.CORE_NUMBERS, task.cores / task.jobs)]
+        cores = int(round(task.cores / task.jobs))
 
         # print('jobs:', task.jobs, '\tcores:', cores, '\tfiles per job', files_per_job, '\tduration:', job_duration)
 
@@ -108,6 +113,25 @@ class Grid(object):
                 sites
             ]
             )
+
+    # def plot_jobs_stats(self):
+    #     tdf = pd.DataFrame(self.all_jobs, columns=['ts', 'cores', 'duration', 'files', 'pfb', 'sites'])
+    #     tdf.drop(['files', 'pfb', 'sites'], inplace=True, axis=1)
+    #     print(tdf.describe())
+    #     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 9))
+    #     fig.suptitle('Jobs stats\n' + conf.TITLE, fontsize=18)
+
+    #     ax1.hist(tdf.cores, bins=range(0, 65, 1), log=True)
+    #     # ax1.hist(tdf.acores, bins=64)
+    #     ax1.set_ylabel('jobs')
+    #     # ax1.set_xlabel('time')
+    #     ax1.legend()
+
+    #     ax2.hist(tdf.duration, bins=20)
+    #     # fig.autofmt_xdate()
+    #     # fig.subplots_adjust(hspace=0)
+    #     # plt.tight_layout()
+    #     fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/jobs_stats.png')
 
     def process_jobs(self):
         """ gives jobs to CEs to process. """
@@ -168,11 +192,11 @@ class Grid(object):
     def stats(self, ts):
         srunning = susedcores = squeued = sfinished = 0
         for ce in self.comp_sites:
-            ce.collect_stats(ts)
-            srunning += ce.srunning
-            susedcores += ce.scores_used
-            squeued += ce.squeued
-            sfinished += ce.sfinished
+            (runn, queu, fini, core) = ce.collect_stats(ts)
+            srunning += runn
+            squeued += queu
+            sfinished += fini
+            susedcores += core
         self.status_in_time.append([ts, srunning, squeued, sfinished, susedcores])
         print('time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)),
               '\trunning:', srunning, '\t cores used:',
@@ -196,11 +220,14 @@ class Grid(object):
         fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 9))
         fig.suptitle('Totals\n' + conf.TITLE, fontsize=18)
 
-        ax1.plot(stats.index, stats.running)
-        ax1.plot(stats.index, stats.queued)
-        ax1.set_ylabel('jobs')
+        ax1.plot(stats.index, stats.running, 'b')
+        ax1.set_ylabel('jobs running', color='b')
         ax1.set_xlabel('time')
-        ax1.legend()
+        # ax1.legend()
+
+        ax11 = ax1.twinx()
+        ax11.plot(stats.index, stats.queued, 'r')
+        ax11.set_ylabel('jobs queued', color='r')
 
         textstr = "core hours used:" + str(self.core_seconds // 3600)
         textstr += "\njob queue hours:" + str(self.queue_seconds // 3600)
@@ -253,11 +280,57 @@ class Compute(object):
         # check if any jobs finished and reclaim cores.
         events_processed = 0
         for event in self.finish_events:
+            # finish event[0] - time to finish
+            # finihs event[1] - cores it used
             if event[0] > ts:
                 break
             self.scores_used -= event[1]
-            self.sfinished += 1
             self.srunning -= 1
+            self.sfinished += 1
+            events_processed += 1
+        if events_processed:
+            del self.finish_events[:events_processed]
+
+        jobs_started = 0
+        for job in self.queue:
+            # job[0] - start time
+            # job[1] - cores it need
+            # job[2] - duration of job
+            # job[3] - list of files to access
+            if job[0] > ts:  # no jobs to execute at this time.
+                break
+            # print(ts, 'job starts at:', job[0])
+
+            if (self.cores - self.scores_used) < job[1]:
+                # print("site full.")
+                break
+            else:
+                # print("can start.")
+                jobs_started += 1
+                self.srunning += 1
+                self.scores_used += job[1]
+                self.finish_events.append([ts + job[2], job[1]])
+                # add files to cache
+                for filen in job[3]:
+                    self.storage.add_access(self.name, filen, job[4], ts)
+
+        # remove jobs that have been started from the queue
+        del self.queue[:jobs_started]
+
+        return (self.scores_used, len(self.queue))
+
+    def process_events_old(self, ts):
+        """ Process events up to and including ts. """
+        # check if any jobs finished and reclaim cores.
+        events_processed = 0
+        for event in self.finish_events:
+            # finish event[0] - time to finish
+            # finihs event[1] - cores it used
+            if event[0] > ts:
+                break
+            self.scores_used -= event[1]
+            self.srunning -= 1
+            self.sfinished += 1
             events_processed += 1
         if events_processed:
             del self.finish_events[:events_processed]
@@ -265,6 +338,9 @@ class Compute(object):
         jobs_started = []
         self.squeued = 0
         for ji, job in enumerate(self.queue):
+            # job[0] - start time
+            # job[1] - cores it need
+            # job[2] - duration of job
             if job[0] > ts:  # no jobs to execute at this time.
                 break
             # print(ts, 'job starts at:', job[0])
@@ -281,15 +357,18 @@ class Compute(object):
                 # add files to cache
                 for filen in job[3]:
                     self.storage.add_access(self.name, filen, job[4], ts)
-        # shorten queue
-        for ji in reversed(jobs_started):
-            self.queue.pop(ji)
+
+        # remove jobs that have been started from the queue
+        for ji in jobs_started:
+            del self.queue[ji]
 
         return (self.scores_used, self.squeued)
 
     def collect_stats(self, ts):
-        self.status_in_time.append([ts, self.srunning, self.squeued, self.sfinished, self.scores_used])
+        # self.status_in_time.append([ts, self.srunning, self.squeued, self.sfinished, self.scores_used])
+        self.status_in_time.append([ts, self.srunning, len(self.queue), self.sfinished, self.scores_used])
         # print(self.name, '\trunning:', self.srunning, '\tqueued:', self.squeued, '\tfinished:', self.sfinished)
+        return (self.srunning, len(self.queue), self.sfinished, self.scores_used)
 
     def plot_stats(self):
         stats = pd.DataFrame(self.status_in_time)

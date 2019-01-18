@@ -6,11 +6,11 @@ PB = 1024 * TB
 # job processing related constants
 JOB_START_DELAY = 1
 STEP = 600
-MAX_CES_PER_TASK = 99
-CORE_NUMBERS = [1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
+MAX_CES_PER_TASK = 3
+CORE_NUMBERS = [0, 1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 # cache related constants
-CACHE_TB_PER_1K = 20
+CACHE_TB_PER_1K = 100
 LWM = 0.90
 HWM = 0.95
 PER_FILE_RATE = GB / 8 / 3  # one Gbps
@@ -23,6 +23,6 @@ KINDS = ['prod']  # anal
 DONT_CACHE = []
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
-TITLE = 'fast'
-STEPS_TO_FILE = True
+TITLE = '2level_cache_3'
+STEPS_TO_FILE = False
 BINS = 1800  # this is bin width in seconds. Only for printouts and plotting.
