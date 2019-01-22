@@ -1,0 +1,30 @@
+POST /_template/grid_emulation
+{
+  "index_patterns" : "grid_emulation",
+  "settings": {
+    "index": {
+      "number_of_shards": "5",
+      "number_of_replicas": "0"
+    }
+  },
+  "mappings": {
+    "doc": {
+      "properties": {
+        "creationdate": { "type": "date", "format": "basic_date_time_no_millis||epoch_millis"},
+        "endtime": { "type": "date", "format": "basic_date_time_no_millis||epoch_millis"},
+        "processingtype": {"type": "keyword" },
+        "tasktype": {"type": "keyword" },     
+        "site": {"type": "keyword" },        
+        "status": {"type": "integer" },
+        "jobs": {"type": "integer" },
+        "Scores": {"type": "integer" },
+        "Sinputfiles": {"type": "integer" },
+        "Swall_time": {"type": "float" }, 
+        "dataset": {"type": "keyword" }, 
+        "ds_type": {"type": "keyword" },     
+        "ds_files": {"type": "integer" },
+        "ds_size": {"type": "long" }
+      }
+    }
+  }
+}
