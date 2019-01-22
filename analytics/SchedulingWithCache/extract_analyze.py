@@ -14,6 +14,7 @@ for period in periods:
     print(period, pdata.shape[0])
     data = pd.concat([data, pdata])
 
+data = data[data.files_in_ds > 0]
 data['files_processed'] = data.inputfiles / data.files_in_ds
 
 #%%
@@ -26,12 +27,16 @@ all = pd.DataFrame(
         datasets=gpt.dataset.count(),
         unique_datasets=gpt.dataset.nunique(),
         jobs=gpt.jobs.sum(),
-        input_files=gpt.inputfiles.sum()
+        input_files=gpt.inputfiles.sum(),
+        files_processed=gpt.files_processed.mean()
     )
 )
-all = all[['tasks', 'datasets', 'unique_datasets', 'jobs', 'input_files']]
+all = all[['tasks', 'datasets', 'unique_datasets', 'jobs', 'input_files', 'files_processed']]
+all['dataset_reuse'] = all.datasets / all.unique_datasets
+all['file_reuse'] = all.dataset_reuse * all.files_processed
 all
 
+#%%
 # print(data.head())
 
 #%%
@@ -80,4 +85,3 @@ print(found[found.processing_type == 'overlay'].tail())
 fig, ax = plt.subplots()
 data.hist('jobs', ax=ax, bins=100, bottom=0.9)
 ax.set_yscale('log')
-
