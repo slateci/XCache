@@ -30,14 +30,12 @@ RUN yum install -y \
     jq
 
 RUN pip install --upgrade pip
-# RUN pip install --no-cache-dir \
-#     requests
+# RUN pip install  requests
 
 # python3
 RUN python36 -m ensurepip
 RUN pip3.6 install --upgrade pip
-RUN pip3.6 install --no-cache-dir \
-    requests
+RUN pip3.6 install --upgrade requests
 
 
 # setup supervisord
