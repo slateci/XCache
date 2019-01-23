@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import os
 import sys
@@ -15,10 +15,10 @@ start_time = ct - 3600
 end_time = ct
 
 if 'XC_SITE' not in os.environ:
-    print "xcache reporter - Must set $XC_SITE. Exiting."
+    print("xcache reporter - Must set $XC_SITE. Exiting.")
     sys.exit(1)
 if 'XC_REPORT_COLLECTOR' not in os.environ:
-    print "xcache reporter - Must set $XC_REPORT_COLLECTOR. Exiting."
+    print("xcache reporter - Must set $XC_REPORT_COLLECTOR. Exiting.")
     sys.exit(1)
 
 site = os.environ['XC_SITE']
@@ -32,24 +32,24 @@ def get_info(filename):
     fin = open(filename, "rb")
 
     fv, = struct.unpack('i', fin.read(4))
-    # print "file version:", fv
+    # print ("file version:", fv)
     bs, = struct.unpack('q', fin.read(8))
-    # print 'bucket size:', bs
+    # print ('bucket size:', bs)
     fs, = struct.unpack('q', fin.read(8))
-    # print 'file size:', fs
+    # print ('file size:', fs)
 
     buckets = int((fs - 1) / bs + 1)
-    # print 'buckets:', buckets
+    # print ('buckets:', buckets)
 
     StateVectorLengthInBytes = int((buckets - 1) / 8 + 1)
     sv = struct.unpack(str(StateVectorLengthInBytes) + 'B', fin.read(StateVectorLengthInBytes))  # disk written state vector
-    # print 'disk written state vector:\n ->', sv, '<-'
+    # print ('disk written state vector:\n ->', sv, '<-')
 
     chksum, = struct.unpack('16s', fin.read(16))
-    # print 'chksum:', chksum
+    # print ('chksum:', chksum)
 
     time_of_creation, = struct.unpack('Q', fin.read(8))
-    # print 'time of creation:', datetime.fromtimestamp(time_of_creation)
+    # print ('time of creation:', datetime.fromtimestamp(time_of_creation))
 
     rec = {
         'sender': 'xCache',
@@ -61,7 +61,7 @@ def get_info(filename):
     }
 
     accesses, = struct.unpack('Q', fin.read(8))
-    # print 'accesses:', accesses
+    # print ('accesses:', accesses)
 
     min_access = max(0, accesses - 20)
     for a in range(min_access, accesses):
@@ -90,9 +90,9 @@ for filename in files:
     if last_modification_time > start_time and last_modification_time < end_time:
         get_info(filename)
 
-print "xcache reporter - files touched:", len(reports)
+print("xcache reporter - files touched:", len(reports))
 if len(reports) > 0:
     r = requests.post(collector, json=reports)
-    print 'xcache reporter - indexing response:', r.status_code
+    print('xcache reporter - indexing response:', r.status_code)
 else:
-    print "xcache reporter - Nothing to report"
+    print("xcache reporter - Nothing to report")

@@ -30,8 +30,8 @@ RUN yum install -y \
     jq
 
 RUN pip install --upgrade pip
-RUN pip install --no-cache-dir \
-    requests
+# RUN pip install --no-cache-dir \
+#     requests
 
 # python3
 RUN python36 -m ensurepip
