@@ -58,7 +58,7 @@ def load_compute():
     return CEs
 
 
-def load_data():
+def load_data_old():
 
     data = pd.DataFrame()
     for jtype in conf.KINDS:
@@ -74,4 +74,23 @@ def load_data():
     data.finished_at = (data.finished_at / 1000.0).astype(int)
 
     print('problematic tasks:', data[(data.inputfiles > 0) & (data.files_in_ds == 0)].shape[0])
+    print('excluding tasks with > 64 avg cores (Supercomputers):', data[data.cores / data.jobs > 32].shape[0])
+    data = data[data.cores / data.jobs <= 64]
+    return data
+
+
+def load_data(ntasks=None):
+
+    data = pd.read_hdf(conf.BASE_DIR + 'data/tasks.h5', key='tasks', mode='r')
+
+    print('---------- data -----------')
+    print('total tasks:', data.shape[0])
+    # print(data.head())
+    data = data.sort_values('created_at')
+    data.created_at = (data.created_at / 1000.0).astype(int)
+    data.finished_at = (data.finished_at / 1000.0).astype(int)
+
+    print('problematic tasks:', data[(data.Sinputfiles > 0) & (data.ds_files == 0)].shape[0])
+    print('excluding tasks with > 64 avg cores (Supercomputers):', data[data.Scores / data.jobs > 32].shape[0])
+    data = data[data.Scores / data.jobs <= 64]
     return data

@@ -23,6 +23,6 @@ KINDS = ['prod']  # anal
 DONT_CACHE = []
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
-TITLE = '2level_cache_3'
+TITLE = 'new_test'
 STEPS_TO_FILE = False
 BINS = 1800  # this is bin width in seconds. Only for printouts and plotting.

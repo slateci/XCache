@@ -18,13 +18,6 @@ def main():
 
     data = ou.load_data()
 
-    # delete Titan tasks
-    data = data[data.index != 15393017]
-    data = data[data.index != 15357029]
-    data = data[data.index != 15345418]
-    data = data[data.index != 15357036]
-    data = data[data.index != 15516961]
-    data = data[data.index != 15393015]
 
     # data = data[101:201]
     data = data[101:]

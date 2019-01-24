@@ -85,13 +85,13 @@ class Grid(object):
 
         files_per_job = 0
         per_file_bytes = 0
-        if task.files_in_ds > 0 and task.inputfiles > 0:
-            files_per_job = round(task.inputfiles / task.jobs)
-            per_file_bytes = round(task.ds_bytes / task.files_in_ds)
+        if task.ds_files > 0 and task.Sinputfiles > 0:
+            files_per_job = round(task.Sinputfiles / task.jobs)
+            per_file_bytes = round(task.ds_size / task.ds_files)
 
-        job_duration = int(task.wall_time / task.jobs)
+        job_duration = int(task.Swall_time / task.jobs)
         # cores = conf.CORE_NUMBERS[bisect(conf.CORE_NUMBERS, task.cores / task.jobs)]
-        cores = int(round(task.cores / task.jobs))
+        cores = int(round(task.Scores / task.jobs))
 
         # print('jobs:', task.jobs, '\tcores:', cores, '\tfiles per job', files_per_job, '\tduration:', job_duration)
 
@@ -99,7 +99,7 @@ class Grid(object):
         for job_number in range(task.jobs):
             files = []
             for _ in range(files_per_job):
-                fn = task.dataset + str(file_counter % task.files_in_ds)
+                fn = task.dataset + str(file_counter % task.ds_files)
                 fn = hashlib.md5(fn.encode('utf-8')).hexdigest()
                 files.append(fn)
                 file_counter += 1

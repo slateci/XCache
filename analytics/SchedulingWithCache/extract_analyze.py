@@ -5,17 +5,14 @@
 import pandas as pd
 
 #%%
-jtype = 'prod'  # anal
-periods = ['SEP', 'OCT', 'NOV', 'DEC']  # AUG, SEP
+task_type = 'prod'
+# task_type = 'anal'
 
-data = pd.DataFrame()
-for period in periods:
-    pdata = pd.read_hdf('analytics/SchedulingWithCache/data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
-    print(period, pdata.shape[0])
-    data = pd.concat([data, pdata])
+data = pd.read_hdf('analytics/SchedulingWithCache/data/tasks.h5', key='tasks', mode='r')
 
-data = data[data.files_in_ds > 0]
-data['files_processed'] = data.inputfiles / data.files_in_ds
+data = data[data.task_type == task_type]
+data = data[data.ds_files > 0]
+data['files_processed'] = data.Sinputfiles / data.ds_files
 
 #%%
 print("tasks:", data.shape[0])
@@ -27,7 +24,7 @@ all = pd.DataFrame(
         datasets=gpt.dataset.count(),
         unique_datasets=gpt.dataset.nunique(),
         jobs=gpt.jobs.sum(),
-        input_files=gpt.inputfiles.sum(),
+        input_files=gpt.Sinputfiles.sum(),
         files_processed=gpt.files_processed.mean()
     )
 )
@@ -40,7 +37,7 @@ all
 # print(data.head())
 
 #%%
-unfound = data[(data.datatype == 0) & (data.dataset)]
+unfound = data[(data.ds_type == 0) & (data.dataset)]
 print('tasks where dataset deleted:', unfound.shape[0])
 gun = unfound.groupby('processing_type')
 
@@ -49,7 +46,7 @@ unf = pd.DataFrame(
         tasks=gun.size(),
         unique_datasets=gun.dataset.nunique(),
         jobs=gun.jobs.sum(),
-        input_files=gun.inputfiles.sum()
+        input_files=gun.Sinputfiles.sum()
     )
 )
 unf = unf[['tasks', 'unique_datasets', 'jobs', 'input_files']]
@@ -57,7 +54,7 @@ unf
 
 
 #%%
-found = data[(data.datatype != 0) & (data.files_in_ds > 0)]
+found = data[(data.ds_type != 0) & (data.ds_files > 0)]
 print('tasks where dataset found:', found.shape[0])
 grfo = found.groupby('processing_type')
 
@@ -67,8 +64,8 @@ fou = pd.DataFrame(
         datasets=grfo.dataset.count(),
         unique_datasets=grfo.dataset.nunique(),
         jobs=grfo.jobs.sum(),
-        input_files=grfo.inputfiles.sum(),
-        input_data=grfo.ds_bytes.sum() / 1024 / 1024 / 1024 / 1024 / 1024,
+        input_files=grfo.Sinputfiles.sum(),
+        input_data=grfo.ds_size.sum() / 1024 / 1024 / 1024 / 1024 / 1024,
         perc_files_used=grfo.files_processed.mean()
     )
 )

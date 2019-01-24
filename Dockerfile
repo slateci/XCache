@@ -30,7 +30,7 @@ RUN yum install -y \
     jq
 
 RUN pip install --upgrade pip
-# RUN pip install  requests
+RUN pip install  --upgrade requests
 
 # python3
 RUN python36 -m ensurepip
