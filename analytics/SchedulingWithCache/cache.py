@@ -1,119 +1,114 @@
+""" Storage caches classes. Does not cover storage access patterns. """
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import conf
 
 
-class Storage(object):
-    """ holds all the caches. API for adding accesses and making plots."""
+# class Storage(object):
+#     """ holds all the caches. API for adding accesses and making plots."""
 
-    def __init__(self):
-        self.origin_US = XCacheSite('xc_US', origin=True)
-        self.origin_EU = XCacheSite('xc_EU', origin=True)
-        self.cloud_caches = {}
-        self.endpoints = {}
-        self.accesses = [0, 0, 0, 0]  # endpoint, second level, xc_US, xc_EU
-        self.dataaccc = [0, 0, 0, 0]
-        self.acs = []
-        self.dac = []
-        self.total_files = 0
+#     def __init__(self):
+#         self.origin = XCacheSite('Data Lake', origin=True)
+#         self.cloud_caches = {}
+#         self.endpoints = {}
+#         self.accesses = [0, 0, 0]  # endpoint, second level, xc_Origin
+#         self.dataaccc = [0, 0, 0]
+#         self.acs = []
+#         self.dac = []
+#         self.total_files = 0
 
-    def add_cloud_cache(self, cloud, name, cores):
-        xservers = cores // 1000 + 1
-        self.cloud_caches[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
+#     def add_cloud_cache(self, cloud, name, cores):
+#         xservers = cores // 1000 + 1
+#         self.cloud_caches[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CLOUD_CACHE_TB_PER_1K * conf.TB)
 
-    def add_cache_endpoint(self, cloud, name, cores):
-        xservers = cores // 1000 + 1
-        self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
+#     def add_cache_endpoint(self, cloud, name, cores):
+#         xservers = cores // 1000 + 1
+#         self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
 
-    def add_access(self, endpoint, filename, filesize, timestamp):
-        self.total_files += 1
-        # first try on endpoint
-        found = self.endpoints[endpoint].add_request(filename, filesize, timestamp)
-        if found:
-            self.accesses[0] += 1
-            self.dataaccc[0] += filesize
-            return
+#     def add_access(self, endpoint, filename, filesize, timestamp):
+#         self.total_files += 1
+#         # first try on endpoint
+#         found = self.endpoints[endpoint].add_request(filename, filesize, timestamp)
+#         if found:
+#             self.accesses[0] += 1
+#             self.dataaccc[0] += filesize
+#             return
 
-        # next access through cloud cache
-        cloud = self.endpoints[endpoint].cloud
-        found = self.cloud_caches[cloud].add_request(filename, filesize, timestamp)
-        if found:
-            self.accesses[1] += 1
-            self.dataaccc[1] += filesize
-            return
+#         # next access through cloud cache
+#         cloud = self.endpoints[endpoint].cloud
+#         found = self.cloud_caches[cloud].add_request(filename, filesize, timestamp)
+#         if found:
+#             self.accesses[1] += 1
+#             self.dataaccc[1] += filesize
+#             return
 
-        # next access through appropriate origin
-        if cloud == 'US':
-            self.origin_US.add_request(filename, filesize, timestamp)
-            self.accesses[2] += 1
-            self.dataaccc[2] += filesize
-        else:
-            self.origin_EU.add_request(filename, filesize, timestamp)
-            self.accesses[3] += 1
-            self.dataaccc[3] += filesize
+#         # next access through the origin
+#         self.origin.add_request(filename, filesize, timestamp)
+#         self.accesses[2] += 1
+#         self.dataaccc[2] += filesize
 
-    def stats(self, ts):
-        print('XCache statistics:', self.accesses, self.dataaccc)
-        self.acs.append([ts, self.accesses[0], self.accesses[1], self.accesses[2], self.accesses[3]])
-        self.dac.append([ts, self.dataaccc[0], self.dataaccc[1], self.dataaccc[2], self.dataaccc[3]])
+#     def stats(self, ts):
+#         print('XCache statistics:', self.accesses, self.dataaccc)
+#         self.acs.append([ts, self.accesses[0], self.accesses[1], self.accesses[2]])
+#         self.dac.append([ts, self.dataaccc[0], self.dataaccc[1], self.dataaccc[2]])
 
-    def plot_stats(self):
+#     def plot_stats(self):
 
-        accdf = pd.DataFrame(self.acs)
-        accdf.columns = ['time', 'site caches', 'cloud level', 'origin US', 'origin EU']
-        accdf = accdf.set_index('time', drop=True)
-        accdf.index = pd.to_datetime(accdf.index, unit='s')
+#         accdf = pd.DataFrame(self.acs)
+#         accdf.columns = ['time', 'Site caches', 'Cloud caches', 'Data Lake']
+#         accdf = accdf.set_index('time', drop=True)
+#         accdf.index = pd.to_datetime(accdf.index, unit='s')
 
-        dacdf = pd.DataFrame(self.dac)
-        dacdf.columns = ['time', 'site caches', 'cloud level', 'origin US', 'origin EU']
-        dacdf = dacdf.set_index('time', drop=True)
-        dacdf.index = pd.to_datetime(dacdf.index, unit='s')
+#         dacdf = pd.DataFrame(self.dac)
+#         dacdf.columns = ['time', 'Site caches', 'Cloud caches', 'Data Lake']
+#         dacdf = dacdf.set_index('time', drop=True)
+#         dacdf.index = pd.to_datetime(dacdf.index, unit='s')
 
-        dacdf = dacdf / conf.TB
+#         dacdf = dacdf / conf.TB
 
-        fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 10), sharex=True,)
-        fig.suptitle('Cache levels\n' + conf.TITLE, fontsize=18)
+#         fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 10), sharex=True,)
+#         fig.suptitle('Cache levels\n' + conf.TITLE.replace("_", " "), fontsize=18)
 
-        accdf.plot(ax=axs[0][0])
-        axs[0][0].set_ylabel('hits')
-        axs[0][0].set_xlabel('time')
-        axs[0][0].legend()
+#         accdf.plot(ax=axs[0][0])
+#         axs[0][0].set_ylabel('hits')
+#         axs[0][0].set_xlabel('time')
+#         axs[0][0].legend()
 
-        dacdf.plot(ax=axs[1][0])
-        axs[1][0].set_ylabel('data delivered [TB]')
-        axs[1][0].set_xlabel('time')
-        axs[1][0].legend()
+#         dacdf.plot(ax=axs[1][0])
+#         axs[1][0].set_ylabel('data delivered [TB]')
+#         axs[1][0].set_xlabel('time')
+#         axs[1][0].legend()
 
-        accdf = accdf.div(accdf.sum(axis=1), axis=0)
-        dacdf = dacdf.div(dacdf.sum(axis=1), axis=0)
+#         accdf = accdf.div(accdf.sum(axis=1), axis=0)
+#         dacdf = dacdf.div(dacdf.sum(axis=1), axis=0)
 
-        accdf.plot(ax=axs[0][1])
-        axs[0][1].set_ylabel('hits [%]')
-        axs[0][1].set_xlabel('time')
-        axs[0][1].grid(axis='y')
-        axs[0][1].legend()
+#         accdf.plot(ax=axs[0][1])
+#         axs[0][1].set_ylabel('hits [%]')
+#         axs[0][1].set_xlabel('time')
+#         axs[0][1].grid(axis='y')
+#         axs[0][1].legend()
 
-        dacdf.plot(ax=axs[1][1])
-        axs[1][1].set_ylabel('data delivered [%]')
-        axs[1][1].set_xlabel('time')
-        axs[1][1].grid(axis='y')
-        axs[1][1].legend()
+#         dacdf.plot(ax=axs[1][1])
+#         axs[1][1].set_ylabel('data delivered [%]')
+#         axs[1][1].set_xlabel('time')
+#         axs[1][1].grid(axis='y')
+#         axs[1][1].legend()
 
-        # plt.show()
+#         # plt.show()
 
-        fig.autofmt_xdate()
-        fig.subplots_adjust(hspace=0)
+#         fig.autofmt_xdate()
+#         fig.subplots_adjust(hspace=0)
 
-        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
+#         fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
 
-        self.origin_EU.plot_throughput()
-        self.origin_US.plot_throughput()
+#         self.origin.plot_throughput()
 
-        for cloud in self.cloud_caches:
-            self.cloud_caches[cloud].plot_throughput()
+#         for cloud in self.cloud_caches:
+#             self.cloud_caches[cloud].plot_throughput()
 
-        for site in self.endpoints:
-            self.endpoints[site].plot_throughput()
+#         for site in self.endpoints:
+#             self.endpoints[site].plot_throughput()
 
 
 class XCacheServer(object):
@@ -153,23 +148,6 @@ class XCacheServer(object):
             counter += 1
         self.used -= space_freed
         # print('files deleted:', counter, '\tspace freed:', space_freed)
-
-    # def clean_old(self):
-    #     # print("cleaning...")
-    #     self.cleanups += 1
-    #     df = pd.DataFrame.from_dict(self.files, orient='index')
-    #     df.columns = ['access_time', 'accesses', 'filesize']
-
-    #     # here access time is last time file was accessed, sort it in ascending order.
-    #     df.sort_values(['access_time'], ascending=[True], inplace=True)
-
-    #     df['cum_sum'] = df.filesize.cumsum()
-    #     # print('files in cache:', df.shape[0], end='  ')
-    #     df = df[df.cum_sum < (self.hwm_bytes - self.lwm_bytes)]
-    #     # print('files to flush:', df.shape[0])
-    #     for fn in df.index.values:
-    #         cr = self.files.pop(fn)
-    #         self.used -= cr[2]
 
     def get_stats(self):
         df = pd.DataFrame.from_dict(self.files, orient='index')
@@ -265,7 +243,7 @@ class XCacheSite(object):
         df = df * 8 / conf.GB / conf.THROUGHPUT_BIN
         df.index = pd.to_datetime(df.index, unit='s')
         fig, ax = plt.subplots(figsize=(18, 6))
-        fig.suptitle(self.name + '\n' + conf.TITLE, fontsize=18)
+        fig.suptitle(self.name + '\n' + conf.TITLE.replace("_", " "), fontsize=18)
         fig.autofmt_xdate()
         ax.set_ylabel('throughput [Gbps]')
         df.plot(kind='line', ax=ax)

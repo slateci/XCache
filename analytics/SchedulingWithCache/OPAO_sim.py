@@ -5,25 +5,18 @@ Job durations are input data are taken from historical data.
 '''
 
 import OPAO_utils as ou
-import compute
+from grid import Grid
 import cProfile
 
 
 def main():
     # load computing grid.
-    grid = compute.Grid()
+    grid = Grid()
 
     # loop through jobs.
     # "randomly" assign to sites.
 
-    data = ou.load_data()
-
-
-    # data = data[101:201]
-    data = data[101:]
-    # data = data[101:1101]
-    # data = data[101:20101]
-    # data = data[150000:]
+    data = ou.load_data(ntasks=10000)
 
     # creating jobs
     task_counter = 0
