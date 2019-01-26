@@ -12,13 +12,14 @@ matplotlib.rc('ytick', labelsize=14)
 
 class Compute(object):
 
-    def __init__(self, name, tier, cloud, cores, storage):
+    def __init__(self, name, tier, cloud, cores, storage, cache):
         """ cache size is in bytes """
         self.name = name
         self.tier = tier
         self.cloud = cloud
         self.cores = cores
         self.storage = storage
+        self.cache = cache
         self.finish_events = []  # [time, cores]
 
         self.queue = []
@@ -67,7 +68,7 @@ class Compute(object):
                 self.finish_events.append([ts + job[2], job[1]])
                 # add files to cache
                 for filen in job[3]:
-                    self.storage.add_access(self.name, filen, job[4], ts)
+                    self.storage.add_access(self.cache, filen, job[4], ts)
 
         # remove jobs that have been started from the queue
         del self.queue[:jobs_started]
@@ -111,7 +112,7 @@ class Compute(object):
                 jobs_started.append(ji)
                 # add files to cache
                 for filen in job[3]:
-                    self.storage.add_access(self.name, filen, job[4], ts)
+                    self.storage.add_access(self.cache, filen, job[4], ts)
 
         # remove jobs that have been started from the queue
         for ji in jobs_started:

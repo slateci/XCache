@@ -34,27 +34,43 @@ class Grid(object):
         self.cloud_weights = None
         self.site_weights = {}
         self.vps = []
-        self.loadCEs()
+        self.create_infrastructure()
         self.init()
 
     def init(self):
         if conf.STEPS_TO_FILE:
             self.logfile = open(conf.BASE_DIR + conf.TITLE + ".log", "w", buffering=1)
 
-    def loadCEs(self):
+    def create_infrastructure(self):
+
         self.dfCEs = ou.load_compute()
         self.total_cores = self.dfCEs.cores.sum()
         print('total cores:', self.total_cores)
-        # create CEs. CEs have local caches.
-        for ce in self.dfCEs.itertuples():
-            self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage))
-            self.storage.add_cache_endpoint(ce.cloud, ce.name, ce.cores)
 
+        # create origin server
+        self.storage.add_storage('Data Lake', parent_name='', servers=0, level=2, origin=True)
+
+        # create cloud level cache servers
         self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
         print(self.cloud_weights)
         for cloud, sum_cores in self.cloud_weights.items():
-            self.storage.add_cloud_cache(cloud, cloud, sum_cores)
+            servers = sum_cores // 2000 + 1
+            self.storage.add_storage(cloud, parent_name='Data Lake', servers=servers, level=1, origin=False)
 
+        # create CEs. CEs have local caches.
+        for ce in self.dfCEs.itertuples():
+            # self.storage.add_cache_endpoint(ce.cloud, ce.name, ce.cores)
+            servers = ce.cores // 1000 + 1
+            self.storage.add_storage(ce.name, parent_name=ce.cloud, servers=servers, level=0, origin=False)
+            self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage, ce.name))
+
+        # # create cloud caches
+        # self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
+        # print(self.cloud_weights)
+        # for cloud, sum_cores in self.cloud_weights.items():
+        #     self.storage.add_cloud_cache(cloud, cloud, sum_cores)
+
+        # calculate site weights
         self.cloud_weights /= self.cloud_weights.sum()
         for cl, clv in self.dfCEs.groupby('cloud'):
             self.site_weights[cl] = clv['cores']
