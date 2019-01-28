@@ -68,7 +68,8 @@ for res in scroll:
         d[0] += 1
         d[1] += r['actualcorecount']
         d[2] += r['wall_time']
-        d[3] += r['ninputdatafiles']
+        if r['ninputdatafiles']:
+            d[3] += r['ninputdatafiles']
         d[4] = r['proddblock']
         # data[res['_id']] = [0, 0, 0, 0, '']  # njobs, cores, wall_time, inputfiles, dataset
     count += 1

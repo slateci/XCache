@@ -8,7 +8,7 @@ PB = 1024 * TB
 # job processing related constants
 JOB_START_DELAY = 1
 STEP = 600
-MAX_CES_PER_TASK = 99
+MAX_CES_PER_TASK = 3
 CORE_NUMBERS = [0, 1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 # cache related constants
@@ -21,10 +21,10 @@ THROUGHPUT_BIN = 1800  # in seconds
 PER_FILE_RATE *= THROUGHPUT_BIN
 
 # emulation options
-# KINDS = ['prod']  # anal
 # DONT_CACHE = []
 
+PROCESSING_TYPE = 'prod'  # anal # None
 BASE_DIR = 'analytics/SchedulingWithCache/'
-TITLE = 'V1'
+TITLE = 'V3'
 STEPS_TO_FILE = False
 BINS = 1800  # this is bin width in seconds. Only for printouts and plotting.

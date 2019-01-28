@@ -11,9 +11,6 @@ class Storage(object):
 
     def __init__(self):
         self.storages = {}
-        # self.origin = XCacheSite('Data Lake', parent="", origin=True)
-        # self.cloud_caches = {}
-        # self.endpoints = {}
         self.accesses = [0, 0, 0]  # endpoint, second level, xc_Origin
         self.dataaccc = [0, 0, 0]
         self.acs = []
@@ -30,14 +27,6 @@ class Storage(object):
         else:
             server_size = 0
         self.storages[name] = XCacheSite(name, parent_name, servers=servers, size=server_size, level=level, origin=origin)
-
-    # def add_cloud_cache(self, cloud, name, cores):
-    #     xservers = cores // 2000 + 1
-    #     self.cloud_caches[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CLOUD_CACHE_TB_PER_2K * conf.TB)
-
-    # def add_cache_endpoint(self, cloud, name, cores):
-    #     xservers = cores // 1000 + 1
-    #     self.endpoints[name] = XCacheSite('xc_' + name, cloud, servers=xservers, size=conf.CACHE_TB_PER_1K * conf.TB)
 
     def add_access(self, site, filename, filesize, timestamp):
         """ called by a CE. Endpoint is CE name. """
@@ -79,30 +68,6 @@ class Storage(object):
             self.accesses[t_3.level] += 1
             self.dataaccc[t_3.level] += filesize
             return
-
-    # def add_access_old(self, endpoint, filename, filesize, timestamp):
-    #     """ called by a CE. Endpoint is CE name. """
-
-    #     self.total_files += 1
-    #     # first try on endpoint
-    #     found = self.endpoints[endpoint].add_request(filename, filesize, timestamp)
-    #     if found:
-    #         self.accesses[0] += 1
-    #         self.dataaccc[0] += filesize
-    #         return
-
-    #     # next access through cloud cache
-    #     cloud = self.endpoints[endpoint].cloud
-    #     found = self.cloud_caches[cloud].add_request(filename, filesize, timestamp)
-    #     if found:
-    #         self.accesses[1] += 1
-    #         self.dataaccc[1] += filesize
-    #         return
-
-    #     # next access through the origin
-    #     self.origin.add_request(filename, filesize, timestamp)
-    #     self.accesses[2] += 1
-    #     self.dataaccc[2] += filesize
 
     def stats(self, ts):
         print('XCache statistics:', self.accesses, self.dataaccc)
@@ -157,14 +122,6 @@ class Storage(object):
         fig.subplots_adjust(hspace=0)
 
         fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
-
-        # self.origin.plot_throughput()
-
-        # for cloud in self.cloud_caches:
-        #     self.cloud_caches[cloud].plot_throughput()
-
-        # for site in self.endpoints:
-        #     self.endpoints[site].plot_throughput()
 
         for site in self.storages:
             self.storages[site].plot_throughput()

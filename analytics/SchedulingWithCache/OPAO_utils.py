@@ -98,6 +98,9 @@ def load_data(ntasks=None, start_date='2018-08-01', end_date=None):
     if not end_date is None:
         end = int(pd.Timestamp(end_date).timestamp())
         data = data[data.created_at < end]
+
+    if conf.PROCESSING_TYPE:
+        data = data[data.task_type == conf.PROCESSING_TYPE]
     print('after date cuts:', data.shape[0])
 
     print('tasks without known data:', data[(data.Sinputfiles > 0) & (data.ds_files == 0)].shape[0])

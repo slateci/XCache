@@ -59,16 +59,9 @@ class Grid(object):
 
         # create CEs. CEs have local caches.
         for ce in self.dfCEs.itertuples():
-            # self.storage.add_cache_endpoint(ce.cloud, ce.name, ce.cores)
             servers = ce.cores // 1000 + 1
             self.storage.add_storage(ce.name, parent_name=ce.cloud, servers=servers, level=0, origin=False)
             self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage, ce.name))
-
-        # # create cloud caches
-        # self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
-        # print(self.cloud_weights)
-        # for cloud, sum_cores in self.cloud_weights.items():
-        #     self.storage.add_cloud_cache(cloud, cloud, sum_cores)
 
         # calculate site weights
         self.cloud_weights /= self.cloud_weights.sum()
@@ -257,13 +250,9 @@ class Grid(object):
         ax2.plot(stats.index, stats.finished, 'b')
         ax2.plot(stats.index, stats['cores used'], 'r')
 
-        # ax2.set_ylabel('finished', color='b')
         ax2.set_ylabel('[%]')
         ax2.set_xlabel('time')
         ax2.legend()
-
-        # ax12 = ax2.twinx()
-        # ax12.set_ylabel('cores used [%]', color='r')
 
         fig.autofmt_xdate()
         fig.subplots_adjust(hspace=0)
