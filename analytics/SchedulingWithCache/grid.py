@@ -78,6 +78,7 @@ class Grid(object):
 
     def generate_VPs(self):
         n = 10000
+        # print(self.cloud_weights)
         cloud_samples = self.cloud_weights.sample(n, replace=True, weights=self.cloud_weights).index.values
         # print(cloud_samples)
         for i in range(n):
@@ -90,10 +91,12 @@ class Grid(object):
         if len(self.vps) < 5:
             self.generate_VPs()
 
+        if name is None:  # We have a lot of tasks without dataset. Throw them randomly.
+            return self.vps.pop()
+
         if name not in self.ds_assignements:
             self.ds_assignements[name] = self.vps.pop()
 
-        # print(self.ds_assignements[name])
         return self.ds_assignements[name]
 
     def add_task(self, task):

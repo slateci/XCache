@@ -85,7 +85,10 @@ def load_data(ntasks=None, start_date='2018-08-01', end_date=None):
 
     print('tasks without known data:', data[(data.Sinputfiles > 0) & (data.ds_files == 0)].shape[0])
 
-    print('excluding tasks with > 64 avg cores (Supercomputers):', data[data.Scores / data.jobs > 32].shape[0])
+    print('excluding tasks with 0 or negative wall time:', data[data.Swall_time < 1].shape[0])
+    data = data[data.Swall_time > 0]
+
+    print('excluding tasks with > 64 avg cores (Supercomputers):', data[data.Scores / data.jobs > 64].shape[0])
     data = data[data.Scores / data.jobs <= 64]
 
     print('total tasks to process:', data.shape[0])
