@@ -58,27 +58,6 @@ def load_compute():
     return CEs
 
 
-# def load_data_old():
-
-#     data = pd.DataFrame()
-#     for jtype in conf.KINDS:
-#         for period in conf.PERIODS:
-#             pdata = pd.read_hdf(conf.BASE_DIR + 'data/full_' + jtype + '_' + period + '.h5', key=jtype, mode='r')
-#             print(period, pdata.shape[0])
-#             data = pd.concat([data, pdata])
-#     print('---------- merged data -----------')
-#     print('total tasks:', data.shape[0])
-#     # print(data.head())
-#     data = data.sort_values('created_at')
-#     data.created_at = (data.created_at / 1000.0).astype(int)
-#     data.finished_at = (data.finished_at / 1000.0).astype(int)
-
-#     print('problematic tasks:', data[(data.inputfiles > 0) & (data.files_in_ds == 0)].shape[0])
-#     print('excluding tasks with > 64 avg cores (Supercomputers):', data[data.cores / data.jobs > 32].shape[0])
-#     data = data[data.cores / data.jobs <= 64]
-#     return data
-
-
 def load_data(ntasks=None, start_date='2018-08-01', end_date=None):
 
     data = pd.read_hdf(conf.BASE_DIR + 'data/tasks.h5', key='tasks', mode='r')
@@ -101,6 +80,7 @@ def load_data(ntasks=None, start_date='2018-08-01', end_date=None):
 
     if conf.PROCESSING_TYPE:
         data = data[data.task_type == conf.PROCESSING_TYPE]
+
     print('after date cuts:', data.shape[0])
 
     print('tasks without known data:', data[(data.Sinputfiles > 0) & (data.ds_files == 0)].shape[0])

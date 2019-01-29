@@ -16,7 +16,7 @@ def main():
     # loop through jobs.
     # "randomly" assign to sites.
 
-    data = ou.load_data()  # ntasks=10000)
+    data = ou.load_data()#ntasks=1000)
 
     # creating jobs
     task_counter = 0

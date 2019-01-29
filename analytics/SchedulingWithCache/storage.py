@@ -35,10 +35,6 @@ class Storage(object):
 
         # first try
         t_1 = self.storages[site]
-        if t_1.origin:
-            self.accesses[t_1.level] += 1
-            self.dataaccc[t_1.level] += filesize
-            return
         found = t_1.add_request(filename, filesize, timestamp)
         if found:
             self.accesses[t_1.level] += 1
@@ -47,10 +43,6 @@ class Storage(object):
 
         # second try
         t_2 = self.storages[t_1.parent]
-        if t_2.origin:
-            self.accesses[t_2.level] += 1
-            self.dataaccc[t_2.level] += filesize
-            return
         found = t_2.add_request(filename, filesize, timestamp)
         if found:
             self.accesses[t_2.level] += 1
@@ -59,10 +51,6 @@ class Storage(object):
 
         # third try
         t_3 = self.storages[t_2.parent]
-        if t_3.origin:
-            self.accesses[t_3.level] += 1
-            self.dataaccc[t_3.level] += filesize
-            return
         found = t_3.add_request(filename, filesize, timestamp)
         if found:
             self.accesses[t_3.level] += 1
@@ -87,6 +75,10 @@ class Storage(object):
         dacdf.index = pd.to_datetime(dacdf.index, unit='s')
 
         dacdf = dacdf / conf.TB
+
+        if not conf.CLOUD_LEVEL_CACHE:
+            accdf.drop('Cloud caches', axis=1, inplace=True)
+            dacdf.drop('Cloud caches', axis=1, inplace=True)
 
         fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 10), sharex=True,)
         fig.suptitle('Cache levels\n' + conf.TITLE.replace("_", " "), fontsize=18)

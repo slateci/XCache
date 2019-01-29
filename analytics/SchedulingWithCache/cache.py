@@ -132,8 +132,6 @@ class XCacheSite(object):
             return
         df.columns = ['egress', 'ingress']
         df.index *= conf.THROUGHPUT_BIN
-        # df = df[df.index > 1534626000]
-        # df = df[df.index < 1534669200]
         df.ingress = -df.ingress
         df = df * 8 / conf.GB / conf.THROUGHPUT_BIN
         df.index = pd.to_datetime(df.index, unit='s')
@@ -142,7 +140,7 @@ class XCacheSite(object):
         fig.autofmt_xdate()
         ax.set_ylabel('throughput [Gbps]')
         df.plot(kind='line', ax=ax)
-        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/thr_' + self.name + '.png')
+        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/thr_' + self.name.replace(' ', '_') + '.png')
         plt.close(fig)
 
     # def plot_cache_state(self):

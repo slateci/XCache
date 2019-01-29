@@ -48,19 +48,25 @@ class Grid(object):
         print('total cores:', self.total_cores)
 
         # create origin server
-        self.storage.add_storage('Data Lake', parent_name='', servers=0, level=2, origin=True)
+        self.storage.add_storage('Data Lake', parent_name='', servers=1, level=2, origin=True)
 
         # create cloud level cache servers
         self.cloud_weights = self.dfCEs.groupby('cloud').sum()['cores']
         print(self.cloud_weights)
-        for cloud, sum_cores in self.cloud_weights.items():
-            servers = sum_cores // 2000 + 1
-            self.storage.add_storage(cloud, parent_name='Data Lake', servers=servers, level=1, origin=False)
+
+        if conf.CLOUD_LEVEL_CACHE:
+            for cloud, sum_cores in self.cloud_weights.items():
+                servers = sum_cores // 2000 + 1
+                self.storage.add_storage(cloud, parent_name='Data Lake', servers=servers, level=1, origin=False)
 
         # create CEs. CEs have local caches.
         for ce in self.dfCEs.itertuples():
             servers = ce.cores // 1000 + 1
-            self.storage.add_storage(ce.name, parent_name=ce.cloud, servers=servers, level=0, origin=False)
+            if conf.CLOUD_LEVEL_CACHE:
+                p_name = ce.cloud
+            else:
+                p_name = 'Data Lake'
+            self.storage.add_storage(ce.name, parent_name=p_name, servers=servers, level=0, origin=False)
             self.comp_sites.append(Compute(ce.name, ce.tier, ce.cloud, ce.cores, self.storage, ce.name))
 
         # calculate site weights
