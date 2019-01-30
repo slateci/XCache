@@ -1,7 +1,7 @@
 """ combines both compute and storage """
 
 # from bisect import bisect
-
+import sys
 import time
 import hashlib
 
@@ -33,7 +33,8 @@ class Grid(object):
 
         self.cloud_weights = None
         self.site_weights = {}
-        self.vps = []
+        self.cloud_samples = []
+        # self.vps = []
         self.create_infrastructure()
         self.init()
 
@@ -76,28 +77,34 @@ class Grid(object):
             self.site_weights[cl] /= self.site_weights[cl].sum()
         # print(self.cloud_weights,  self.site_weights)
 
-    def generate_VPs(self):
-        n = 10000
-        # print(self.cloud_weights)
-        cloud_samples = self.cloud_weights.sample(n, replace=True, weights=self.cloud_weights).index.values
-        # print(cloud_samples)
-        for i in range(n):
-            sw = self.site_weights[cloud_samples[i]]
-            site_samples = sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values
-            # print(site_samples)
-            self.vps.append(site_samples)
+    # def generate_VPs(self):  # needs a speed up or a move to parallel thread.
+    #     n = 10000
+    #     # print(self.cloud_weights)
+    #     cloud_samples = self.cloud_weights.sample(n, replace=True, weights=self.cloud_weights).index.values
+    #     # print(cloud_samples)
+    #     for i in range(n):
+    #         sw = self.site_weights[cloud_samples[i]]
+    #         site_samples = sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values
+    #         # print(site_samples)
+    #         self.vps.append(site_samples)
 
     def get_dataset_vp(self, name):
-        if len(self.vps) < 5:
-            self.generate_VPs()
+
+        if name in self.ds_assignements:
+            return self.ds_assignements[name]
+
+        if len(self.cloud_samples) == 0:
+            self.cloud_samples = self.cloud_weights.sample(10000, replace=True, weights=self.cloud_weights).index.values.tolist()
+
+        cs = self.cloud_samples.pop()
+        sw = self.site_weights[cs]
+        site_samples = set(sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values)
 
         if name is None:  # We have a lot of tasks without dataset. Throw them randomly.
-            return self.vps.pop()
+            return site_samples
 
-        if name not in self.ds_assignements:
-            self.ds_assignements[name] = self.vps.pop()
-
-        return self.ds_assignements[name]
+        self.ds_assignements[name] = site_samples
+        return site_samples
 
     def add_task(self, task):
         # find sites to execute task at
@@ -125,14 +132,14 @@ class Grid(object):
                 files.append(fn)
                 file_counter += 1
 
-            self.all_jobs.append([
+            self.all_jobs.append((
                 task.created_at + conf.JOB_START_DELAY * job_number,
                 cores,
                 job_duration,
                 files,
                 per_file_bytes,
                 sites
-            ]
+            )
             )
 
     # def plot_jobs_stats(self):
@@ -154,24 +161,32 @@ class Grid(object):
     #     # plt.tight_layout()
     #     fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/jobs_stats.png')
 
-    def process_jobs(self):
-        """ gives jobs to CEs to process. """
+    def process_jobs(self, until=None):
+        """ gives jobs to CEs to process. 
+        If until is given only jobs starting up to that time will be processed.
+        This is to spare memory.
+        """
+
         print('sort jobs')
         self.all_jobs.sort(key=lambda x: x[0])
         total_jobs = len(self.all_jobs)
         print('jobs to do:', total_jobs)
-        print('starting submitting...')
+        # print('starting submitting...')
 
        # loop over times
         print('start time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[0][0])))
         print('end   time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[-1][0])))
         ts = (self.all_jobs[0][0] - conf.STEP) // conf.STEP * conf.STEP
         while True:
+            if until and ts >= until:
+                print('remaining jobs:', len(self.all_jobs))
+                return
             ts += conf.STEP
             if not ts % conf.BINS:
                 self.storage.stats(ts)
-                print('remaining jobs: ', len(self.all_jobs))
-                if self.stats(ts) == total_jobs:
+                remain = self.stats(ts)
+                print('remaining jobs: ', remain)
+                if remain == 0 and until is None:
                     print('All DONE.')
                     break
 
@@ -208,9 +223,11 @@ class Grid(object):
 
                 jobs_added += 1
 
+            # print('deleting:', jobs_added, 'from:', len(self.all_jobs))
             del self.all_jobs[:jobs_added]
 
     def stats(self, ts):
+        """ returns sum of running and queued jobs so we can say when the emulation is done """
         srunning = susedcores = squeued = sfinished = 0
         for ce in self.comp_sites:
             (runn, queu, fini, core) = ce.collect_stats(ts)
@@ -226,7 +243,7 @@ class Grid(object):
             self.logfile.write(time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(ts)) +
                                '\trunning:' + str(srunning) + '\t cores used:' +
                                str(susedcores) + '\tqueued:' + str(squeued) + '\tfinished:' + str(sfinished) + '\n')
-        return sfinished
+        return srunning + squeued
 
     def plot_stats(self):
         print('core hours:', self.core_seconds / 3600)

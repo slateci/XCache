@@ -54,6 +54,9 @@ def load_compute():
 
         CEs.to_hdf(filename, key="AGIS", mode='w')
     print('CEs loaded:', CEs.shape[0])
+    print('moving TW and RU sites to CERN cloud.')
+    CEs.loc[CEs['cloud'] == 'TW', 'cloud'] = 'CERN'
+    CEs.loc[CEs['cloud'] == 'RU', 'cloud'] = 'CERN'
     CEs = CEs.reset_index()
     return CEs
 
