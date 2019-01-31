@@ -122,7 +122,7 @@
         },
         {
             "location": "/monitoring/",
-            "text": "Monitoring deployment(s)\n\n\nMonitoring XCache operational parameters\n\n\nInformation from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here \nXCache state\n)\nInfo on SLATE nodes can be found here \nK8s Infrastructure\n.\nLive logs can be accessed here \nk8s Logs\n).",
+            "text": "Monitoring deployment(s)\n\n\nMonitoring XCache operational parameters\n\n\nInformation from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here \nXCache state\n ).\n\n\nInfo on SLATE nodes can be found here \nK8s Infrastructure\n.\n\n\nLive logs can be accessed here \nK8s Logs\n).",
             "title": "Monitoring"
         },
         {
@@ -132,7 +132,7 @@
         },
         {
             "location": "/monitoring/#monitoring-xcache-operational-parameters",
-            "text": "Information from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here  XCache state )\nInfo on SLATE nodes can be found here  K8s Infrastructure .\nLive logs can be accessed here  k8s Logs ).",
+            "text": "Information from cache files is collected once per hour and sent to Elasticsearch at UChicago. \nBasic summary dashboard can be looked up here  XCache state  ).  Info on SLATE nodes can be found here  K8s Infrastructure .  Live logs can be accessed here  K8s Logs ).",
             "title": "Monitoring XCache operational parameters"
         },
         {
