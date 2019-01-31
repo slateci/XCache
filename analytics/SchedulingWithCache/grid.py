@@ -1,13 +1,12 @@
 """ combines both compute and storage """
 
 # from bisect import bisect
-import sys
 import time
 import hashlib
 
 import OPAO_utils as ou
 import conf
-from storage import Storage  # , XCacheSite
+from storage import Storage
 from compute import Compute
 import pandas as pd
 
@@ -34,7 +33,6 @@ class Grid(object):
         self.cloud_weights = None
         self.site_weights = {}
         self.cloud_samples = []
-        # self.vps = []
         self.create_infrastructure()
         self.init()
 
@@ -76,17 +74,6 @@ class Grid(object):
             self.site_weights[cl] = clv['cores']
             self.site_weights[cl] /= self.site_weights[cl].sum()
         # print(self.cloud_weights,  self.site_weights)
-
-    # def generate_VPs(self):  # needs a speed up or a move to parallel thread.
-    #     n = 10000
-    #     # print(self.cloud_weights)
-    #     cloud_samples = self.cloud_weights.sample(n, replace=True, weights=self.cloud_weights).index.values
-    #     # print(cloud_samples)
-    #     for i in range(n):
-    #         sw = self.site_weights[cloud_samples[i]]
-    #         site_samples = sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values
-    #         # print(site_samples)
-    #         self.vps.append(site_samples)
 
     def get_dataset_vp(self, name):
 
@@ -171,7 +158,6 @@ class Grid(object):
         self.all_jobs.sort(key=lambda x: x[0])
         total_jobs = len(self.all_jobs)
         print('jobs to do:', total_jobs)
-        # print('starting submitting...')
 
        # loop over times
         print('start time:', time.strftime('%Y/%m/%d %H:%M:%S', time.gmtime(self.all_jobs[0][0])))
@@ -191,11 +177,10 @@ class Grid(object):
                     break
 
             # loop over sites process events get ce statuses
-            nqueued = {}
             for ce in self.comp_sites:
-                ncores, nqueued[ce.name] = ce.process_events(ts)
+                ncores, nqueued = ce.process_events(ts)
                 self.core_seconds += ncores * conf.STEP
-                self.queue_seconds += nqueued[ce.name] * conf.STEP
+                self.queue_seconds += nqueued * conf.STEP
 
             jobs_added = 0
             for job in self.all_jobs:

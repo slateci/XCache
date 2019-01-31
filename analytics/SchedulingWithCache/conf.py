@@ -8,7 +8,7 @@ PB = 1024 * TB
 # job processing related constants
 JOB_START_DELAY = 1
 STEP = 600
-MAX_CES_PER_TASK = 2
+MAX_CES_PER_TASK = 99
 CORE_NUMBERS = [0, 1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 # cache related constants
@@ -30,6 +30,6 @@ PROCESSING_TYPE = None
 # PROCESSING_TYPE = 'anal'
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
-TITLE = 'All_' + str(MAX_CES_PER_TASK)
+TITLE = 'All_' + str(MAX_CES_PER_TASK) + '_1L_Cache'
 STEPS_TO_FILE = False
 BINS = 1800  # this is bin width in seconds. Only for printouts and plotting.
