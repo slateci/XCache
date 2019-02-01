@@ -1,14 +1,13 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.6
 
 import os
 import sys
 from glob import glob
 import struct
 import time
-from datetime import datetime
 import requests
 
-base_dir = '/xcache-meta/namespace'
+BASE_DIR = '/xcache-meta/namespace'
 
 ct = time.time()
 start_time = ct - 3600
@@ -31,8 +30,8 @@ def get_info(filename):
 
     fin = open(filename, "rb")
 
-    fv, = struct.unpack('i', fin.read(4))
-    # print ("file version:", fv)
+    _, = struct.unpack('i', fin.read(4))
+    # print ("file version:", _)
     bs, = struct.unpack('q', fin.read(8))
     # print ('bucket size:', bs)
     fs, = struct.unpack('q', fin.read(8))
@@ -55,7 +54,7 @@ def get_info(filename):
         'sender': 'xCache',
         'type': 'docs',
         'site': site,
-        'file': filename.replace(base_dir, '').replace('/atlas/rucio/', '').replace('.cinfo', ''),
+        'file': filename.replace(BASE_DIR, '').replace('/atlas/rucio/', '').replace('.cinfo', ''),
         'size': fs,
         'created_at': time_of_creation * 1000
     }
@@ -82,8 +81,8 @@ def get_info(filename):
             reports.append(dp)
 
 
-files = [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*.cinfo'))]
-# files += [y for x in os.walk(base_dir) for y in glob(os.path.join(x[0], '*%'))]
+files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
+# files += [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*%'))]
 for filename in files:
     last_modification_time = os.stat(filename).st_mtime
     # print(filename, last_modification_time)
