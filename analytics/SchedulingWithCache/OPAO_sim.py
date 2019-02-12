@@ -4,19 +4,20 @@ All CEs are connected to a local XCache.
 Job durations are input data are taken from historical data.
 '''
 
+# import cProfile
+
 import OPAO_utils as ou
 from grid import Grid
-import cProfile
 
 
-def main():
+def run():
     # load computing grid.
     grid = Grid()
 
     # loop through jobs.
     # "randomly" assign to sites.
 
-    data = ou.load_data()  # (ntasks=1001)
+    data = ou.load_data()#(ntasks=10001)
 
     # creating jobs
     task_counter = 0
@@ -31,11 +32,11 @@ def main():
     print('total tasks created:', task_counter)
 
     grid.process_jobs()  # finish the rest
-    # grid.plot_jobs_stats()
-    # grid.process_jobs()
     # cProfile.runctx('grid.process_jobs()', globals(), locals())
-    grid.plot_stats()
+
+    grid.save_stats()
 
 
 # cProfile.run('main()', 'prof.log')
-main()
+if __name__ == '__main__':
+    run()

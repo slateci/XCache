@@ -1,7 +1,6 @@
 """ Storage caches classes """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 import conf
 
 
@@ -126,7 +125,7 @@ class XCacheSite(object):
         df['site'] = self.name
         return df
 
-    def plot_throughput(self):
+    def save_throughput(self):
         df = pd.DataFrame.from_dict(self.throughput, orient='index')
         if not df.shape[0]:
             return
@@ -135,13 +134,8 @@ class XCacheSite(object):
         df.ingress = -df.ingress
         df = df * 8 / conf.GB / conf.THROUGHPUT_BIN
         df.index = pd.to_datetime(df.index, unit='s')
-        fig, ax = plt.subplots(figsize=(18, 6))
-        fig.suptitle(self.name + '\n' + conf.TITLE.replace("_", " "), fontsize=18)
-        fig.autofmt_xdate()
-        ax.set_ylabel('throughput [Gbps]')
-        df.plot(kind='line', ax=ax)
-        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/thr_' + self.name.replace(' ', '_') + '.png')
-        plt.close(fig)
+
+        df.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='cache-' + self.name, mode='a', complevel=1)
 
     # def plot_cache_state(self):
     #     """ most important plots. """

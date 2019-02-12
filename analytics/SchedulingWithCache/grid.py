@@ -3,18 +3,14 @@
 # from bisect import bisect
 import time
 import hashlib
+import multiprocessing
 
 import OPAO_utils as ou
 import conf
 from storage import Storage
 from compute import Compute
+from sampler import Sampler
 import pandas as pd
-
-import matplotlib
-import matplotlib.pyplot as plt
-
-matplotlib.rc('xtick', labelsize=12)
-matplotlib.rc('ytick', labelsize=14)
 
 
 class Grid(object):
@@ -32,11 +28,14 @@ class Grid(object):
 
         self.cloud_weights = None
         self.site_weights = {}
-        self.cloud_samples = []
         self.create_infrastructure()
+        self.samples = multiprocessing.Queue()
         self.init()
 
     def init(self):
+        sampler = Sampler(self.cloud_weights, self.site_weights, self.samples)
+        sampler.daemon = True
+        sampler.start()
         if conf.STEPS_TO_FILE:
             self.logfile = open(conf.BASE_DIR + conf.TITLE + ".log", "w", buffering=1)
 
@@ -80,12 +79,14 @@ class Grid(object):
         if name in self.ds_assignements:
             return self.ds_assignements[name]
 
-        if len(self.cloud_samples) == 0:
-            self.cloud_samples = self.cloud_weights.sample(10000, replace=True, weights=self.cloud_weights).index.values.tolist()
+        # if len(self.cloud_samples) == 0:
+        #     self.cloud_samples = self.cloud_weights.sample(10000, replace=True, weights=self.cloud_weights).index.values.tolist()
+        # cs = self.cloud_samples.pop()
+        # sw = self.site_weights[cs]
+        # site_samples = set(sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values)
 
-        cs = self.cloud_samples.pop()
-        sw = self.site_weights[cs]
-        site_samples = set(sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values)
+        site_samples = self.samples.get()
+        # print(site_samples)
 
         if name is None:  # We have a lot of tasks without dataset. Throw them randomly.
             return site_samples
@@ -125,28 +126,10 @@ class Grid(object):
                 job_duration,
                 files,
                 per_file_bytes,
-                sites
+                sites,
+                task.taskid
             )
             )
-
-    # def plot_jobs_stats(self):
-    #     tdf = pd.DataFrame(self.all_jobs, columns=['ts', 'cores', 'duration', 'files', 'pfb', 'sites'])
-    #     tdf.drop(['files', 'pfb', 'sites'], inplace=True, axis=1)
-    #     print(tdf.describe())
-    #     fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, figsize=(10, 9))
-    #     fig.suptitle('Jobs stats\n' + conf.TITLE.replace('_',' '), fontsize=18)
-
-    #     ax1.hist(tdf.cores, bins=range(0, 65, 1), log=True)
-    #     # ax1.hist(tdf.acores, bins=64)
-    #     ax1.set_ylabel('jobs')
-    #     # ax1.set_xlabel('time')
-    #     ax1.legend()
-
-    #     ax2.hist(tdf.duration, bins=20)
-    #     # fig.autofmt_xdate()
-    #     # fig.subplots_adjust(hspace=0)
-    #     # plt.tight_layout()
-    #     fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/jobs_stats.png')
 
     def process_jobs(self, until=None):
         """ gives jobs to CEs to process. 
@@ -195,7 +178,7 @@ class Grid(object):
                 for site in sites:
                     occ = len(self.comp_sites[site].queue) / self.comp_sites[site].cores
                     if not occ:
-                        self.comp_sites[site].add_job(job[0], job[1], job[2], job[3], job[4])
+                        self.comp_sites[site].add_job(job[0], job[1], job[2], job[3], job[4], job[6])
                         found_empty = True
                         break
                     if occ < minocc:
@@ -204,7 +187,7 @@ class Grid(object):
 
                 # if job unassigned give it to the one with the smallest ratio
                 if not found_empty:
-                    self.comp_sites[minsite].add_job(job[0], job[1], job[2], job[3], job[4])
+                    self.comp_sites[minsite].add_job(job[0], job[1], job[2], job[3], job[4], job[6])
 
                 jobs_added += 1
 
@@ -230,7 +213,7 @@ class Grid(object):
                                str(susedcores) + '\tqueued:' + str(squeued) + '\tfinished:' + str(sfinished) + '\n')
         return srunning + squeued
 
-    def plot_stats(self):
+    def save_stats(self):
         print('core hours:', self.core_seconds / 3600)
         print('queue job hours:', self.queue_seconds / 3600)
         stats = pd.DataFrame(self.status_in_time)
@@ -239,39 +222,33 @@ class Grid(object):
         stats['finished'] /= stats.finished.max()
         stats = stats.set_index('time', drop=True)
         stats.index = pd.to_datetime(stats.index, unit='s')
+        stats.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='compute', mode='a', complevel=1)
         # print(stats)
 
-        fig, (ax1, ax2) = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(10, 9))
-        fig.suptitle('Grid\n' + conf.TITLE.replace('_', ' '), fontsize=18)
+        summary = pd.DataFrame.from_dict({
+            'core hours': self.core_seconds / 3600,
+            'queue hours': self.queue_seconds / 3600
+        }, orient='index')
+        summary.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='summary', mode='a')
 
-        ax1.plot(stats.index, stats.running, 'b')
-        ax1.set_ylabel('jobs running', color='b')
-        ax1.set_xlabel('time')
-        # ax1.legend()
+        dic = globals().get('conf', None).__dict__
+        for k in dic.keys():
+            if k.startswith('s_'):
+                dic.pop(k)
+        conf_df = pd.DataFrame.from_dict(dic, orient='index')
+        conf_df.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='config', mode='a')
 
-        ax11 = ax1.twinx()
-        ax11.plot(stats.index, stats.queued, 'r')
-        ax11.set_ylabel('jobs queued', color='r')
-
-        textstr = "core hours used:" + str(self.core_seconds // 3600)
-        textstr += "\njob queue hours:" + str(self.queue_seconds // 3600)
-        props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        ax1.text(0.05, 0.95, textstr, transform=ax1.transAxes, fontsize=12, verticalalignment='top', bbox=props)
-
-        ax2.plot(stats.index, stats.finished, 'b')
-        ax2.plot(stats.index, stats['cores used'], 'r')
-
-        ax2.set_ylabel('[%]')
-        ax2.set_xlabel('time')
-        ax2.legend()
-
-        fig.autofmt_xdate()
-        fig.subplots_adjust(hspace=0)
-
-        # plt.tight_layout()
-        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/totals.png')
-
+        task_finish_times = {}
         for ce in self.comp_sites:
-            ce.plot_stats()
+            ce.save_stats()
+            for tid, ftime in ce.task_finish_times.items():
+                if tid not in task_finish_times:
+                    task_finish_times[tid] = ftime
+                else:
+                    if task_finish_times[tid] < ftime:
+                        task_finish_times[tid] = ftime
 
-        self.storage.plot_stats()
+        self.storage.save_stats()
+        tft = pd.DataFrame.from_dict(task_finish_times, orient='index')
+        tft.columns = ['model_finish']
+        tft.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='tft', mode='a', complevel=1)

@@ -1,7 +1,6 @@
 """ Grid Storage class """
 
 import pandas as pd
-import matplotlib.pyplot as plt
 import conf
 from cache import XCacheSite
 
@@ -62,7 +61,7 @@ class Storage(object):
         self.acs.append([ts, self.accesses[0], self.accesses[1], self.accesses[2]])
         self.dac.append([ts, self.dataaccc[0], self.dataaccc[1], self.dataaccc[2]])
 
-    def plot_stats(self):
+    def save_stats(self):
 
         accdf = pd.DataFrame(self.acs)
         accdf.columns = ['time', 'Site caches', 'Cloud caches', 'Data Lake']
@@ -76,44 +75,8 @@ class Storage(object):
 
         dacdf = dacdf / conf.TB
 
-        if not conf.CLOUD_LEVEL_CACHE:
-            accdf.drop('Cloud caches', axis=1, inplace=True)
-            dacdf.drop('Cloud caches', axis=1, inplace=True)
-
-        fig, axs = plt.subplots(nrows=2, ncols=2, figsize=(12, 10), sharex=True,)
-        fig.suptitle('Cache levels\n' + conf.TITLE.replace("_", " "), fontsize=18)
-
-        accdf.plot(ax=axs[0][0])
-        axs[0][0].set_ylabel('hits')
-        axs[0][0].set_xlabel('time')
-        axs[0][0].legend()
-
-        dacdf.plot(ax=axs[1][0])
-        axs[1][0].set_ylabel('data delivered [TB]')
-        axs[1][0].set_xlabel('time')
-        axs[1][0].legend()
-
-        accdf = accdf.div(accdf.sum(axis=1), axis=0)
-        dacdf = dacdf.div(dacdf.sum(axis=1), axis=0)
-
-        accdf.plot(ax=axs[0][1])
-        axs[0][1].set_ylabel('hits [%]')
-        axs[0][1].set_xlabel('time')
-        axs[0][1].grid(axis='y')
-        axs[0][1].legend()
-
-        dacdf.plot(ax=axs[1][1])
-        axs[1][1].set_ylabel('data delivered [%]')
-        axs[1][1].set_xlabel('time')
-        axs[1][1].grid(axis='y')
-        axs[1][1].legend()
-
-        # plt.show()
-
-        fig.autofmt_xdate()
-        fig.subplots_adjust(hspace=0)
-
-        fig.savefig(conf.BASE_DIR + 'plots_' + conf.TITLE + '/cache/filling_up.png')
+        accdf.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='file_accesses', mode='a', complevel=1)
+        dacdf.to_hdf(conf.BASE_DIR + 'results/' + conf.TITLE + '.h5', key='data_accessed', mode='a', complevel=1)
 
         for site in self.storages:
-            self.storages[site].plot_throughput()
+            self.storages[site].save_throughput()
