@@ -8,7 +8,7 @@ PB = 1024 * TB
 # job processing related constants
 JOB_START_DELAY = 1
 STEP = 600
-MAX_CES_PER_TASK = 99
+MAX_CES_PER_TASK = 2
 CORE_NUMBERS = [0, 1, 4, 6, 8, 10, 12, 16, 24, 32, 48, 64, 128]
 
 # cache related constants
@@ -29,12 +29,13 @@ PROCESSING_TYPE = None
 # PROCESSING_TYPE = 'prod'
 # PROCESSING_TYPE = 'anal'
 
-# TODO
 NO_INPUT_JOBS_FILL_UP = True
+
+# TODO
 # check if some input datasets are used from a lot of expensive tasks.
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
-TITLE = 'All_' + str(MAX_CES_PER_TASK) + '_2L_Cache'
+TITLE = 'All_fill_' + str(MAX_CES_PER_TASK) + '_2L_Cache'
 # TITLE = 'test'
 STEPS_TO_FILE = False
 SAVE_FIGURES = True

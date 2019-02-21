@@ -79,17 +79,14 @@ class Grid(object):
         if name in self.ds_assignements:
             return self.ds_assignements[name]
 
-        # if len(self.cloud_samples) == 0:
-        #     self.cloud_samples = self.cloud_weights.sample(10000, replace=True, weights=self.cloud_weights).index.values.tolist()
-        # cs = self.cloud_samples.pop()
-        # sw = self.site_weights[cs]
-        # site_samples = set(sw.sample(min(len(sw), conf.MAX_CES_PER_TASK), weights=sw).index.values)
+        if name is None:  # We have a lot of tasks without dataset.
+            if conf.NO_INPUT_JOBS_FILL_UP:
+                return []  # Leave it empty and the grid will give job to a site with lowest occupancy
+            # Throw them randomly.
+            return self.samples.get()
 
         site_samples = self.samples.get()
         # print(site_samples)
-
-        if name is None:  # We have a lot of tasks without dataset. Throw them randomly.
-            return site_samples
 
         self.ds_assignements[name] = site_samples
         return site_samples
@@ -170,6 +167,9 @@ class Grid(object):
                 if job[0] > ts + conf.STEP:
                     break
                 sites = job[5]
+
+                if not sites:  # no input dataset can go to any site
+                    sites = set(range(self.dfCEs.shape[0]))
 
                 # the first site not having anything in the queue gets the job
                 found_empty = False

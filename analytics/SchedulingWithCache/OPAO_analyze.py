@@ -12,7 +12,11 @@ matplotlib.rc('xtick', labelsize=12)
 matplotlib.rc('ytick', labelsize=14)
 
 # TITLE = 'All_2_2L_Cache'
-TITLE = 'All_99_2L_Cache_try2'
+TITLE = 'All_99_2L_Cache'
+TITLE = 'Prod_99_2L_Cache'
+TITLE = 'Prod_fill_99_2L_Cache'
+TITLE = 'All_fill_99_2L_Cache'
+TITLE = 'All_fill_2_2L_Cache'
 
 BASE_DIR = 'analytics/SchedulingWithCache/'
 SAVE_FIGURES = True
