@@ -38,7 +38,6 @@ Yes | RAM size | XC_RAMSIZE | half of the free RAM | At least 1g. Units are ...
 
 #### To Do
 
-*   Add AGIS updating secreet. 
 *   Add subfile caching option
 *   Test
 *   Create core collecting pod.
