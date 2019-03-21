@@ -62,7 +62,7 @@
     <a class="current" href="./">Setting up k8s cluster</a>
     <ul class="subnav">
             
-    <li class="toctree-l2"><a href="#kubernetes-v110-on-centos-7">Kubernetes v1.10 on CentOS 7</a></li>
+    <li class="toctree-l2"><a href="#kubernetes-v113-on-centos-7">Kubernetes v1.13 on CentOS 7</a></li>
     
 
     <li class="toctree-l2"><a href="#head-node-installation">Head node installation</a></li>
@@ -71,7 +71,7 @@
         
             <li><a class="toctree-l3" href="#optional-enabling-the-kubernetes-dashboard">Optional - Enabling the Kubernetes dashboard</a></li>
         
-            <li><a class="toctree-l3" href="#optional-allow-workers-to-run-on-head-node">Optional - Allow workers to run on head node</a></li>
+            <li><a class="toctree-l3" href="#allow-jobs-to-run-on-the-head-node">Allow jobs to run on the head node</a></li>
         
         </ul>
     
@@ -79,17 +79,7 @@
     <li class="toctree-l2"><a href="#adding-workers">Adding Workers</a></li>
     
 
-    <li class="toctree-l2"><a href="#adding-namespaces-users-and-access-control">Adding namespaces, users, and access control</a></li>
-    
-        <ul>
-        
-            <li><a class="toctree-l3" href="#creating-a-new-namespace">Creating a new namespace</a></li>
-        
-            <li><a class="toctree-l3" href="#create-a-new-user-context">Create a new user context</a></li>
-        
-            <li><a class="toctree-l3" href="#create-roles-and-bind-them-to-the-user">Create roles and bind them to the user</a></li>
-        
-        </ul>
+    <li class="toctree-l2"><a href="#installing-slate">Installing SLATE</a></li>
     
 
     </ul>
@@ -145,12 +135,13 @@
           <div role="main">
             <div class="section">
               
-                <h2 id="kubernetes-v110-on-centos-7">Kubernetes v1.10 on CentOS 7</h2>
+                <h2 id="kubernetes-v113-on-centos-7">Kubernetes v1.13 on CentOS 7</h2>
 <h1 id="head-node-installation">Head node installation</h1>
-<p>On the head node:</p>
+<p>On the head node, install Docker CE and Kubernetes:</p>
 <pre><code># yum update -y
-# yum install -y docker
-# systemctl enable docker &amp;&amp; systemctl start docker
+# yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+# yum install docker-ce docker-ce-cli containerd.io -y
+# systemctl enable --now docker 
 # cat &lt;&lt;EOF &gt; /etc/yum.repos.d/kubernetes.repo
 [kubernetes]
 name=Kubernetes
@@ -162,10 +153,15 @@ gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cl
 EOF
 # setenforce 0
 # yum install -y kubelet kubeadm kubectl
-# systemctl enable kubelet &amp;&amp; systemctl start kubelet
+# systemctl enable --now kubelet
 </code></pre>
 
 <p>At this point, docker should be running and the kubelet should be crash looping. if Docker won't start and complains about overlayfs, make sure you've updated and reboot into the latest kernel. </p>
+<p>If you have swap, you'll need to disable it:</p>
+<pre><code>swapoff -a
+sed -e '/swap/s/^/#/g' -i /etc/fstab
+</code></pre>
+
 <p>Now start kubeadm</p>
 <pre><code># kubeadm init
 </code></pre>
@@ -176,13 +172,14 @@ EOF
 
 <p>Follow the instructions from the shell output. <em>most importantly</em>, save the <code>kubeadm join ...</code>  line as it has an important token in it. This is needed to join additional nodes to the cluster. </p>
 <p>Add Calico networking (there are many possible plugins, we've chosen this one based on best practices)</p>
-<pre><code># kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
+<pre><code># kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/rbac-kdd.yaml
+# kubectl apply -f https://docs.projectcalico.org/v3.3/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
 </code></pre>
 
 <p>Check to see that the Master is ready</p>
 <pre><code>$ kubectl get nodes
 NAME                STATUS    ROLES     AGE       VERSION
-k8s-head.mwt2.org   Ready     master    1h        v1.10.0
+k8s-head.mwt2.org   Ready     master    1h        v1.13.0
 
 </code></pre>
 
@@ -216,8 +213,8 @@ kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=clust
 <pre><code>kubectl get secret $(./kubectl get serviceaccount dashboard -o jsonpath=&quot;{.secrets[0].name}&quot;) -o jsonpath=&quot;{.data.token}&quot; | base64 --decode
 </code></pre>
 
-<h3 id="optional-allow-workers-to-run-on-head-node">Optional - Allow workers to run on head node</h3>
-<p>You can now add additional nodes to the cluster, or "taint" the master to allow work to be scheduled onto it (single node configuration)</p>
+<h3 id="allow-jobs-to-run-on-the-head-node">Allow jobs to run on the head node</h3>
+<p>By default, the master has a "taint" that does not allow pods to be scheduled to it. For single node clusters, it is highly recommended to remove this taint so pods may be launched:</p>
 <pre><code>kubectl taint nodes --all node-role.kubernetes.io/master-
 </code></pre>
 
@@ -225,76 +222,29 @@ kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=clust
 <p>Hopefully you saved the output of <code>kubeadm init</code>. If so, you can just copy/paste the <code>kubeadm join ...</code> bits from the output into your worker node.</p>
 <p>If not, here's how to regenerate it. On the master:</p>
 <pre><code>$ sudo kubeadm token create --print-join-command
-kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;
+</code></pre>
+
+<p>And then to join the cluster from a worker:</p>
+<pre><code>kubeadm join &lt;master ip&gt;:6443 --token &lt;token&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;
 </code></pre>
 
 <p>Just paste that into your worker. <em>Note that the token expires after 24h, after which you'll need to create a new token to add workers to your cluster</em>. </p>
-<hr />
-<h1 id="adding-namespaces-users-and-access-control">Adding namespaces, users, and access control</h1>
-<p>For all of the following, it's assumed that you'll save the yaml to a file and run <code>kubectl -f</code> against it.</p>
-<h2 id="creating-a-new-namespace">Creating a new namespace</h2>
-<p>It's helpful to have users isolated to a separate namespace. Here's how to create one:</p>
-<pre><code>kind: Namespace
-apiVersion: v1
-metadata:
-    name: development
-    labels:
-        name: development
+<h1 id="installing-slate">Installing SLATE</h1>
+<p>Add the SLATE repository and install the client:</p>
+<pre><code>cat &lt;&lt; EOF &gt; /etc/yum.repos.d/slate.repo
+[slate-client]
+name=SLATE-client
+baseurl=https://jenkins.slateci.io/artifacts/client/
+enabled=1
+gpgcheck=0
+repo_gpgcheck=0
+EOF
+
+yum install slate-client -y
 </code></pre>
 
-<h2 id="create-a-new-user-context">Create a new user context</h2>
-<p>The easiest way to add new users is to use kubeadm to generate a new client context:</p>
-<pre><code># kubeadm alpha phase kubeconfig user --client-name=lincoln
-apiVersion: v1
-clusters:
-- cluster:
-    certificate-authority-data: &lt;base64-encoded data&gt; 
-    server: https://&lt;your k8s API IP&gt;:6443
-  name: kubernetes
-contexts:
-- context:
-    cluster: kubernetes
-    user: lincoln
-  name: lincoln@kubernetes
-current-context: lincoln@kubernetes
-kind: Config
-preferences: {}
-users:
-- name: lincoln
-  user:
-    client-certificate-data: &lt;base64 encoded data&gt; 
-    client-key-data: &lt;base64 encoded data&gt; 
-</code></pre>
-
-<p>This is a <code>.kube/config</code> file that you should send to your non-admin user.</p>
-<h2 id="create-roles-and-bind-them-to-the-user">Create roles and bind them to the user</h2>
-<p>Kubernetes uses a role-based access control (RBAC) system. To let users do anything, you'll need to "bind" a role to them.</p>
-<p>Here's a role that allows a user to create deployments, replicasets, pods, and jobs:</p>
-<pre><code>kind: Role
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  namespace: development
-  name: deployment-manager
-rules:
-- apiGroups: [&quot;&quot;, &quot;extensions&quot;, &quot;apps&quot;, &quot;batch&quot;]
-  resources: [&quot;deployments&quot;, &quot;replicasets&quot;, &quot;pods&quot;, &quot;jobs&quot;]
-  verbs: [&quot;get&quot;, &quot;list&quot;, &quot;watch&quot;, &quot;create&quot;, &quot;update&quot;, &quot;patch&quot;, &quot;delete&quot;]
-</code></pre>
-
-<p>And then to associate that role to our newly created user:</p>
-<pre><code>kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1beta1
-metadata:
-  name: deployment-manager-binding
-  namespace: development
-subjects:
-- kind: User
-  name: lincoln
-  apiGroup: &quot;&quot;
-roleRef:
-  kind: Role
-  name: deployment-manager
-  apiGroup: &quot;&quot;
+<p>Go to the SLATE portal - https://portal.slateci.io and go to the "CLI Access" page to get your SLATE token. Run the script there to install your token to <code>~/.slate/token</code>.  Once completed, you can register your cluster with SLATE:</p>
+<pre><code>slate cluster create &lt;clustername&gt; --group &lt;somegroupname&gt; --org &quot;Some Org Name&quot; 
 </code></pre>
               
             </div>
