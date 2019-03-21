@@ -1,4 +1,4 @@
-Kubernetes v1.10 on CentOS 7
+Kubernetes v1.13 on CentOS 7
 ------------------------------
 # Head node installation
 On the head node, install Docker CE and Kubernetes:
