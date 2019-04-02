@@ -39,8 +39,8 @@ do
     pth=$(jq -r '.path'  res.json)
     id=$(jq -r '._id'  res.json)
 
-    # timeout is calculated for 10 MB/s + 5s. 
-    tout=$(( fs/MB/10 + 5)) 
+    # timeout is calculated for 1 MB/s + 10s. 
+    tout=$(( fs/MB/1 + 10)) 
 
     echo "$(date) copying ${fn}"
     echo "from $XCACHE_SERVER${pth}"
