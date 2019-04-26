@@ -38,15 +38,21 @@ do
     fs=$(jq -r '.filesize'  res.json) 
     pth=$(jq -r '.path'  res.json)
     id=$(jq -r '._id'  res.json)
+    ck=$(jq -r '.adler32'  res.json)
+
+    if [ $ck = "null" ]; then
+        echo "no adler32. skipped."
+        continue
+    fi
 
     # timeout is calculated for 1 MB/s + 10s. 
     tout=$(( fs/MB/1 + 10)) 
 
     echo "$(date) copying ${fn}"
     echo "from $XCACHE_SERVER${pth}"
-    echo "size ${fs} with timeout at ${tout} seconds."
+    echo "size ${fs} with timeout at ${tout} seconds and adler32: ${ck}"
     export XRD_LOGFILE=${id}.LOG
-    { time timeout ${tout} xrdcp -f -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> timing.txt
+    { time timeout ${tout} xrdcp -f --cksum adler32:${ck} -d 2 -N $XCACHE_SERVER${pth} /dev/null  2>&1 ; } 2> timing.txt
 
     code=$?
     if [ "$code" = "0" ]; then
