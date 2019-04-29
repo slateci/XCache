@@ -18,7 +18,7 @@ RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-releas
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
     curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
-    curl -s -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
+    curl -s -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
 RUN yum install -y supervisor fetch-crl 
