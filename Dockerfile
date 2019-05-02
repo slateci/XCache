@@ -17,17 +17,13 @@ RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-releas
 
 RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
     curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
-    curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
-    curl -s -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
+    curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; 
 
-RUN cat <<EOT >> /etc/yum.repos.d/xrootd-experimental-slc7.repo \
-    [xrootd-stable] \
-    name=XRootD Experimental repository \
-    baseurl=http://storage-ci.web.cern.ch/storage-ci/xrootd/experimental/epel-7/x86_64 \
-    gpgcheck=0 \
-    enabled=1 \
-    protect=0 \
-    EOT
+RUN echo $'[xrootd-experimental] \n\
+    name=XRootD Experimental \n\
+    baseurl=http://storage-ci.web.cern.ch/storage-ci/xrootd/experimental/epel-7/x86_64 \n\
+    gpgcheck=0 \n\
+    enabled=1 ' >  /etc/yum.repos.d/xrootd-experimental-slc7.repo
 
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
