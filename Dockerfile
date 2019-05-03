@@ -19,7 +19,7 @@ RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.n
     curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; 
 
-RUN echo '[xrootd-experimental]\nname=XRootD Experimental\nbaseurl=http://storage-ci.web.cern.ch/storage-ci/xrootd/experimental/epel-7/x86_64\ngpgcheck=0\nenabled=1' >  /etc/yum.repos.d/xrootd-experimental-slc7.repo
+RUN echo $'[xrootd-experimental]\nname=XRootD Experimental\nbaseurl=http://storage-ci.web.cern.ch/storage-ci/xrootd/experimental/epel-7/x86_64\ngpgcheck=0\nenabled=1' >  /etc/yum.repos.d/xrootd-experimental-slc7.repo
 
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
