@@ -73,6 +73,11 @@ spec:
             value: "{{ .Values.XCacheConfig.Prefetch }}"
           - name: AGIS_PROTOCOL_ID
             value: "{{ .Values.SiteConfig.AGISprotocolID }}"
+          - name: WQ_BLOCKS_PER_LOOP
+            value: "{{ .Values.XCacheConfig.WQBlocksPerLoop }}"
+          - name: WQ_THREADS
+            value: "{{ .Values.XCacheConfig.WQThreads }}"
+          
           livenessProbe:
             tcpSocket:
               port: {{ .Values.Service.Port }}
