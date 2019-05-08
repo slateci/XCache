@@ -77,7 +77,9 @@ spec:
             value: "{{ .Values.XCacheConfig.WQBlocksPerLoop }}"
           - name: WQ_THREADS
             value: "{{ .Values.XCacheConfig.WQThreads }}"
-          
+          resources:
+            requests:
+              ephemeral-storage: "1Gi"
           livenessProbe:
             tcpSocket:
               port: {{ .Values.Service.Port }}
@@ -106,6 +108,9 @@ spec:
         - name: x509
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           command: ["/run_x509_updater.sh"]
+          resources:
+            requests:
+              ephemeral-storage: "1Gi"
           volumeMounts:
           - name: x509-data
             mountPath: "/etc/grid-security/"
