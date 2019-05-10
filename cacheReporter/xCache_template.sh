@@ -30,6 +30,12 @@ curl -XPOST  'atlas-kibana.mwt2.org:9200/_template/xcache' -d '{
           "access": {
             "type": "integer"
           },
+          "blocksEmpty": {
+            "type": "integer"
+          },
+          "blocksDisk": {
+            "type": "integer"
+          },
           "size": {
             "type": "long"
           },

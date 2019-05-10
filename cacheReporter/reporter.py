@@ -26,6 +26,14 @@ collector = os.environ['XC_REPORT_COLLECTOR']
 reports = []
 
 
+def countSetBits(n):
+    count = 0
+    while (n):
+        n &= (n - 1)
+        count += 1
+    return count
+
+
 def get_info(filename):
 
     fin = open(filename, "rb")
@@ -42,7 +50,11 @@ def get_info(filename):
 
     StateVectorLengthInBytes = int((buckets - 1) / 8 + 1)
     sv = struct.unpack(str(StateVectorLengthInBytes) + 'B', fin.read(StateVectorLengthInBytes))  # disk written state vector
+    blocksWritten = 0
+    for b in sv:
+        blocksWritten += countSetBits(b)
     # print ('disk written state vector:\n ->', sv, '<-')
+    # print('blocks on disk:', blocksWritten, '/', buckets)
 
     chksum, = struct.unpack('16s', fin.read(16))
     # print ('chksum:', chksum)
@@ -56,6 +68,8 @@ def get_info(filename):
         'site': site,
         'file': filename.replace(BASE_DIR, '').replace('/atlas/rucio/', '').replace('.cinfo', ''),
         'size': fs,
+        'blocksEmpty': buckets - blocksWritten,
+        'blocksDisk': blocksWritten,
         'created_at': time_of_creation * 1000
     }
 
