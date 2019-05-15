@@ -9,6 +9,7 @@ RUN yum -y update
 
 RUN yum install -y \
     curl \
+    wget \
     gperftools \
     hostname   
 
@@ -23,7 +24,7 @@ RUN echo $'[xrootd-experimental]\nname=XRootD Experimental\nbaseurl=http://stora
 
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
-RUN yum install -y supervisor fetch-crl 
+RUN yum install -y supervisor fetch-crl
 
 RUN wget -r -nH -nd -np -R "index.html*" http://xrd-cache-1.t2.ucsd.edu/RPMS/rhel7-cksum/
 RUN yum -y update *.rpm
