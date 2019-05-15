@@ -4,7 +4,7 @@
 # .cinfo files, aggregate it and report to ES.
 
 while true; do 
-
+  date
   /reporter.py
   sleep 3600
 

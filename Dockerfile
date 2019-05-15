@@ -25,6 +25,9 @@ RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
 RUN yum install -y supervisor fetch-crl 
 
+RUN wget -r -nH -nd -np -R "index.html*" http://xrd-cache-1.t2.ucsd.edu/RPMS/rhel7-cksum/
+RUN yum -y update *.rpm
+
 
 RUN yum install -y \
     python-pip \
