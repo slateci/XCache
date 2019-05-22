@@ -21,7 +21,7 @@ RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.n
     curl -s -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
 RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
 RUN yum install -y xrootd-rucioN2N-for-Xcache
-RUN yum install -y supervisor fetch-crl 
+RUN yum install -y fetch-crl 
 
 
 RUN yum install -y \
@@ -36,12 +36,6 @@ RUN pip install  --upgrade requests
 RUN python36 -m ensurepip
 RUN pip3.6 install --upgrade pip
 RUN pip3.6 install --upgrade requests
-
-
-# setup supervisord
-RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
@@ -73,5 +67,3 @@ RUN if [ $(stat -c "%U:%G" /xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xro
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
 CMD [ "/runme.sh" ]
-
-# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf", "-n"]
