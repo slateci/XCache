@@ -50,11 +50,12 @@ if [ -z "$XC_RAMSIZE" ]; then
   echo "will use ${XC_RAMSIZE}g for memory."
 fi
 
-[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.85"
+[ -z "$XC_SPACE_LO_MARK" ] && XC_SPACE_LO_MARK="0.90"
 [ -z "$XC_SPACE_HI_MARK" ] && XC_SPACE_HI_MARK="0.95"
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
+export XRD_LOCALMETALINKFILE=1
 
 env
 echo "Starting cache ..."
