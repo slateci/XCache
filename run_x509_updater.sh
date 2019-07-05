@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Need to install this - it will create and populate directory /etc/grid-security/certificates
-# yum install voms-clients wlcg-voms-atlas -y
-
 CERTPATH=/etc/grid-certs
 
 export X509_USER_PROXY=/etc/proxy/x509up
