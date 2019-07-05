@@ -22,7 +22,7 @@ mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
-export X509_USER_PROXY=/etc/grid-security/x509up1
+export X509_USER_PROXY=/etc/grid-security/x509up
 
 # sleep until x509 things set up.
 while [ ! -f $X509_USER_PROXY ]
