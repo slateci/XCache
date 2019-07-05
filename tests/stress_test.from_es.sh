@@ -5,7 +5,7 @@
 # X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR do not have to be defined/provided
 # but then it won't really be useful
 
-export X509_USER_PROXY=/etc/grid-security/x509up
+export X509_USER_PROXY=/etc/proxy/x509up
 export X509_CERT_DIR=/etc/grid-security/certificates
 export X509_VOMS_DIR=/etc/grid-security/vomsdir
 
