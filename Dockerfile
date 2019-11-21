@@ -1,13 +1,12 @@
-FROM centos:latest
+FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
 RUN yum -y update
 
-
 # gperftools 
 RUN yum install -y \
-    https://rpmfind.net/linux/centos/7.7.1908/os/x86_64/Packages/gperftools-2.6.1-1.el7.x86_64.rpm \
+    gperftools \
     curl \
     hostname   
 
