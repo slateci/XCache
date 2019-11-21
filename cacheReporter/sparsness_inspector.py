@@ -5,10 +5,10 @@ import sys
 from glob import glob
 import struct
 import time
-import requests
 from datetime import datetime
 
 BASE_DIR = '/xcache-meta/namespace'
+
 
 def countSetBits(n):
     count = 0
@@ -48,4 +48,4 @@ for filename in files:
     blocks, cached = get_info(filename)
     tb += blocks
     cb += cached
-print('total blocks:', tb, '\ncached blocs:', cb, '\nsparsness:', cb / tb)
+print('total blocks:', tb, '\ncached blocs:', cb, '\nsparsness:', float(cb) / tb)
