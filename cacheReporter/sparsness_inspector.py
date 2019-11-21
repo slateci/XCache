@@ -1,11 +1,8 @@
 #!/usr/bin/env python3.6
 
 import os
-import sys
 from glob import glob
 import struct
-import time
-from datetime import datetime
 
 BASE_DIR = '/xcache-meta/namespace'
 
