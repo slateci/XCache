@@ -72,7 +72,7 @@ def get_info(filename):
         'size': fs,
         'created_at': time_of_creation * 1000,
         'blocks': buckets,
-        'blocks_cached', inCache
+        'blocks_cached': inCache
     }
 
     accesses, = struct.unpack('Q', fin.read(8))
