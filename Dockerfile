@@ -42,7 +42,7 @@ RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/reporter.py updateAGISstatus.sh /
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/*.py updateAGISstatus.sh /
 COPY tests/* /tests/
 
 # xrootd user is created during installation
