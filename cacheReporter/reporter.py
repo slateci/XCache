@@ -6,6 +6,7 @@ from glob import glob
 import struct
 import time
 import requests
+from datetime import datetime
 
 BASE_DIR = '/xcache-meta/namespace'
 
@@ -26,6 +27,14 @@ collector = os.environ['XC_REPORT_COLLECTOR']
 reports = []
 
 
+def countSetBits(n):
+    count = 0
+    while n:
+        count += n & 1
+        n >>= 1
+    return count
+
+
 def get_info(filename):
 
     fin = open(filename, "rb")
@@ -44,6 +53,11 @@ def get_info(filename):
     sv = struct.unpack(str(StateVectorLengthInBytes) + 'B', fin.read(StateVectorLengthInBytes))  # disk written state vector
     # print ('disk written state vector:\n ->', sv, '<-')
 
+    inCache = 0
+    for i in sv:
+        inCache += countSetBits(i)
+    # print('blocks cached:', inCache)
+
     chksum, = struct.unpack('16s', fin.read(16))
     # print ('chksum:', chksum)
 
@@ -56,7 +70,9 @@ def get_info(filename):
         'site': site,
         'file': filename.replace(BASE_DIR, '').replace('/atlas/rucio/', '').replace('.cinfo', ''),
         'size': fs,
-        'created_at': time_of_creation * 1000
+        'created_at': time_of_creation * 1000,
+        'blocks': buckets,
+        'blocks_cached', inCache
     }
 
     accesses, = struct.unpack('Q', fin.read(8))
