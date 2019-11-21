@@ -5,9 +5,9 @@ LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 RUN yum -y update
 
 
-    # gperftools 
+# gperftools 
 RUN yum install -y \
-    http://vault.centos.org/7.7.1908/os/Source/SPackages/gperftools-2.6.1-1.el7.src.rpm \
+    https://rpmfind.net/linux/centos/7.7.1908/os/x86_64/Packages/gperftools-2.6.1-1.el7.x86_64.rpm \
     curl \
     hostname   
 
