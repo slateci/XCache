@@ -4,13 +4,15 @@ LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
 RUN yum -y update
 
+
+    # gperftools 
+RUN yum install -y \
+    http://vault.centos.org/7.7.1908/os/Source/SPackages/gperftools-2.6.1-1.el7.src.rpm \
+    curl \
+    hostname   
+
 RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm; \
     yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
-
-RUN yum install -y \
-    curl \
-    gperftools \
-    hostname  
 
 RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
