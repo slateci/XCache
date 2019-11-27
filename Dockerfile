@@ -1,27 +1,25 @@
-FROM centos:latest
+FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-
-RUN mkdir -p /etc/grid-security/certificates /etc/grid-security/vomsdir /etc/grid-security/xrd
-
 RUN yum -y update
 
+# gperftools 
 RUN yum install -y \
-    curl \
     gperftools \
+    curl \
     hostname   
 
-# for CA certificates
-RUN yum localinstall https://repo.opensciencegrid.org/osg/3.4/osg-3.4-el7-release-latest.rpm -y
+RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm; \
+    yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
 
-RUN yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm; \
-    curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
+RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
     curl -s -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
-RUN yum install -y xrootd-server xrootd-client xrootd vomsxrd
-RUN yum install -y xrootd-rucioN2N-for-Xcache
-RUN yum install -y supervisor fetch-crl 
+
+RUN yum install -y xrootd-server xrootd-client xrootd \
+    vomsxrd voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs \
+    xrootd-rucioN2N-for-Xcache 
 
 
 RUN yum install -y \
@@ -29,35 +27,23 @@ RUN yum install -y \
     python36 \
     jq
 
-RUN pip install --upgrade pip
-RUN pip install  --upgrade requests
+RUN pip install --upgrade pip requests
 
 # python3
-RUN python36 -m ensurepip
-RUN pip3.6 install --upgrade pip
-RUN pip3.6 install --upgrade requests
+# RUN python3 -m ensurepip
+RUN pip3 install --upgrade pip requests
 
-
-# setup supervisord
-RUN mkdir -p /var/log/supervisor
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-
+# adding user group atlas access rights (read and list)
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
 
 # not sure this line is needed
-RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run
+RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/reporter.py updateAGISstatus.sh /
-RUN chmod 755 /runme.sh /run_cache_reporter.sh /run_x509_updater.sh /reporter.py /updateAGISstatus.sh
-
-RUN mkdir /tests
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/*.py updateAGISstatus.sh /
 COPY tests/* /tests/
-RUN chmod 755 /tests/stress_test.sh
-RUN chmod 755 /tests/stress_test.from_es.sh
 
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
@@ -73,5 +59,3 @@ RUN if [ $(stat -c "%U:%G" /xrd ) != "xrootd:xrootd" ]; then chown -R xrootd:xro
 RUN echo "Timestamp:" `date --utc` | tee /image-build-info.txt
 
 CMD [ "/runme.sh" ]
-
-# CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf", "-n"]
