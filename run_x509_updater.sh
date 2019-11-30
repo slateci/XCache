@@ -29,9 +29,9 @@ while true; do
     continue
   fi
 
-  sleep 338400‬
-
-  echo 'Fetching crls'
+  sleep 338400
+  
+  echo "Fetching crls"
   /usr/sbin/fetch-crl
   RESULT=$?
   if [ $RESULT -eq 0 ]; then
