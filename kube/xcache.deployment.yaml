@@ -82,6 +82,11 @@ spec:
               command: ["./updateAGISstatus.sh","433","DISABLED"]
         ports:
           - containerPort: 1094
+        resources:
+          requests:
+            ephemeral-storage: "5Gi"
+          limits:
+            ephemeral-storage: "10Gi"
 
       - name: x509
         image: slateci/xcache:latest
