@@ -77,8 +77,6 @@ spec:
             value: "{{ .Values.XCacheConfig.WQBlocksPerLoop }}"
           - name: WQ_THREADS
             value: "{{ .Values.XCacheConfig.WQThreads }}"
-          - name: XrdSecDEBUG
-            value: "{{ .Values.XCacheConfig.XrdSecDEBUG }}"
           resources:
             requests:
               ephemeral-storage: "5Gi"
