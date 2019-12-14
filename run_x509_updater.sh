@@ -53,6 +53,6 @@ while true; do
     fi
   done
 
-  sleep 338400
+  sleep 3600
   
 done
