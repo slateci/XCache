@@ -24,6 +24,7 @@ if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chow
 
 # test of having proxy "localy"
 XChange=/etc/proxy/x509up
+export X509_USER_PROXY=/tmp/x509up
 # sleep until x509 things set up.
 while [ ! -f $XChange ]
 do
@@ -31,8 +32,8 @@ do
   echo "waiting for x509 proxy."
 done
 
-export X509_USER_PROXY=/tmp/x509up
 cp $XChange $X509_USER_PROXY
+chown xrootd $X509_USER_PROXY
 
 # export X509_USER_PROXY=/etc/proxy/x509up
 
@@ -84,10 +85,11 @@ fi
 
 # sleep infinity
 
-while [ -f $XChange ]
+while [ ! -f $XChange ]
 do
   sleep 3600
-  echo "XChanging x509 proxy."
-  cp $XChange $X509_USER_PROXY
+  cp /tmp/x509up $X509_USER_PROXY
+  chown xrootd $X509_USER_PROXY
+  echo "just sleeping for an hour..."
 done
 
