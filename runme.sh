@@ -22,27 +22,27 @@ mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
-# test of having proxy "localy"
-XChange=/etc/proxy/x509up
-export X509_USER_PROXY=/tmp/x509up
-# sleep until x509 things set up.
-while [ ! -f $XChange ]
-do
-  sleep 10
-  echo "waiting for x509 proxy."
-done
-
-cp $XChange $X509_USER_PROXY
-chown xrootd $X509_USER_PROXY
-
-# export X509_USER_PROXY=/etc/proxy/x509up
-
+## test of having proxy "localy"
+# XChange=/etc/proxy/x509up
+# export X509_USER_PROXY=/tmp/x509up
 # # sleep until x509 things set up.
-# while [ ! -f $X509_USER_PROXY ]
+# while [ ! -f $XChange ]
 # do
 #   sleep 10
 #   echo "waiting for x509 proxy."
 # done
+
+# cp $XChange $X509_USER_PROXY
+# chown xrootd $X509_USER_PROXY
+
+export X509_USER_PROXY=/etc/proxy/x509up
+
+# sleep until x509 things set up.
+while [ ! -f $X509_USER_PROXY ]
+do
+  sleep 10
+  echo "waiting for x509 proxy."
+done
 
 ls $X509_USER_PROXY
 
@@ -83,13 +83,13 @@ else
   ./updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
 fi
 
-# sleep infinity
+sleep infinity
 
-while [ -f $XChange ]
-do
-  sleep 3600
-  cp /tmp/x509up $X509_USER_PROXY
-  chown xrootd $X509_USER_PROXY
-  echo "just sleeping for an hour..."
-done
+# while [ -f $XChange ]
+# do
+#   sleep 3600
+#   cp /tmp/x509up $X509_USER_PROXY
+#   chown xrootd $X509_USER_PROXY
+#   echo "just sleeping for an hour..."
+# done
 
