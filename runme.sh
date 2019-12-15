@@ -85,7 +85,7 @@ fi
 
 # sleep infinity
 
-while [ ! -f $XChange ]
+while [ -f $XChange ]
 do
   sleep 3600
   cp /tmp/x509up $X509_USER_PROXY
