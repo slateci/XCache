@@ -69,7 +69,7 @@ fi
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
-export XrdSecDEBUG=2
+export XrdSecDEBUG=3
 
 env
 echo "Starting cache ..."
