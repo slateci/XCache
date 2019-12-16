@@ -9,7 +9,7 @@ XCache is a service that provides caching of data accessed using [xrootd protoco
 *   [Docker](https://hub.docker.com/r/slateci/xcache/)
 *   [GitHub](https://github.com/slateci/XCache)
 *   [Documentation](http://slateci.io/XCache/)
-*   [Monitoring](http://atlas-kibana-dev.mwt2.org/goto/f6bac2569c885896a607dc047b190b6d)
+*   [Monitoring](https://atlas-kibana.mwt2.org:5601/s/xcache/app/kibana#/dashboard/736a9b10-52fd-11e8-99dd-1dc03b06e504)
 
 ## Analytics / Simulation
 

@@ -22,15 +22,22 @@ mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
-# sleep long enough to get x509 things set up.
-echo "Waiting 2 min for other containers to start."
-sleep 120
+export X509_USER_PROXY=/etc/proxy/x509up
+export X509_USER_CERT=/etc/grid-certs/usercert.pem
+export X509_USER_KEY=/etc/grid-certs/userkey.pem
+export XrdSecGSIPROXYVALID="96:00"
+export XrdSecGSICACHECK=0
+export XrdSecGSICRLCHECK=0
+export XrdSecDEBUG=3 
 
-# X509_USER_PROXY, X509_CERT_DIR, X509_VOMS_DIR don't have to be defined/provided
-# but then it won't really be useful
+# sleep until x509 things set up.
+while [ ! -f $X509_USER_PROXY ]
+do
+  sleep 10
+  echo "waiting for x509 proxy."
+done
 
-# if x509 user proxy is provided mount it in /etc/grid-security/x509up
-[ -f /etc/grid-security/x509up ] && export X509_USER_PROXY=/etc/grid-security/x509up
+ls -lh $X509_USER_PROXY
 
 # if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
 [ -s /etc/grid-security/certificates ] && export X509_CERT_DIR=/etc/grid-security/certificates
@@ -39,8 +46,6 @@ sleep 120
 #unset X509_VOMS_DIR
 #[ ! -d "$X509_VOMS_DIR" ] && export X509_VOMS_DIR=/etc/grid-security/vomsdir
 
-echo "Set proxy file:" $X509_USER_PROXY 
-echo "Set cert dir:" $X509_CERT_DIR 
 
 # sets memory to be used
 if [ -z "$XC_RAMSIZE" ]; then

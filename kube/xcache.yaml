@@ -68,7 +68,7 @@ spec:
       value: "433"
     volumeMounts:
     - name: x509-data
-      mountPath: "/etc/grid-security/"
+      mountPath: "/etc/proxy/"
       readOnly: false
     - name: x509-certs-volume
       mountPath: "/etc/grid-certs/"
@@ -96,7 +96,7 @@ spec:
     command: ["/run_x509_updater.sh"]
     volumeMounts:
     - name: x509-data
-      mountPath: "/etc/grid-security/"
+      mountPath: "/etc/proxy/"
       readOnly: false
     - name: x509-certs-volume
       mountPath: "/etc/grid-certs/"
