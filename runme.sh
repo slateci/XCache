@@ -22,20 +22,13 @@ mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
 
-## test of having proxy "localy"
-# XChange=/etc/proxy/x509up
-# export X509_USER_PROXY=/tmp/x509up
-# # sleep until x509 things set up.
-# while [ ! -f $XChange ]
-# do
-#   sleep 10
-#   echo "waiting for x509 proxy."
-# done
-
-# cp $XChange $X509_USER_PROXY
-# chown xrootd $X509_USER_PROXY
-
 export X509_USER_PROXY=/etc/proxy/x509up
+export X509_USER_CERT=/etc/grid-certs/usercert.pem
+export X509_USER_KEY=/etc/grid-certs/userkey.pem
+export XrdSecGSIPROXYVALID="96:00"
+export XrdSecGSICACHECK=0
+export XrdSecGSICRLCHECKtype=0
+export XrdSecDEBUG=3 
 
 # sleep until x509 things set up.
 while [ ! -f $X509_USER_PROXY ]
@@ -44,7 +37,7 @@ do
   echo "waiting for x509 proxy."
 done
 
-ls $X509_USER_PROXY
+ls -lh $X509_USER_PROXY
 
 # if X509_CERT_DIR is provided mount it in /etc/grid-security/certificates
 [ -s /etc/grid-security/certificates ] && export X509_CERT_DIR=/etc/grid-security/certificates
@@ -53,8 +46,6 @@ ls $X509_USER_PROXY
 #unset X509_VOMS_DIR
 #[ ! -d "$X509_VOMS_DIR" ] && export X509_VOMS_DIR=/etc/grid-security/vomsdir
 
-echo "proxy file:" $X509_USER_PROXY 
-echo "cert dir:" $X509_CERT_DIR 
 
 # sets memory to be used
 if [ -z "$XC_RAMSIZE" ]; then
@@ -69,7 +60,6 @@ fi
 
 export LD_PRELOAD=/usr/lib64/libtcmalloc.so
 export TCMALLOC_RELEASE_RATE=10
-export XrdSecDEBUG=3 
 
 env
 echo "Starting cache ..."
@@ -84,12 +74,3 @@ else
 fi
 
 sleep infinity
-
-# while [ -f $XChange ]
-# do
-#   sleep 3600
-#   cp /tmp/x509up $X509_USER_PROXY
-#   chown xrootd $X509_USER_PROXY
-#   echo "just sleeping for an hour..."
-# done
-
