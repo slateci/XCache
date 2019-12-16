@@ -27,7 +27,7 @@ export X509_USER_CERT=/etc/grid-certs/usercert.pem
 export X509_USER_KEY=/etc/grid-certs/userkey.pem
 export XrdSecGSIPROXYVALID="96:00"
 export XrdSecGSICACHECK=0
-export XrdSecGSICRLCHECKtype=0
+export XrdSecGSICRLCHECK=0
 export XrdSecDEBUG=3 
 
 # sleep until x509 things set up.
