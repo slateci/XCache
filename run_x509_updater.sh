@@ -10,8 +10,9 @@ export X509_USER_PROXY=/etc/proxy/x509up
 while true; do 
   date
 
-  while true; do 
-    echo "Fetching crls"
+  for i in {1..5}
+  do 
+    echo "Fetching crls. Try $i of 5."
     /usr/sbin/fetch-crl
     RESULT=$?
     if [ $RESULT -eq 0 ]; then
