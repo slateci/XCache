@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# find all cache mounts
+# find all cache mounts 
 # export them as variables understandable by xcache config
 # make sure their ownership is right
 COUNTER=0
