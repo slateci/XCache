@@ -16,11 +16,18 @@ done
 
 
 # the same for metadata mount
-echo "adding metadata directory."
+echo "adding /xcache-meta directory."
 export META=/xcache-meta
-mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
+
+echo "adding /xcache-meta/xrdcinfos directory."
+mkdir -p /xcache-meta/xrdcinfos
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
+
+echo "adding /xcache-meta/namespace directory."
+mkdir -p /xcache-meta/namespace
+if [ $(stat -c "%U:%G" /xcache-meta/namespace ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/namespace; fi
+
 
 export X509_USER_PROXY=/etc/proxy/x509up
 export X509_USER_CERT=/etc/grid-certs/usercert.pem
