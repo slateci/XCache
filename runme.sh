@@ -35,7 +35,7 @@ export X509_USER_KEY=/etc/grid-certs/userkey.pem
 export XrdSecGSIPROXYVALID="96:00"
 export XrdSecGSICACHECK=0
 export XrdSecGSICRLCHECK=0
-export XrdSecDEBUG=3 
+# export XrdSecDEBUG=3 
 
 # sleep until x509 things set up.
 while [ ! -f $X509_USER_PROXY ]
