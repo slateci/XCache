@@ -10,7 +10,7 @@ export X509_USER_PROXY=/etc/proxy/x509up
 while true; do 
   date
 
-  while true; do 
+  for i in 1 2; do 
     echo "Fetching crls"
     /usr/sbin/fetch-crl
     RESULT=$?
@@ -18,7 +18,7 @@ while true; do
       echo "Fetched crls."
       break 
     else
-      echo "Could not fetch crls."
+      echo "Warning: An issue encountered when fetching crls."
       sleep 5
     fi
   done
