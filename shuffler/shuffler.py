@@ -9,16 +9,16 @@ import shutil
 
 BASE_DIR = '/xcache-meta/namespace'
 
-if 'XC_HOT' not in os.environ:
-    print("xcache shuffler - Must set $XC_HOT. Exiting.")
-    sys.exit(1)
-if 'XC_HOT_HWM' not in os.environ or 'XC_HOT_LWM' not in os.environ:
-    print("xcache reporter - Must set $XC_HOT_HWM and $XC_HOT_LWM Exiting.")
-    sys.exit(1)
+# if 'XC_HOT' not in os.environ:
+#     print("xcache shuffler - Must set $XC_HOT. Exiting.")
+#     sys.exit(1)
+# if 'XC_HOT_HWM' not in os.environ or 'XC_HOT_LWM' not in os.environ:
+#     print("xcache reporter - Must set $XC_HOT_HWM and $XC_HOT_LWM Exiting.")
+#     sys.exit(1)
 
-hot_path = os.environ['XC_HOT']
-hot_hwm = os.environ['XC_HOT_HWM']
-hot_lwm = os.environ['XC_HOT_LWM']
+# hot_path = os.environ['XC_HOT']
+# hot_hwm = os.environ['XC_HOT_HWM']
+# hot_lwm = os.environ['XC_HOT_LWM']
 colds = []
 
 time.sleep(9999999)
