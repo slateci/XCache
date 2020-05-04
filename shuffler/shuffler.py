@@ -9,6 +9,17 @@ import shutil
 
 BASE_DIR = '/xcache-meta/namespace'
 
+colds=[]
+hots=[]
+for v in os.environ:
+    if v.startswith('DISK'):
+        colds.append(os.environ(v))
+
+for i in len(colds):
+    if 'XC_HOT_'+str(i) in os.environ:
+        if 
+
+ if v.startswith('XC_HOT_HWM_')
 # if 'XC_HOT' not in os.environ:
 #     print("xcache shuffler - Must set $XC_HOT. Exiting.")
 #     sys.exit(1)
