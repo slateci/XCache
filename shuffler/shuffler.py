@@ -5,35 +5,52 @@ import sys
 from glob import glob
 import struct
 import time
+from datetime import datetime
 import shutil
 
 BASE_DIR = '/xcache-meta/namespace'
 
-colds = []
-hots = []
-# for v in os.environ:
-#     if v.startswith('DISK'):
-#         colds.append(os.environ(v))
 
-# for i in len(colds):
-#     if 'XC_HOT_'+str(i) in os.environ:
-#         if
+class Xdisk:
+    def __init__(self, path, lwm=0.95, hwm=0.98):
+        self.path = path
+        self.lwm = lwm
+        self.hwm = hwm
 
-#  if v.startswith('XC_HOT_HWM_')
-# if 'XC_HOT' not in os.environ:
-#     print("xcache shuffler - Must set $XC_HOT. Exiting.")
-#     sys.exit(1)
-# if 'XC_HOT_HWM' not in os.environ or 'XC_HOT_LWM' not in os.environ:
-#     print("xcache reporter - Must set $XC_HOT_HWM and $XC_HOT_LWM Exiting.")
-#     sys.exit(1)
+    def __str__(self):
+        return 'disk: {} utilization: {}%'.format(self.path, self.get_utilization())
 
-# hot_path = os.environ['XC_HOT']
-# hot_hwm = os.environ['XC_HOT_HWM']
-# hot_lwm = os.environ['XC_HOT_LWM']
-colds = []
+    def get_utilization(self):
+        (total, used, free) = shutil.disk_usage(self.path)
+        return int(used / total * 100)
 
-time.sleep(9999999)
-# collect paths of all cold disks. TODO
+    def get_free_space(self):
+        (total, used, free) = shutil.disk_usage(self.path)
+        return free
+
+
+COLDS = []
+HOTS = []
+
+mpts = []
+for k in dict(os.environ):
+    if k.startswith('DISK'):
+        mpts.append(os.environ[k])
+
+for i in range(len(mpts)):
+    lwm, hwm = (0.4, 0.6)
+    if 'XC_HOT_HWM_' + str(i) in os.environ:
+        hwm = float(os.environ['XC_HOT_HWM_' + str(i)])
+    if 'XC_HOT_LWM_' + str(i) in os.environ:
+        lwm = float(os.environ['XC_HOT_LWM_' + str(i)])
+    if 'XC_HOT_' + str(i) in os.environ:
+        path = os.environ['XC_HOT_' + str(i)]
+        if path in mpts:
+            mpts.remove(path)
+        HOTS.append(Xdisk(path, lwm, hwm))
+
+for path in mpts:
+    COLDS.append(Xdisk(path))
 
 
 def countSetBits(n):
@@ -77,17 +94,27 @@ def get_info(filename):
     print('accesses:', accesses)
 
 
+def ShuffleAway(DISK):
+    pass
+
+
 while True:
+    print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+    # first check utilization of all the disks and fix them if needed.
+    for DISK in HOTS + COLDS:
+        print(DISK)
+        cdu = DISK.get_utilization()
+        if cdu > 98:
+            ShuffleAway(DISK)
+
     # check hot disk utilization if less than HWM sleep 10 seconds then continue
-    (total, used, free) = shutil.disk_usage(hot_path)
-    print("usage:", int(used / total * 100))
-    if int(used / total * 100) < hot_hwm:
-        time.sleep(10)
-        continue
+
+    time.sleep(30)
+
     # Get a list of cinfo files
-    files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
-    for filename in files:
-        last_modification_time = os.stat(filename).st_mtime
+    # files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
+    # for filename in files:
+    #     last_modification_time = os.stat(filename).st_mtime
     # print(filename, last_modification_time)
     # sort in LRU order
     # move files in a round robin way among cold disks untill under LWM
