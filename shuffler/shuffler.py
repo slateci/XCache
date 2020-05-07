@@ -9,6 +9,7 @@ from datetime import datetime
 import shutil
 
 BASE_DIR = '/xcache-meta/namespace'
+# BASE_DIR = '/xcache-meta/xrdcinfos/meta'
 
 
 class Xdisk:
@@ -18,11 +19,11 @@ class Xdisk:
         self.hwm = hwm
 
     def __str__(self):
-        return 'disk: {} utilization: {}%'.format(self.path, self.get_utilization())
+        return 'disk: {} utilization: {}%'.format(self.path, int(self.get_utilization() * 100))
 
     def get_utilization(self):
         (total, used, free) = shutil.disk_usage(self.path)
-        return int(used / total * 100)
+        return used / total
 
     def get_free_space(self):
         (total, used, free) = shutil.disk_usage(self.path)
@@ -61,7 +62,7 @@ def countSetBits(n):
     return count
 
 
-def get_info(filename):
+def get_file_info(filename):
 
     fin = open(filename, "rb")
 
@@ -93,13 +94,66 @@ def get_info(filename):
     accesses, = struct.unpack('Q', fin.read(8))
     print('accesses:', accesses)
 
+    path = filename
+    if os.path.islink(filename):
+        path = os.path.realpath(filename)
 
-def ShuffleAway(DISK):
-    pass
+    return
+
+
+FILES = {}  # key is last access time, value is path
+
+
+def collect_meta():
+    # Get a list of cinfo files
+    files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
+    for filename in files:
+        last_modification_time = os.stat(filename).st_mtime
+        FILES[last_modification_time] = filename
+        print(filename, last_modification_time)
+    print('files present:', len(FILES))
+
+
+def CleanUpDarkData():
+    # loops over files in BASE_DIR and deletes all files that have no corresponding .cinfo file
+
+    # returns a list of tuples ('current directory',[directories],[files])
+    ntp = [x for x in os.walk(BASE_DIR)]
+    dark_files_removed = 0
+    empty_dirs_removed = 0
+    for (cwd, dirs, files) in ntp:
+
+        for f in files:
+            keep = True
+            if f.endswith('.cinfo'):
+                keep = f[:-6] in files
+            else:
+                keep = f + '.cinfo' in files
+            if not keep:
+                dark_files_removed += 1
+                print('deleting file:', os.path.join(cwd, f))
+                os.remove(os.path.join(cwd, f))
+
+        if not dirs and not files:
+            print('deleting empty dir', cwd)
+            os.rmdir(cwd)
+            empty_dirs_removed += 1
+            continue
+
+    print('dark files removed:', dark_files_removed)
+    print('empty directories removed:', empty_dirs_removed)
+
+
+def ShuffleAway(disk):
+    if not FILES:
+        collect_meta()
+    for ts in sorted(FILES):
+        get_file_info(FILES[ts])
+        break
 
 
 while True:
-    print(datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+    print('is some disk above the limit? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
     # first check utilization of all the disks and fix them if needed.
     for DISK in HOTS + COLDS:
         print(DISK)
@@ -108,13 +162,12 @@ while True:
             ShuffleAway(DISK)
 
     # check hot disk utilization if less than HWM sleep 10 seconds then continue
+    print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+    for DISK in HOTS:
+        print(DISK)
+        cdu = DISK.get_utilization()
+        if cdu > DISK.hwm:
+            ShuffleAway(DISK)
+    time.sleep(120)
 
-    time.sleep(30)
-
-    # Get a list of cinfo files
-    # files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
-    # for filename in files:
-    #     last_modification_time = os.stat(filename).st_mtime
-    # print(filename, last_modification_time)
-    # sort in LRU order
     # move files in a round robin way among cold disks untill under LWM
