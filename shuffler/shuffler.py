@@ -114,15 +114,12 @@ def collect_meta():
     print('files present:', len(FILES))
 
 
-def CleanUpDarkData():
-    # loops over files in BASE_DIR and deletes all files that have no corresponding .cinfo file
-
+def clean_dark_data():
     # returns a list of tuples ('current directory',[directories],[files])
     ntp = [x for x in os.walk(BASE_DIR)]
     dark_files_removed = 0
     empty_dirs_removed = 0
     for (cwd, dirs, files) in ntp:
-
         for f in files:
             keep = True
             if f.endswith('.cinfo'):
@@ -130,16 +127,22 @@ def CleanUpDarkData():
             else:
                 keep = f + '.cinfo' in files
             if not keep:
-                dark_files_removed += 1
-                print('deleting file:', os.path.join(cwd, f))
-                os.remove(os.path.join(cwd, f))
-
+                try:
+                    ffn = os.path.join(cwd, f)
+                    print('deleting file:', ffn)
+                    os.remove(os.path.realpath(ffn))  # actual file
+                    os.remove(ffn)  # link
+                    dark_files_removed += 1
+                except OSError as oerr:
+                    print('file dissapeared?', oerr)
         if not dirs and not files:
             print('deleting empty dir', cwd)
-            os.rmdir(cwd)
-            empty_dirs_removed += 1
+            try:
+                os.rmdir(cwd)
+                empty_dirs_removed += 1
+            except OSError as oerr:
+                print('directory got filled in meanwhile?', oerr)
             continue
-
     print('dark files removed:', dark_files_removed)
     print('empty directories removed:', empty_dirs_removed)
 
@@ -151,6 +154,9 @@ def ShuffleAway(disk):
         get_file_info(FILES[ts])
         break
 
+
+print('cleanup dark data')
+clean_dark_data()
 
 while True:
     print('is some disk above the limit? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
