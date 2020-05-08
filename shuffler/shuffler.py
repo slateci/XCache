@@ -156,7 +156,7 @@ def ShuffleAway(disk):
 
 
 print('cleanup dark data')
-clean_dark_data()
+# clean_dark_data()
 
 while True:
     print('is some disk above the limit? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
