@@ -31,7 +31,7 @@ RUN pip install --upgrade pip requests
 
 # python3
 # RUN python3 -m ensurepip
-RUN pip3 install --upgrade pip requests
+RUN pip3 install --upgrade pip requests psutil
 
 # adding user group atlas access rights (read and list)
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \

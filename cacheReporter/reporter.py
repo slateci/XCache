@@ -6,7 +6,7 @@ from glob import glob
 import struct
 import time
 import requests
-from datetime import datetime
+# from datetime import datetime
 
 BASE_DIR = '/xcache-meta/namespace'
 

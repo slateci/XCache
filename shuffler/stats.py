@@ -4,6 +4,7 @@ import os
 # import sys
 # from glob import glob
 import time
+import requests
 # from datetime import datetime
 import shutil
 
@@ -117,8 +118,40 @@ class Xdisk:
                 self.device = w[0].replace('/dev/', '')
                 break
 
-# def get_load():
-#     return os.getloadavg()
+
+def get_load():
+    return os.getloadavg()  # 1, 5, 15 min
+
+
+def get_network():
+    pass
+    # net_io = psutil.net_io_counters()
+    # print("Total Bytes Sent: {get_size(net_io.bytes_sent)}")
+    # print("Total Bytes Received: {get_size(net_io.bytes_recv)}")
+
+
+def report():
+    if 'XC_SITE' not in os.environ:
+        print("xcache reporter - Must set $XC_SITE. Exiting.")
+        return
+    if 'XC_REPORT_COLLECTOR' not in os.environ:
+        print("xcache reporter - Must set $XC_REPORT_COLLECTOR. Exiting.")
+        return
+
+    site = os.environ['XC_SITE']
+    collector = os.environ['XC_REPORT_COLLECTOR']
+    rec = {
+        'sender': 'xCacheNode',
+        'type': 'docs',
+        'site': site,
+        'timestamp': time.time() * 1000,
+        'load': get_load()[0],
+        'disk': {}
+    }
+    for DISK in xd.COLDS + xd.HOTS + xd.META:
+        rec['disk'][DISK.device] = DISK.iostat
+    res = requests.post(collector, json=[rec])
+    print('stats reporter - indexing response:', res.status_code)
 
 
 if __name__ == "__main__":
@@ -126,4 +159,5 @@ if __name__ == "__main__":
     while True:
         xd.update()
         xd.report()
+        report()
         time.sleep(60)

@@ -117,6 +117,7 @@ def ShuffleAway(disk):
     if not FILES:
         collect_meta()
 
+    max_move = 100
     for ts in sorted(FILES):
 
         data_link_fn = FILES[ts][:-6]
@@ -168,7 +169,11 @@ def ShuffleAway(disk):
         round_robin_disk_index += 1
         if bytes_to_free < 0:
             break
-        break
+        max_move += 1
+        if moved > max_move:
+            break
+    FILES = {}
+    print('bytes_to_free:', bytes_to_free)
 
 
 # print('cleanup dark data')
@@ -189,11 +194,14 @@ if __name__ == "__main__":
                 ShuffleAway(DISK)
 
         # check hot disk utilization if less than HWM sleep 10 seconds then continue
-        print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
-        for DISK in xd.HOTS:
-            cdu = DISK.get_utilization()
-            if cdu > DISK.hwm:
-                print('HOT disk over the HWM:', DISK)
-                ShuffleAway(DISK)
+        if stats.get_load()[0] > 20:
+            print('load too high')
+        else:
+            print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+            for DISK in xd.HOTS:
+                cdu = DISK.get_utilization()
+                if cdu > DISK.hwm:
+                    print('HOT disk over the HWM:', DISK)
+                    ShuffleAway(DISK)
 
-        time.sleep(60)
+        time.sleep(120)
