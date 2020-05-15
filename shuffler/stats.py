@@ -1,12 +1,11 @@
 #!/usr/bin/env python3.6
 
 import os
-# import sys
-# from glob import glob
 import time
-import requests
-# from datetime import datetime
 import shutil
+import requests
+
+global net_io_prev
 
 
 class Xdisks:
@@ -124,10 +123,14 @@ def get_load():
 
 
 def get_network():
-    pass
-    # net_io = psutil.net_io_counters()
-    # print("Total Bytes Sent: {get_size(net_io.bytes_sent)}")
-    # print("Total Bytes Received: {get_size(net_io.bytes_recv)}")
+    if not net_io_prev:
+        net_io_prev = psutil.net_io_counters()
+    net_io = psutil.net_io_counters()
+    res = {
+        'sent': net_io.bytes_sent - net_io_prev.bytes_sent,
+        'received': net_io.bytes_recv - net_io_prev.bytes_recv
+    }
+    return res
 
 
 def report():
@@ -146,7 +149,8 @@ def report():
         'site': site,
         'timestamp': time.time() * 1000,
         'load': get_load()[0],
-        'disk': {}
+        'disk': {},
+        'network': get_network
     }
     for DISK in xd.COLDS + xd.HOTS + xd.META:
         rec['disk'][DISK.device] = DISK.iostat
