@@ -1,10 +1,10 @@
 #!/usr/bin/env python3.6
 
 import os
-import sys
-from glob import glob
+# import sys
+# from glob import glob
 import time
-from datetime import datetime
+# from datetime import datetime
 import shutil
 
 
@@ -116,6 +116,9 @@ class Xdisk:
             if w[1] == self.path:
                 self.device = w[0].replace('/dev/', '')
                 break
+
+# def get_load():
+#     return os.getloadavg()
 
 
 if __name__ == "__main__":

@@ -155,10 +155,12 @@ def ShuffleAway(disk):
 
         # make a copy of the actual file
         copy2(data_fn, data_new_fn, follow_symlinks=False)
-        # make a temp link to data file
-        temp_link_name = tempfile.mktemp()
-        os.symlink(data_new_fn, temp_link_name)
-        os.replace(temp_link_name, data_link_fn)
+        # delete old link
+        os.unlink(data_link_fn)
+        # create new link
+        os.symlink(data_new_fn, data_link_fn)
+        # delete old data
+        os.remove(data_fn)
         # check how much data was moved
         get_file_info(FILES[ts])
         print('stat file size:', fs.st_size)
