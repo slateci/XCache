@@ -25,13 +25,15 @@ RUN yum install -y xrootd-server xrootd-client xrootd \
 RUN yum install -y \
     python-pip \
     python36 \
+    gcc \
+    python3-devel \
     jq
 
 RUN pip install --upgrade pip requests
 
 # python3
 # RUN python3 -m ensurepip
-RUN pip3 install --upgrade pip requests psutil
+RUN pip3 install --upgrade pip requests wheel psutil
 
 # adding user group atlas access rights (read and list)
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
