@@ -1,57 +1,16 @@
 #!/usr/bin/env python3.6
 
 import os
-import sys
+import tempfile
+# import sys
 from glob import glob
 import struct
 import time
 from datetime import datetime
-import shutil
+from shutil import copy2
+import stats
 
 BASE_DIR = '/xcache-meta/namespace'
-# BASE_DIR = '/xcache-meta/xrdcinfos/meta'
-
-
-class Xdisk:
-    def __init__(self, path, lwm=0.95, hwm=0.98):
-        self.path = path
-        self.lwm = lwm
-        self.hwm = hwm
-
-    def __str__(self):
-        return 'disk: {} utilization: {}%'.format(self.path, int(self.get_utilization() * 100))
-
-    def get_utilization(self):
-        (total, used, free) = shutil.disk_usage(self.path)
-        return used / total
-
-    def get_free_space(self):
-        (total, used, free) = shutil.disk_usage(self.path)
-        return free
-
-
-COLDS = []
-HOTS = []
-
-mpts = []
-for k in dict(os.environ):
-    if k.startswith('DISK'):
-        mpts.append(os.environ[k])
-
-for i in range(len(mpts)):
-    lwm, hwm = (0.4, 0.6)
-    if 'XC_HOT_HWM_' + str(i) in os.environ:
-        hwm = float(os.environ['XC_HOT_HWM_' + str(i)])
-    if 'XC_HOT_LWM_' + str(i) in os.environ:
-        lwm = float(os.environ['XC_HOT_LWM_' + str(i)])
-    if 'XC_HOT_' + str(i) in os.environ:
-        path = os.environ['XC_HOT_' + str(i)]
-        if path in mpts:
-            mpts.remove(path)
-        HOTS.append(Xdisk(path, lwm, hwm))
-
-for path in mpts:
-    COLDS.append(Xdisk(path))
 
 
 def countSetBits(n):
@@ -101,7 +60,7 @@ def get_file_info(filename):
     return
 
 
-FILES = {}  # key is last access time, value is path
+FILES = {}  # key is last access time, value is path to cinfo link
 
 
 def collect_meta():
@@ -110,7 +69,7 @@ def collect_meta():
     for filename in files:
         last_modification_time = os.stat(filename).st_mtime
         FILES[last_modification_time] = filename
-        print(filename, last_modification_time)
+        # print(filename, last_modification_time)
     print('files present:', len(FILES))
 
 
@@ -136,6 +95,8 @@ def clean_dark_data():
                 except OSError as oerr:
                     print('file dissapeared?', oerr)
         if not dirs and not files:
+            if cwd == BASE_DIR:
+                continue
             print('deleting empty dir', cwd)
             try:
                 os.rmdir(cwd)
@@ -148,32 +109,89 @@ def clean_dark_data():
 
 
 def ShuffleAway(disk):
+
+    round_robin_disk_index = 0
+    (total, used, _free) = disk.get_space()
+    bytes_to_free = used - total * disk.lwm
+
     if not FILES:
         collect_meta()
+
     for ts in sorted(FILES):
+
+        data_link_fn = FILES[ts][:-6]
+
+        # check if there is a data file link and is not broken
+        try:
+            fs = os.stat(data_link_fn)
+        except OSError as ose:
+            print('data file link dissappeared or link broken', ose)
+            continue
+
+        # get actual data file path
+        data_fn = os.path.realpath(data_link_fn)
+        # determine what disk is it on. If not on "disk" continue
+        if not data_fn.startswith(disk.path):
+            continue
+
+        # # check cinfo file is there and link is not broken
+        # cinfo_link = FILES[ts]
+        # try:
+        #     os.stat(cinfo_link)
+        # except OSError as ose:
+        #     print('cinfo file dissappeared or link broken', ose)
+        #     continue
+        # # get actual cinfo file path
+        # cinfo_fn = os.path.realpath(cinfo_link)
+        # print('cinfo_link', cinfo_link)
+        # print('cinfo_fn', cinfo_fn)
+
+        print('age:', time.time() - ts)
+        print('data_link_fn', data_link_fn)
+        print('data_fn', data_fn)
+
+        data_new_fn = data_fn.replace(disk.path, xd.COLDS[round_robin_disk_index].path)
+        print('data_new_fn', data_new_fn)
+
+        # make a copy of the actual file
+        copy2(data_fn, data_new_fn, follow_symlinks=False)
+        # make a temp link to data file
+        temp_link_name = tempfile.mktemp()
+        os.symlink(data_new_fn, temp_link_name)
+        os.replace(temp_link_name, data_link_fn)
+        # check how much data was moved
         get_file_info(FILES[ts])
+        print('stat file size:', fs.st_size)
+        bytes_to_free -= fs.st_size
+        round_robin_disk_index += 1
+        if bytes_to_free < 0:
+            break
         break
 
 
-print('cleanup dark data')
+# print('cleanup dark data')
 # clean_dark_data()
 
-while True:
-    print('is some disk above the limit? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
-    # first check utilization of all the disks and fix them if needed.
-    for DISK in HOTS + COLDS:
-        print(DISK)
-        cdu = DISK.get_utilization()
-        if cdu > 98:
-            ShuffleAway(DISK)
+if __name__ == "__main__":
+    xd = stats.Xdisks()
+    while True:
+        xd.update()
+        xd.report()
 
-    # check hot disk utilization if less than HWM sleep 10 seconds then continue
-    print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
-    for DISK in HOTS:
-        print(DISK)
-        cdu = DISK.get_utilization()
-        if cdu > DISK.hwm:
-            ShuffleAway(DISK)
-    time.sleep(120)
+        print('is some disk above the limit? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+        # first check utilization of all the disks and fix them if needed.
+        for DISK in xd.HOTS + xd.COLDS:
+            cdu = DISK.get_utilization()
+            if cdu > 98:
+                print('DISK went highwire!', DISK)
+                ShuffleAway(DISK)
 
-    # move files in a round robin way among cold disks untill under LWM
+        # check hot disk utilization if less than HWM sleep 10 seconds then continue
+        print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+        for DISK in xd.HOTS:
+            cdu = DISK.get_utilization()
+            if cdu > DISK.hwm:
+                print('HOT disk over the HWM:', DISK)
+                ShuffleAway(DISK)
+
+        time.sleep(60)
