@@ -60,17 +60,16 @@ def get_file_info(filename):
     return
 
 
-FILES = {}  # key is last access time, value is path to cinfo link
-
-
 def collect_meta():
     # Get a list of cinfo files
     files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
+    FILES = {}
     for filename in files:
         last_modification_time = os.stat(filename).st_mtime
         FILES[last_modification_time] = filename
         # print(filename, last_modification_time)
     print('files present:', len(FILES))
+    return FILES
 
 
 def clean_dark_data():
@@ -114,10 +113,9 @@ def ShuffleAway(disk):
     (total, used, _free) = disk.get_space()
     bytes_to_free = used - total * disk.lwm
 
-    if not FILES:
-        collect_meta()
-
+    FILES = collect_meta()
     max_move = 100
+    moved = 0
     for ts in sorted(FILES):
 
         data_link_fn = FILES[ts][:-6]
@@ -167,12 +165,9 @@ def ShuffleAway(disk):
         print('stat file size:', fs.st_size)
         bytes_to_free -= fs.st_size
         round_robin_disk_index += 1
-        if bytes_to_free < 0:
+        moved += 1
+        if bytes_to_free < 0 or moved > max_move:
             break
-        max_move += 1
-        if moved > max_move:
-            break
-    FILES = {}
     print('bytes_to_free:', bytes_to_free)
 
 
@@ -195,7 +190,7 @@ if __name__ == "__main__":
 
         # check hot disk utilization if less than HWM sleep 10 seconds then continue
         if stats.get_load()[0] > 20:
-            print('load too high')
+            print('load too high', stats.get_load())
         else:
             print('is hot disk above HWM? ', datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
             for DISK in xd.HOTS:
