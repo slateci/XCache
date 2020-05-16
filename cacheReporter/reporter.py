@@ -100,10 +100,14 @@ def get_info(filename):
 files = [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*.cinfo'))]
 # files += [y for x in os.walk(BASE_DIR) for y in glob(os.path.join(x[0], '*%'))]
 for filename in files:
-    last_modification_time = os.stat(filename).st_mtime
-    # print(filename, last_modification_time)
-    if last_modification_time > start_time and last_modification_time < end_time:
-        get_info(filename)
+    try:
+        last_modification_time = os.stat(filename).st_mtime
+        # print(filename, last_modification_time)
+        if last_modification_time > start_time and last_modification_time < end_time:
+            get_info(filename)
+    except OSError as oerr:
+        print('file dissapeared?', oerr)
+
 
 print("xcache reporter - files touched:", len(reports))
 if len(reports) > 0:

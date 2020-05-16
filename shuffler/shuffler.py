@@ -1,7 +1,6 @@
 #!/usr/bin/env python3.6
 
 import os
-import tempfile
 # import sys
 from glob import glob
 import struct
@@ -151,8 +150,11 @@ def ShuffleAway(disk):
 
         data_new_fn = data_fn.replace(disk.path, xd.COLDS[round_robin_disk_index].path)
         print('data_new_fn', data_new_fn)
+        new_path = data_new_fn[:data_new_fn.rindex('/')]
+        print('new path', new_path)
 
         # make a copy of the actual file
+        os.makedirs(new_path)
         copy2(data_fn, data_new_fn, follow_symlinks=False)
         # delete old link
         os.unlink(data_link_fn)
