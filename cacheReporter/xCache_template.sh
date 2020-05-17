@@ -76,6 +76,12 @@ POST _template/xc_node
           "host": {
             "type": "keyword"
           },
+          "device": {
+            "type": "keyword"
+          },
+          "mount": {
+            "type": "keyword"
+          },
           "timestamp": {
             "type": "date"
           }

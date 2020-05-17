@@ -127,13 +127,14 @@ def report():
         'sender': 'xCacheNode',
         'type': 'docs',
         'site': site,
-        'timestamp': time.time() * 1000
+        'timestamp': int(time.time() * 1000)
     }
     load_rec = header.copy()
     load_rec['load'] = get_load()[0]
     data.append(load_rec)
     netw_rec = header.copy()
     netw_rec['network'] = get_network(net_io_prev)
+    data.append(netw_rec)
     for DISK in xd.DISKS + xd.META:
         disk_rec = header.copy()
         disk_rec['device'] = DISK.device
