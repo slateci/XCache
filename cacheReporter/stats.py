@@ -3,41 +3,22 @@
 import os
 import time
 import shutil
+import psutil
 import requests
-
-global net_io_prev
 
 
 class Xdisks:
     def __init__(self):
-        self.HOTS = []
-        self.COLDS = []
+        self.DISKS = []
         self.META = []
         self.last_update = None
         self.setup()
         self.update()
 
     def setup(self):
-        mpts = []
         for k in dict(os.environ):
             if k.startswith('DISK'):
-                mpts.append(os.environ[k])
-
-        for i in range(len(mpts)):
-            lwm, hwm = (0.4, 0.6)
-            if 'XC_HOT_HWM_' + str(i) in os.environ:
-                hwm = float(os.environ['XC_HOT_HWM_' + str(i)])
-            if 'XC_HOT_LWM_' + str(i) in os.environ:
-                lwm = float(os.environ['XC_HOT_LWM_' + str(i)])
-            if 'XC_HOT_' + str(i) in os.environ:
-                path = os.environ['XC_HOT_' + str(i)]
-                if path in mpts:
-                    mpts.remove(path)
-                self.HOTS.append(Xdisk(path, lwm, hwm))
-
-        for path in mpts:
-            self.COLDS.append(Xdisk(path))
-
+                self.DISKS.append(Xdisk(os.environ[k]))
         self.META.append(Xdisk('/xcache-meta'))
 
     def update(self):
@@ -60,7 +41,7 @@ class Xdisks:
                 if key != 'dev':
                     data[key] = int(data[key])
             # get Xdisk with this data['dev'] device and set values
-            for DISK in self.COLDS + self.HOTS + self.META:
+            for DISK in self.DISKS + self.META:
                 if DISK.device == data['dev']:
                     if self.last_update and DISK.iostat_previous:
                         for k in data:
@@ -73,7 +54,7 @@ class Xdisks:
                     break
 
     def report(self):
-        for DISK in self.COLDS + self.HOTS + self.META:
+        for DISK in self.DISKS + self.META:
             print(DISK)
         print('--------------------------------------')
 
@@ -122,9 +103,7 @@ def get_load():
     return os.getloadavg()  # 1, 5, 15 min
 
 
-def get_network():
-    if not net_io_prev:
-        net_io_prev = psutil.net_io_counters()
+def get_network(net_io_prev):
     net_io = psutil.net_io_counters()
     res = {
         'sent': net_io.bytes_sent - net_io_prev.bytes_sent,
@@ -150,16 +129,20 @@ def report():
         'timestamp': time.time() * 1000,
         'load': get_load()[0],
         'disk': {},
-        'network': get_network
+        'network': get_network(net_io_prev)
     }
-    for DISK in xd.COLDS + xd.HOTS + xd.META:
+    for DISK in xd.DISKS + xd.META:
         rec['disk'][DISK.device] = DISK.iostat
-    res = requests.post(collector, json=[rec])
-    print('stats reporter - indexing response:', res.status_code)
+    try:
+        res = requests.post(collector, json=[rec])
+        print('stats reporter - indexing response:', res.status_code)
+    except Exception as exc:
+        print('collector issue?', exc)
 
 
 if __name__ == "__main__":
     xd = Xdisks()
+    net_io_prev = psutil.net_io_counters()
     while True:
         xd.update()
         xd.report()
