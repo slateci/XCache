@@ -1,5 +1,8 @@
 #!/usr/bin/env python3.6
 
+# SHOULD NOT BE USED!
+# COPY OF SPARSE FILES CREATES FILES SIGNIFICANTLY BIGGER
+
 import os
 # import sys
 from glob import glob
@@ -121,7 +124,7 @@ def ShuffleAway(disk):
 
         # check if there is a data file link and is not broken
         try:
-            fs = os.stat(data_link_fn)
+            fs = os.stat(data_link_fn).st_blocks * 512
         except OSError as ose:
             print('data file link dissappeared or link broken', ose)
             continue
