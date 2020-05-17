@@ -122,19 +122,28 @@ def report():
 
     site = os.environ['XC_SITE']
     collector = os.environ['XC_REPORT_COLLECTOR']
-    rec = {
+    data = []
+    header = {
         'sender': 'xCacheNode',
         'type': 'docs',
         'site': site,
-        'timestamp': time.time() * 1000,
-        'load': get_load()[0],
-        'disk': {},
-        'network': get_network(net_io_prev)
+        'timestamp': time.time() * 1000
     }
+    load_rec = header.copy()
+    load_rec['load'] = get_load()[0]
+    data.append(load_rec)
+    netw_rec = header.copy()
+    netw_rec['network'] = get_network(net_io_prev)
     for DISK in xd.DISKS + xd.META:
-        rec['disk'][DISK.device] = DISK.iostat
+        disk_rec = header.copy()
+        disk_rec['device'] = DISK.device
+        disk_rec['mount'] = DISK.path
+        disk_rec['used'] = DISK.get_utilization()
+        for k, v in DISK.iostat.items():
+            disk_rec[k] = v
+        data.append(disk_rec)
     try:
-        res = requests.post(collector, json=[rec])
+        res = requests.post(collector, json=data)
         print('stats reporter - indexing response:', res.status_code)
     except Exception as exc:
         print('collector issue?', exc)

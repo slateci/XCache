@@ -56,3 +56,29 @@ curl -XPOST  'atlas-kibana.mwt2.org:9200/_template/xcache' -d '{
     }
   }
 }'
+
+POST _template/xc_node
+{
+  "order": 0,
+    "index_patterns": "xc_node*",
+    "settings": {
+        "number_of_shards": 1,
+        "number_of_replicas": 1
+    },    
+    "mappings": {
+        "properties": {
+          "site": {
+            "type": "keyword"
+          },
+          "sender": {
+            "type": "keyword"
+          },
+          "host": {
+            "type": "keyword"
+          },
+          "timestamp": {
+            "type": "date"
+          }
+        }
+      }
+    }

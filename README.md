@@ -18,7 +18,6 @@ XCache is a service that provides caching of data accessed using [xrootd protoco
 * Make a central registration service for multi-server caches. Rucio will periodically ask it for active servers at site.
    * endpoints to enable/disable XCache server
    * endpoint to deliver active servers to RUCIO
-* Disk and network monitoring from reporter.
 
 ## Federation
 
