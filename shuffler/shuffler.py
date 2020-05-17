@@ -154,7 +154,7 @@ def ShuffleAway(disk):
         print('new path', new_path)
 
         # make a copy of the actual file
-        os.makedirs(new_path)
+        os.makedirs(new_path, exist_ok=True)
         copy2(data_fn, data_new_fn, follow_symlinks=False)
         # delete old link
         os.unlink(data_link_fn)
