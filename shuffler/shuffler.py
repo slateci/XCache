@@ -166,8 +166,8 @@ def ShuffleAway(disk):
         get_file_info(FILES[ts])
         print('stat file size:', fs.st_size)
         bytes_to_free -= fs.st_size
-        round_robin_disk_index += 1
         moved += 1
+        round_robin_disk_index = moved % len(xd.COLDS)
         if bytes_to_free < 0 or moved > max_move:
             break
     print('bytes_to_free:', bytes_to_free)
