@@ -108,7 +108,6 @@ def clean_dark_data():
 
 def ShuffleAway(disk):
 
-    round_robin_disk_index = 0
     (total, used, _free) = disk.get_space()
     bytes_to_free = used - total * disk.lwm
 
@@ -117,6 +116,7 @@ def ShuffleAway(disk):
     moved = 0
     for ts in sorted(FILES):
 
+        round_robin_disk_index = moved % len(xd.COLDS)
         data_link_fn = FILES[ts][:-6]
 
         # check if there is a data file link and is not broken
@@ -147,6 +147,7 @@ def ShuffleAway(disk):
         print('age:', time.time() - ts)
         print('data_link_fn', data_link_fn)
         print('data_fn', data_fn)
+        print('roundr:', round_robin_disk_index)
 
         data_new_fn = data_fn.replace(disk.path, xd.COLDS[round_robin_disk_index].path)
         print('data_new_fn', data_new_fn)
@@ -167,7 +168,6 @@ def ShuffleAway(disk):
         print('stat file size:', fs.st_size)
         bytes_to_free -= fs.st_size
         moved += 1
-        round_robin_disk_index = moved % len(xd.COLDS)
         if bytes_to_free < 0 or moved > max_move:
             break
     print('bytes_to_free:', bytes_to_free)
