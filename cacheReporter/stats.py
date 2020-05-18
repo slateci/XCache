@@ -109,6 +109,7 @@ def get_network(net_io_prev):
         'sent': net_io.bytes_sent - net_io_prev.bytes_sent,
         'received': net_io.bytes_recv - net_io_prev.bytes_recv
     }
+    net_io_prev = net_io
     return res
 
 
