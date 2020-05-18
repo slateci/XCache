@@ -71,9 +71,8 @@ class Xdisk:
 
     def __str__(self):
         res = '{:20} device: {:10} used: {}% '.format(self.path, self.device, int(self.get_utilization() * 100))
-        res += 'reads: {} writes: {} cur_IOs: {} ms_reading: {}, ms_writing: {}, ms_io: {}'.format(
-            self.iostat['reads'], self.iostat['writes'], self.iostat['cur_ios'],
-            self.iostat['ms_reading'], self.iostat['ms_writing'], self.iostat['ms_doing_io'])
+        for k, v in self.iostat.items():
+            res += k + ':' + str(v)+' '
         return res
 
     def get_space(self):
