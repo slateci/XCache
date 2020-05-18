@@ -99,18 +99,21 @@ class Xdisk:
                 break
 
 
-def get_load():
-    return os.getloadavg()  # 1, 5, 15 min
+class XNode:
+    def __init__(self):
+        self.net_io_prev = psutil.net_io_counters()
 
+    def get_load(self):
+        return os.getloadavg()  # 1, 5, 15 min
 
-def get_network(net_io_prev):
-    net_io = psutil.net_io_counters()
-    res = {
-        'sent': net_io.bytes_sent - net_io_prev.bytes_sent,
-        'received': net_io.bytes_recv - net_io_prev.bytes_recv
-    }
-    net_io_prev = net_io
-    return res
+    def get_network(self):
+        net_io = psutil.net_io_counters()
+        res = {
+            'sent': net_io.bytes_sent - self.net_io_prev.bytes_sent,
+            'received': net_io.bytes_recv - self.net_io_prev.bytes_recv
+        }
+        self.net_io_prev = net_io
+        return res
 
 
 def report():
@@ -131,10 +134,10 @@ def report():
         'timestamp': int(time.time() * 1000)
     }
     load_rec = header.copy()
-    load_rec['load'] = get_load()[0]
+    load_rec['load'] = no.get_load()[0]
     data.append(load_rec)
     netw_rec = header.copy()
-    netw_rec['network'] = get_network(net_io_prev)
+    netw_rec['network'] = no.get_network()
     data.append(netw_rec)
     for DISK in xd.DISKS + xd.META:
         disk_rec = header.copy()
@@ -153,7 +156,7 @@ def report():
 
 if __name__ == "__main__":
     xd = Xdisks()
-    net_io_prev = psutil.net_io_counters()
+    no = XNode()
     while True:
         xd.update()
         xd.report()
