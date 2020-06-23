@@ -2,7 +2,7 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-ENV XCVERSION 5.0.0-0.rc4.el7.x86_64        
+ENV XCVERSION 5.0.0-0.rc4.el7      
 
 RUN yum -y update
 
