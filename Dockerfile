@@ -2,6 +2,8 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
+ENV XCVERSION 5.0.0-0.rc4.el7.x86_64        
+
 RUN yum -y update
 
 # gperftools 
@@ -17,7 +19,7 @@ RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/R
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
     curl -s -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
 
-RUN yum install -y xrootd-server xrootd-client xrootd \
+RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
     vomsxrd voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs \
     xrootd-rucioN2N-for-Xcache 
 
