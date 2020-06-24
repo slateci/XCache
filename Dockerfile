@@ -2,7 +2,7 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-ENV XCVERSION 5.0.0-0.rc4
+ENV XCVERSION 5.0.0-0.rc4.el7
 
 RUN yum -y update
 
@@ -17,7 +17,7 @@ RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-
 
 RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
-    curl -s -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
+    curl -L -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
 
 RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
     vomsxrd voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs \
