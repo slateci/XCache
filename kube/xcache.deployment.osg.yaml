@@ -46,7 +46,7 @@ spec:
 
       containers:
       - name: xcache
-        image: slateci/xcache:latest
+        image: opensciencegrid/atlas-xcache:fresh
         env:
         - name: XC_SPACE_HIGH_WM
           value: "0.95"
