@@ -1,3 +1,20 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: xcache-service
+spec:
+  type: NodePort
+  selector:
+    app: xcache
+  ports:
+  - protocol: TCP
+    name: xrootd
+    port: 1094
+    targetPort: 1094
+    nodePort: 31094
+  externalIPs:
+  - 192.168.7.69
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -95,7 +112,7 @@ spec:
             ephemeral-storage: "10Gi"
 
       - name: x509
-        image: slateci/xcache:latest
+        image: slateci/xcache:testing
         command: ["/run_x509_updater.sh"]
         volumeMounts:
         - name: x509-data
@@ -106,7 +123,7 @@ spec:
           readOnly: true
 
       - name: reporter
-        image: slateci/xcache:latest
+        image: slateci/xcache:testing
         command: ["/run_cache_reporter.sh"]
         env:
         - name: XC_SITE
