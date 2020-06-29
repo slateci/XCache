@@ -18,10 +18,10 @@ spec:
         xcache-capable: "true"
         
       tolerations:
-      - key: "special"
-        operator: "Exists"
+      - key: "xcache"
+        operator: "Equal"
         value: "true"
-        effect: PreferNoSchedule
+        effect: "PreferNoSchedule"
 
       volumes:
       - name: x509-data
@@ -46,8 +46,12 @@ spec:
 
       containers:
       - name: xcache
-        image: opensciencegrid/atlas-xcache:fresh
+        image: slateci/xcache:testing
         env:
+        - name: DISABLE_OSG_MONITORING
+          value: "true"
+        - name: XC_RESOURCENAME
+          value: MWT2_TEST
         - name: XC_SPACE_HIGH_WM
           value: "0.95"
         - name: XC_SPACE_LOW_WM
@@ -106,7 +110,7 @@ spec:
         command: ["/run_cache_reporter.sh"]
         env:
         - name: XC_SITE
-          value: "MWT2"
+          value: "MWT2_TEST"
         - name: XC_REPORT_COLLECTOR
           value: "http://uct2-collectd.mwt2.org:8080"
         volumeMounts:
