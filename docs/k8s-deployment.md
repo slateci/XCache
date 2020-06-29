@@ -1,4 +1,4 @@
-Kubernetes v1.13 on CentOS 7
+Kubernetes v1.15 on CentOS 7
 ------------------------------
 # Head node installation
 On the head node, install Docker CE and Kubernetes:
@@ -61,35 +61,6 @@ Create a .kube/config for a regular user:
 $ mkdir -p $HOME/.kube
 $ sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
-```
-
-### Optional - Enabling the Kubernetes dashboard
-```
-$ kubectl create -f https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml
-secret "kubernetes-dashboard-certs" created
-serviceaccount "kubernetes-dashboard" created
-role.rbac.authorization.k8s.io "kubernetes-dashboard-minimal" created
-rolebinding.rbac.authorization.k8s.io "kubernetes-dashboard-minimal" created
-deployment.apps "kubernetes-dashboard" created
-service "kubernetes-dashboard" created
-```
-
-To access the dashboard, you'll want to have your `.kube/config` and  `kubectl` on your workstation/laptop and run
-```
-kubectl proxy
-```
-
-Then you can access the dashboard at `http://localhost:8001/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy/`
-
-It may display errors about not being able to work in the default namespace. If so, you'll need to do the following:
-```bash
-kubectl create serviceaccount dashboard -n default
-kubectl create clusterrolebinding dashboard-admin -n default --clusterrole=cluster-admin --serviceaccount=default:dashboard
-```
-
-Then, to get the token for authentication:
-```
-kubectl get secret $(./kubectl get serviceaccount dashboard -o jsonpath="{.secrets[0].name}") -o jsonpath="{.data.token}" | base64 --decode
 ```
 
 

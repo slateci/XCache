@@ -40,7 +40,6 @@ Yes | RAM size | XC_RAMSIZE | half of the free RAM | At least 1g. Units are ...
 
 *   Add subfile caching option
 *   Test
-*   Create core collecting pod.
 *   Add summary stream monitoring
 
 
