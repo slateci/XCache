@@ -64,6 +64,7 @@ spec:
       containers:
       - name: xcache
         image: slateci/xcache:testing
+        imagePullPolicy: Always
         env:
         - name: DISABLE_OSG_MONITORING
           value: "true"
@@ -113,6 +114,7 @@ spec:
 
       - name: x509
         image: slateci/xcache:testing
+        imagePullPolicy: Always
         command: ["/run_x509_updater.sh"]
         volumeMounts:
         - name: x509-data
@@ -124,6 +126,7 @@ spec:
 
       - name: reporter
         image: slateci/xcache:testing
+        imagePullPolicy: Always
         command: ["/run_cache_reporter.sh"]
         env:
         - name: XC_SITE
