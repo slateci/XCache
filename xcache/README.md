@@ -22,7 +22,7 @@ Service:
   
 XCache nodes should be tainted:
 ```
-kubectl taint nodes "xcache nodename" special=true:PreferNoSchedule
+kubectl taint nodes "xcache nodename" xcache=true:PreferNoSchedule
 ```
 and labeled:
 ```
