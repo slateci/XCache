@@ -27,9 +27,7 @@ RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/R
 RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
     xrootd-voms voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs
 
-# RUN yum install -y     xrootd-rucioN2N-for-Xcache 
-RUN yum localinstall https://repo.opensciencegrid.org/osg/upcoming/el7/testing/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
-#  xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
+RUN yum localinstall -y https://repo.opensciencegrid.org/osg/upcoming/el7/testing/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
 
 
 RUN yum install -y \
