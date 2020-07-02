@@ -5,26 +5,23 @@ CERTPATH=/etc/grid-certs
 export X509_USER_PROXY=/etc/proxy/x509up
 
 
-
-
 while true; do 
   date
 
-  # done by the cron.d in OSG image
-  # for i in 1 2; do  
-  #   echo "Fetching crls"
-  #   /usr/sbin/fetch-crl
-  #   RESULT=$?
-  #   if [ $RESULT -eq 0 ]; then
-  #     echo "Fetched crls."
-  #     break 
-  #   else
-  #     echo "Warning: An issue encountered when fetching crls."
-  #     sleep 5
-  #   fi
-  # done
+  for i in 1 2; do  
+    echo "Fetching crls"
+    /usr/sbin/fetch-crl -q -r 360 -p 20 -T 10
+    RESULT=$?
+    if [ $RESULT -eq 0 ]; then
+      echo "Fetched crls."
+      break 
+    else
+      echo "Warning: An issue encountered when fetching crls."
+      sleep 5
+    fi
+  done
 
-  # date
+  date
 
   echo 'updating proxy'
     

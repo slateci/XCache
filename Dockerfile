@@ -2,23 +2,6 @@ FROM opensciencegrid/atlas-xcache:fresh
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-# gperftools 
-# RUN yum install -y gperftools curl hostname   
-
-# RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-latest.rpm; \
-    # yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm;
-
-# RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
-    # curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
-    # curl -L -o /etc/yum.repos.d/xrootd-testing-slc7.repo http://www.xrootd.org/binaries/xrootd-testing-slc7.repo
-
-# RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
-    # vomsxrd voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs
-
-# RUN yum install -y     xrootd-rucioN2N-for-Xcache 
-# RUN curl -s -o xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm https://repo.opensciencegrid.org/osg/upcoming/el7/testing/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
-# RUN yum localinstall xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
-
 RUN yum install -y \
     python-pip \
     python36 \
@@ -39,7 +22,7 @@ RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache.cfg /etc/xrootd/
 COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/*.py updateAGISstatus.sh /
-COPY tests/* /tests/
+# COPY tests/* /tests/
 
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
