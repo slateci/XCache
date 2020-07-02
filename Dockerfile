@@ -2,7 +2,7 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-ENV XCVERSION=5.0.0-0.rc4.el7
+ENV XCVERSION=5.0.0-0.rc5.el7
 
 RUN yum -y update
 
@@ -23,7 +23,7 @@ RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/R
 RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
     xrootd-voms-$XCVERSION voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs
 
-RUN yum localinstall -y https://repo.opensciencegrid.org/osg/upcoming/el7/testing/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.1.osgup.el7.x86_64.rpm
+RUN yum localinstall -y https://repo.opensciencegrid.org/osg/upcoming/el7/testing/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.2.osgup.el7.x86_64.rpm
 
 
 RUN yum install -y \

@@ -12,7 +12,7 @@ while true; do
 
   for i in 1 2; do 
     echo "Fetching crls"
-    /usr/sbin/fetch-crl
+    /usr/sbin/fetch-crl -q -r 360 -p 20 -T 10
     RESULT=$?
     if [ $RESULT -eq 0 ]; then
       echo "Fetched crls."
