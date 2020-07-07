@@ -70,7 +70,7 @@ if  [ -z "$AGIS_PROTOCOL_ID" ]; then
   echo 'not updating AGIS protocol status.'
 else
   echo "making AGIS protocol ${AGIS_PROTOCOL_ID} active..."
-  ./updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
+  /updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
 fi
 
 sleep infinity
