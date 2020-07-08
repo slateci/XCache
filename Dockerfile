@@ -48,7 +48,7 @@ RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh updateAGISstatus.sh /
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh updateAGISstatus.sh updateCRICstatus.sh /
 COPY cacheReporter/*.py /
 COPY tests/* /tests/
 
