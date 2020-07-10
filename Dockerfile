@@ -4,7 +4,7 @@ LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
 RUN yum -y update
 
-# gperftools 
+# gperftools - for tcmalloc
 RUN yum install -y \
     gperftools \
     curl \
