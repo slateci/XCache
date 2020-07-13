@@ -61,6 +61,8 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+          - name: XC_SITE
+            value: "{{ .Values.SiteConfig.Name}}"
           - name: XC_SPACE_HIGH_WM
             value: "{{ .Values.XCacheConfig.HighWaterMark }}"
           - name: XC_SPACE_LOW_WM
