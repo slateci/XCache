@@ -158,6 +158,6 @@ if __name__ == "__main__":
     no = XNode()
     while True:
         xd.update()
-        xd.report()
+        # xd.report()
         report()
         time.sleep(60)

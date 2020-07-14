@@ -2,7 +2,8 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-ENV XCVERSION=5.0.0-1.el7
+# ENV XCVERSION=5.0.0-1.el7
+ENV XCVERSION=5.0.0-1.1.osgup.el7
 
 RUN yum -y update
 
