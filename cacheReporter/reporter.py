@@ -39,8 +39,10 @@ def get_info(filename):
 
     fin = open(filename, "rb")
 
-    _, = struct.unpack('i', fin.read(4))
-    # print ("file version:", _)
+    fv, = struct.unpack('i', fin.read(4))
+    # print ("file version:", fv)
+    if fv<3:
+        return
     bs, = struct.unpack('q', fin.read(8))
     # print ('bucket size:', bs)
     fs, = struct.unpack('q', fin.read(8))
@@ -82,18 +84,34 @@ def get_info(filename):
     for a in range(min_access, accesses):
         attach_time, = struct.unpack('Q', fin.read(8))
         detach_time, = struct.unpack('Q', fin.read(8))
-        bytes_disk, = struct.unpack('q', fin.read(8))
-        bytes_ram, = struct.unpack('q', fin.read(8))
-        bytes_missed, = struct.unpack('q', fin.read(8))
-        # print ('access:', a, 'attached at:', datetime.fromtimestamp(attach_time), 'detached at:', datetime.fromtimestamp(detach_time), 'bytes disk:', bytes_disk, 'bytes ram:', bytes_ram, 'bytes missed:', bytes_missed)
+        ios, = struct.unpack('i', fin.read(4))
+        dur, = struct.unpack('i', fin.read(4))
+        bype, = struct.unpack('q', fin.read(8))
+        bhit, = struct.unpack('q', fin.read(8))
+        bmis, = struct.unpack('q', fin.read(8))
+        bwri, = struct.unpack('q', fin.read(8))
+        # print (
+        #     'access:', a, 
+        #     'attached at:', datetime.fromtimestamp(attach_time), 
+        #     'detached at:', datetime.fromtimestamp(detach_time), 
+        #     'ios', ios,
+        #     'duration', dur,
+        #     'bytes hit:', bhit, 
+        #     'bytes miss:', bmis, 
+        #     'bytes bypassed:', bype, 
+        #     'bytes written:', bwri
+        # )
         if detach_time > start_time and detach_time < end_time:
             dp = rec.copy()
             dp['access'] = a
             dp['attached_at'] = attach_time * 1000
             dp['detached_at'] = detach_time * 1000
-            dp['bytes_disk'] = bytes_disk
-            dp['bytes_ram'] = bytes_ram
-            dp['bytes_missed'] = bytes_missed
+            dp['ios']=ios
+            dp['duration']=dur
+            dp['bytes_hit'] = bhit
+            dp['bytes_miss'] = bmis
+            dp['bytes_bypassed'] = bype
+            dp['bytes_written'] = bwri
             reports.append(dp)
 
 
