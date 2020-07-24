@@ -7,7 +7,7 @@ ENV XCVERSION=5.0.0-1.1.osgup.el7
 
 RUN yum -y update
 
-# gperftools for tcmalloc
+# gperftools - for tcmalloc
 RUN yum install -y \
     gperftools \
     curl \
