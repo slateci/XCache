@@ -80,4 +80,11 @@ else
   ./updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
 fi
 
+if  [ -z "$CRIC_PROTOCOL_ID" ]; then
+  echo 'not updating CRIC protocol status.'
+else
+  echo "making AGIS protocol ${CRIC_PROTOCOL_ID} active..."
+  ./updateCRICstatus.sh ${CRIC_PROTOCOL_ID} ACTIVE
+fi
+
 sleep infinity

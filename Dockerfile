@@ -2,6 +2,9 @@ FROM centos:7
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
+# ENV XCVERSION=5.0.0-1.el7
+ENV XCVERSION=5.0.0-1.1.osgup.el7
+
 RUN yum -y update
 
 # gperftools - for tcmalloc
@@ -15,11 +18,13 @@ RUN yum install -y https://repo.opensciencegrid.org/osg/3.5/osg-3.5-el7-release-
 
 RUN curl -s -o /etc/pki/rpm-gpg/RPM-GPG-KEY-wlcg http://linuxsoft.cern.ch/wlcg/RPM-GPG-KEY-wlcg; \
     curl -s -o /etc/yum.repos.d/wlcg-centos7.repo http://linuxsoft.cern.ch/wlcg/wlcg-centos7.repo; \
-    curl -s -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
+    curl -s -L -o /etc/yum.repos.d/xrootd-stable-slc7.repo http://www.xrootd.org/binaries/xrootd-stable-slc7.repo
 
-RUN yum install -y xrootd-server xrootd-client xrootd \
-    vomsxrd voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs \
-    xrootd-rucioN2N-for-Xcache 
+
+RUN yum install -y xrootd-server-$XCVERSION xrootd-client-$XCVERSION xrootd-$XCVERSION \
+    xrootd-voms-$XCVERSION voms-clients wlcg-voms-atlas fetch-crl osg-ca-certs
+
+RUN yum localinstall -y https://repo.opensciencegrid.org/osg/upcoming/el7/development/x86_64/xrootd-rucioN2N-for-Xcache-1.2-3.3.osgup.el7.x86_64.rpm
 
 
 RUN yum install -y \
@@ -44,7 +49,7 @@ RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache_limits.conf /etc/security/limits.d
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh updateAGISstatus.sh /
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh updateAGISstatus.sh updateCRICstatus.sh /
 COPY cacheReporter/*.py /
 COPY tests/* /tests/
 
