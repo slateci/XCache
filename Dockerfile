@@ -2,13 +2,6 @@ FROM opensciencegrid/atlas-xcache:fresh
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
-# RUN yum install -y \
-#     python-pip \
-#     python36 \
-#     jq
-# RUN pip install --upgrade pip requests
-# RUN pip3 install --upgrade pip requests
-
 # adding user group atlas access rights (read and list)
 RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
     touch /etc/xrootd/xcache.cfg /var/run/x509up
