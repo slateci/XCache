@@ -1,4 +1,5 @@
-FROM opensciencegrid/atlas-xcache:fresh
+# FROM opensciencegrid/atlas-xcache:fresh
+FROM opensciencegrid/atlas-xcache:upcoming-fresh
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
