@@ -70,7 +70,14 @@ if  [ -z "$AGIS_PROTOCOL_ID" ]; then
   echo 'not updating AGIS protocol status.'
 else
   echo "making AGIS protocol ${AGIS_PROTOCOL_ID} active..."
-  /updateAGISstatus.sh ${AGIS_PROTOCOL_ID} ACTIVE
+  /usr/local/sbin/update-agis-status.sh ${AGIS_PROTOCOL_ID} ACTIVE
+fi
+
+if  [ -z "$CRIC_PROTOCOL_ID" ]; then
+  echo 'not updating CRIC protocol status.'
+else
+  echo "making CRIC protocol ${CRIC_PROTOCOL_ID} active..."
+  /usr/local/sbin/update-CRIC-status.sh ${CRIC_PROTOCOL_ID} ACTIVE
 fi
 
 sleep infinity
