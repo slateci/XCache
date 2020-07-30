@@ -11,7 +11,7 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
 RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
 COPY xcache.cfg /etc/xrootd/
-COPY runme.sh run_cache_reporter.sh run_x509_updater.sh cacheReporter/*.py /
+COPY runme.sh run_cache_reporter.sh run_x509_updater.sh /
 
 # xrootd user is created during installation
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.

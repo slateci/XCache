@@ -12,11 +12,11 @@ do
     export DISK_${COUNTER}=${dir}
 done
 
-/stats.py &
+/usr/local/sbin/stats.py &
 
 while true; do 
 
-  /reporter.py
+  /usr/local/sbin/reporter.py
   sleep 3600
 
 done
