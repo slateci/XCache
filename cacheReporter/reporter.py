@@ -88,7 +88,7 @@ def get_info(filename):
         ios, = struct.unpack('i', fin.read(4))
         dur, = struct.unpack('i', fin.read(4))
         nmrg, = struct.unpack('i', fin.read(4))
-        smth, = struct.unpack('i', fin.read(4))
+        reserved_for_future_use, = struct.unpack('i', fin.read(4))
         bhit, = struct.unpack('q', fin.read(8))
         bmis, = struct.unpack('q', fin.read(8))
         bype, = struct.unpack('q', fin.read(8))
@@ -99,7 +99,7 @@ def get_info(filename):
         #     'ios', ios,
         #     'duration', dur,
         #     'n merged', nmrg,
-        #     'smth', smth,
+        #     'reserved_for_future_use', reserved_for_future_use,
         #     'bytes hit:', bhit,
         #     'bytes miss:', bmis,
         #     'bytes bypassed:', bype
@@ -115,7 +115,7 @@ def get_info(filename):
             dp['bytes_hit'] = bhit
             dp['bytes_miss'] = bmis
             dp['bytes_bypassed'] = bype
-            dp['smth'] = smth
+            # dp['reserved_for_future_use'] = reserved_for_future_use
             reports.append(dp)
 
 

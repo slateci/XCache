@@ -70,7 +70,7 @@ def get_info(filename):
         bhit, = struct.unpack('q', fin.read(8))
         bmis, = struct.unpack('q', fin.read(8))
         bype, = struct.unpack('q', fin.read(8))
-        print('{:2d} {}   {}  {:7d} {:5d} {:6d} {:12.0f} {:12.0f} {:12.0f} {:12.0f}'.format(
+        print('{:2d} {}   {}  {:7d} {:5d} {:6d} {:12.0f} {:12.0f} {:12.0f}'.format(
             a,
             datetime.fromtimestamp(attach_time),
             datetime.fromtimestamp(detach_time),
@@ -79,8 +79,8 @@ def get_info(filename):
             nmrg,
             bhit/1024,
             bmis/1024,
-            bype/1024,
-            smth)
+            bype/1024
+        )
         )
 
 

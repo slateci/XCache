@@ -6,7 +6,7 @@ metadata:
     app: {{ template "xcache.name" . }}
     chart: {{ template "xcache.chart" . }}
     release: {{ .Release.Name }}
-    instance: {{ .Values.Instance }}
+    instance: {{ .Values.Instance | quote }}
 spec:
   replicas: 1
   selector:
@@ -14,7 +14,7 @@ spec:
       app: {{ template "xcache.name" . }}
       chart: {{ template "xcache.chart" . }}
       release: {{ .Release.Name }}
-      instance: {{ .Values.Instance }}
+      instance: {{ .Values.Instance | quote }}
     
   template:
     metadata:
@@ -22,20 +22,21 @@ spec:
         app: {{ template "xcache.name" . }}
         chart: {{ template "xcache.chart" . }}
         release: {{ .Release.Name }}
-        instance: {{ .Values.Instance }}
+        instance: {{ .Values.Instance | quote }}
     spec:
 
       nodeSelector:
         xcache-capable: "true"
       
       tolerations:
-      - key: "special"
-        operator: "Exists"
-        effect: PreferNoSchedule
+      - key: "xcache"
+        operator: "Equal"
+        value: "true"
+        effect: "PreferNoSchedule"
 
       volumes:
       - name: x509-data
-        emptyDir: 
+        emptyDir:
           medium: Memory
           sizeLimit: "10Mi"
       - name: x509-certs-volume
@@ -50,7 +51,7 @@ spec:
       {{- range $index, $dir := .Values.XCacheConfig.CacheDirectories }}
       - name: xcache-data-{{ $index }}
         hostPath:
-          path: {{ $dir }}
+          path: {{ .path }}
       {{- end }}
       - name: xcache-meta
         hostPath:
@@ -61,8 +62,6 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          - name: XC_SITE
-            value: "{{ .Values.SiteConfig.Name}}"
           - name: XC_SPACE_HIGH_WM
             value: "{{ .Values.XCacheConfig.HighWaterMark }}"
           - name: XC_SPACE_LOW_WM
@@ -77,10 +76,16 @@ spec:
             value: "{{ .Values.XCacheConfig.Prefetch }}"
           - name: AGIS_PROTOCOL_ID
             value: "{{ .Values.SiteConfig.AGISprotocolID }}"
+          - name: CRIC_PROTOCOL_ID
+            value: "{{ .Values.SiteConfig.CRICprotocolID }}"
           - name: WQ_BLOCKS_PER_LOOP
             value: "{{ .Values.XCacheConfig.WQBlocksPerLoop }}"
           - name: WQ_THREADS
             value: "{{ .Values.XCacheConfig.WQThreads }}"
+          - name: XC_SITE
+            value: "{{ .Values.SiteConfig.Name }}"
+          - name: XC_MONITOR
+            value: "{{ .Values.Monitoring.GStreamCollector }}"
           resources:
             requests:
               ephemeral-storage: "5Gi"
@@ -94,7 +99,7 @@ spec:
           lifecycle:
             preStop:
               exec:
-                command: ["./updateAGISstatus.sh","{{ .Values.SiteConfig.AGISprotocolID }}","DISABLED"]
+                command: ["./updateCRICstatus.sh","{{ .Values.SiteConfig.CRICprotocolID }}","DISABLED"]
           ports:
             - containerPort: {{ .Values.Service.Port }}         
           volumeMounts:
@@ -134,6 +139,11 @@ spec:
           - name: XC_REPORT_COLLECTOR
             value: "{{ .Values.Monitoring.Collector }}"
           volumeMounts:
+          {{- range $nindex, $dir := .Values.XCacheConfig.CacheDirectories }}
+          - name: xcache-data-{{ $nindex }}
+            mountPath: "/xcache-data_{{ $nindex }}"
+          {{- end }}
           - name: xcache-meta
             mountPath: "/xcache-meta"
             readOnly: true
+            
