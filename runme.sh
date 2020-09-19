@@ -19,8 +19,11 @@ done
 echo "adding metadata directory."
 export META=/xcache-meta
 mkdir -p /xcache-meta/xrdcinfos
+mkdir -p /xcache-meta/namespace
 if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
 if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
+if [ $(stat -c "%U:%G" /xcache-meta/namespace ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/namespace; fi
+
 
 export X509_USER_PROXY=/etc/proxy/x509up
 export X509_USER_CERT=/etc/grid-certs/usercert.pem
@@ -28,7 +31,7 @@ export X509_USER_KEY=/etc/grid-certs/userkey.pem
 export XrdSecGSIPROXYVALID="96:00"
 export XrdSecGSICACHECK=0
 export XrdSecGSICRLCHECK=0
-export XrdSecDEBUG=3 
+# export XrdSecDEBUG=3 
 
 # sleep until x509 things set up.
 while [ ! -f $X509_USER_PROXY ]
