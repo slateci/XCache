@@ -13,10 +13,10 @@ RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 COPY xcache.cfg /etc/xrootd/
 COPY runme.sh run_cache_reporter.sh run_x509_updater.sh /
 
-# xrootd user is created during installation
+# now done in base image.
 # here we will fix its GID and UID so files created by one container will be modifiable by the next.
-RUN groupmod -o -g 10940 xrootd
-RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
+# RUN groupmod -o -g 10940 xrootd
+# RUN usermod -o -u 10940 -g 10940 -s /bin/sh xrootd
 
 # not sure the two lines bellow are needed at all
 # if needed change ownership of directories
