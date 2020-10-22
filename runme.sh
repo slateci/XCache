@@ -10,8 +10,12 @@ do
     let COUNTER=COUNTER+1
     echo "exporting it as CACHE_${COUNTER}"
     export CACHE${COUNTER}=${dir}
-    echo "making it owned by xrootd if not already."
-    if [ $(stat -c "%U:%G" ${dir} ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd ${dir}; fi
+    if [ $ROOTLESS -eq 1 ]; then
+      echo "Rootless: Assuming ${dir} is already chowned"
+    else 
+      echo "making it owned by xrootd if not already."
+      if [ $(stat -c "%U:%G" ${dir} ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd ${dir}; fi
+    fi
 done
 
 
@@ -20,10 +24,14 @@ echo "adding metadata directory."
 export META=/xcache-meta
 mkdir -p /xcache-meta/xrdcinfos
 mkdir -p /xcache-meta/namespace
-if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
-if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
-if [ $(stat -c "%U:%G" /xcache-meta/namespace ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/namespace; fi
 
+if [ $ROOTLESS -eq 1 ]; then
+  echo "Rootless: Assuming directories have already been chowned appropriately"
+else
+  if [ $(stat -c "%U:%G" /xcache-meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
+  if [ $(stat -c "%U:%G" /xcache-meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/xrdcinfos; fi
+  if [ $(stat -c "%U:%G" /xcache-meta/namespace ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache-meta/namespace; fi
+fi
 
 export X509_USER_PROXY=/etc/proxy/x509up
 export X509_USER_CERT=/etc/grid-certs/usercert.pem
@@ -67,7 +75,12 @@ export TCMALLOC_RELEASE_RATE=10
 env
 echo "Starting cache ..."
 
-su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg &"
+if [ $ROOTLESS -eq 1 ]; then 
+  echo "Rootless: Assuming I am running as xrootd user"
+  /usr/bin/xrootd -c /etc/xrootd/xcache.cfg &
+else 
+  su -p xrootd -c "/usr/bin/xrootd -c /etc/xrootd/xcache.cfg &"
+fi
 
 if  [ -z "$AGIS_PROTOCOL_ID" ]; then
   echo 'not updating AGIS protocol status.'
