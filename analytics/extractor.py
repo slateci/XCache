@@ -1,66 +1,59 @@
-#%% [markdown]
-# # Extracts trace data from Elasticsearch and saves it in HDF5 files
-
-#%%
+# Extracts trace data from Elasticsearch and saves it in HDF5 files
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 import pandas as pd
 
-#%% [markdown]
-# ### select sites and time periods
-
-#%%
-start_date = '2018-08-01 00:00:00'
-end_date = '2018-09-01 00:00:00'
+# select sites and time periods
+start_date = '2020-10-01 00:00:00'
+end_date = '2020-11-01 00:00:00'
 site = 'AGLT2'
 
 print("start:", start_date, "end:", end_date)
-start = int(pd.Timestamp(start_date).timestamp())
-end = int(pd.Timestamp(end_date).timestamp())
+start = pd.Timestamp(start_date).timestamp()
+end = pd.Timestamp(end_date).timestamp()
+print("start:", start, "end:", end)
 
-#%% [markdown]
-# ### select kind of traces to export and name your dataset
+# select kind of traces to export and name your dataset
 
-#%%
 dataset = 'prod_AUG'
 my_query = {
-    "_source": ["time_start", "time_end", "site", "event", "scope", "filename", "filesize"],
+    "_source": ["timeStart", "timeEnd", "localSite", "eventType", "scope", "filename", "filesize"],
     'query': {
         'bool': {
             'must': [
-                {'range': {'time_start': {'gte': start, 'lt': end}}},
+                {'range': {'timeStart': {'gte': start, 'lt': end}}},
                 {'exists': {"field": "filename"}},
-                {'wildcard': {'site': site + '*'}},
+                {'wildcard': {'localSite': site + '*'}},
                 # {'wildcard': {'filename': 'EVNT*'}},
-                #                 {'wildcard': {'event': 'get_sm*'}},
-                {'term': {'event': 'get_sm'}}
-                # {'term': {'event': 'get_sm_a'}},
-                # {'term': {'event': 'download'}},
+                # {'wildcard': {'event': 'get_sm*'}},
+                {'term': {'eventType': 'get_sm'}}
+                # {'term': {'eventType': 'get_sm_a'}},
+                # {'term': {'eventType': 'download'}},
             ]
         }
     }
 }
 
 
-es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
-
-#%% [markdown]
-# ### Does export
-
-#%%
-scroll = scan(client=es, index="traces", query=my_query)
+es = Elasticsearch(['atlas-kibana.mwt2.org:9200'],
+                   scheme="https",
+                   http_auth=("rucio_reader", "u8i9o0p-"), timeout=30, max_retries=10, retry_on_timeout=True
+                   )
+# Does export
+scroll = scan(client=es, index="rucio_traces", query=my_query)
 count = 0
 requests = []
 for res in scroll:
     r = res['_source']
-    requests.append([r['scope'] + ':' + r['filename'], r['filesize'], r['time_start']])
+    requests.append([r['scope'] + ':' + r['filename'],
+                     r['filesize'], r['timeStart']])
 
-    if not count % 100000:
+    if not count % 1000:
         print(count)
     count = count + 1
 
-# all_accesses = pd.DataFrame(requests).sort_values(2)
-# all_accesses.columns = ['filename', 'filesize', 'transfer_start']
-# all_accesses.set_index('filename', drop=True, inplace=True)
-# all_accesses.to_hdf(site + '_' + dataset + '.h5', key=site, mode='w', complevel=1)
+all_accesses = pd.DataFrame(requests).sort_values(2)
+all_accesses.columns = ['filename', 'filesize', 'transfer_start']
+all_accesses.set_index('filename', drop=True, inplace=True)
+all_accesses.to_parquet(site + '_' + dataset + '.parquet')
 print('Done.')
