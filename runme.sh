@@ -1,7 +1,13 @@
 #!/bin/sh
 
-dir="/tmp/cache/"
+dir="/xcache"
 if [ $(stat -c "%U:%G" ${dir} ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd ${dir}; fi
+
+mkdir -p /xcache/meta/xrdcinfos
+mkdir -p /xcache/meta/namespace
+if [ $(stat -c "%U:%G" /xcache/meta ) != "xrootd:xrootd" ]; then  chown xrootd:xrootd /xcache-meta; fi
+if [ $(stat -c "%U:%G" /xcache/meta/xrdcinfos ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache/meta/xrdcinfos; fi
+if [ $(stat -c "%U:%G" /xcache/meta/namespace ) != "xrootd:xrootd" ]; then  chown -R xrootd:xrootd /xcache/meta/namespace; fi
 
 export X509_USER_PROXY=/etc/proxy/x509up
 export X509_USER_CERT=/etc/grid-certs/usercert.pem
