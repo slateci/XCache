@@ -2,6 +2,7 @@ certificates
 
 *.png
 *.h5
+*.parquet
 
 node_modules
 

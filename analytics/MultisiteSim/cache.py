@@ -20,7 +20,8 @@ def load_data(sites, periods, kinds, skipFiles=[]):
     for site in sites:
         for month in periods:
             for kind in kinds:
-                site_data = pd.read_hdf("../data/" + month + '/' + site + '_' + kind + '_' + month + '.h5', key=site, mode='r')
+                site_data = pd.read_hdf(
+                    "../data/" + month + '/' + site + '_' + kind + '_' + month + '.parquet', key=site, mode='r')
                 site_data = site_data.astype({"transfer_start": float})
                 site_data['site'] = 'xc_' + site
                 nfiles = site_data.filesize.count()
@@ -29,9 +30,11 @@ def load_data(sites, periods, kinds, skipFiles=[]):
                 totsize = site_data.filesize.sum() / PB
                 avgfilesize = site_data.filesize.mean() / GB
                 all_data = pd.concat([all_data, site_data])
-                counts.append([site, month, kind, nfiles, ufiles, totsize, avgfilesize])
+                counts.append([site, month, kind, nfiles,
+                               ufiles, totsize, avgfilesize])
 
-    df = pd.DataFrame(counts, columns=['site', 'month', 'kind', 'files', 'unique files', 'total size [PB]', 'avg. filesize [GB]'])
+    df = pd.DataFrame(counts, columns=[
+                      'site', 'month', 'kind', 'files', 'unique files', 'total size [PB]', 'avg. filesize [GB]'])
     print(df)
 
     if len(counts) == 1:
@@ -123,7 +126,8 @@ class XCacheSite(object):
 
     def init(self):
         for s in range(self.nservers):
-            self.servers.append(XCacheServer(self.server_size, self.lwm, self.hwm))
+            self.servers.append(XCacheServer(
+                self.server_size, self.lwm, self.hwm))
 
     def add_request(self, fn, fs, ts):
         # determine server
@@ -149,7 +153,8 @@ class XCacheSite(object):
             self.data_from_cache += fs
             return True
 
-        server = int(hashlib.md5(fn.encode('utf-8')).hexdigest(), 16) % self.nservers
+        server = int(hashlib.md5(fn.encode('utf-8')
+                                 ).hexdigest(), 16) % self.nservers
         found = self.servers[server].add_request(fn, fs, ts)
         if found:
             self.hits += 1

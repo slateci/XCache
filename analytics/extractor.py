@@ -15,7 +15,7 @@ print("start:", start, "end:", end)
 
 # select kind of traces to export and name your dataset
 
-dataset = 'prod_AUG'
+dataset = 'prod_OCT'
 my_query = {
     "_source": ["timeStart", "timeEnd", "localSite", "eventType", "scope", "filename", "filesize"],
     'query': {

@@ -1,10 +1,15 @@
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-site = 'MWT2'
-title = site + ' LRU EVNT only'
+
+results_folder = Path("results/")
+plots_folder = Path("plots/")
+
+site = 'AGLT2'
+title = site + ' LRU prod'
 # title = site + ' FS'
 # title = site + ' LRU (files larger than 1GB not cached)'
 # title = site + ' LRU (files smaller than 100kB not cached)'
@@ -12,47 +17,45 @@ title = site + ' LRU EVNT only'
 # title = site + ' LRU prod only'
 
 results = [
-    [site + '_1_LRU_results.h5', '1TB'],
-    [site + '_2_LRU_results.h5', '2TB'],
-    [site + '_5_LRU_results.h5', '5TB'],
-    [site + '_10_LRU_results.h5', '10TB'],
-    [site + '_20_LRU_results.h5', '20TB'],
-    [site + '_30_LRU_results.h5', '30TB'],
-    [site + '_40_LRU_results.h5', '40TB'],
-    [site + '_50_LRU_results.h5', '50TB'],
-    # [site + '_100_LRU_results.h5', '100TB'],
-    # [site + '_10000_LRU_results.h5', 'Inf']
+    [site + '_50_LRU_results.parquet', '50TB'],
+    [site + '_100_LRU_results.parquet', '100TB'],
+    [site + '_200_LRU_results.parquet', '200TB'],
+    [site + '_400_LRU_results.parquet', '400TB'],
+    [site + '_800_LRU_results.parquet', '800TB'],
+    # [site + '_1000_LRU_results.parquet', '1000TB'],
+    [site + '_10000_LRU_results.parquet', 'Inf']
 ]
 
 # results = [
-#     [site + '_1_Clairvoyant_results.h5', '1TB'],
-#     [site + '_2_Clairvoyant_results.h5', '2TB'],
-#     [site + '_5_Clairvoyant_results.h5', '5TB'],
-#     [site + '_10_Clairvoyant_results.h5', '10TB'],
-#     [site + '_20_Clairvoyant_results.h5', '20TB'],
-#     [site + '_30_Clairvoyant_results.h5', '30TB'],
-#     [site + '_40_Clairvoyant_results.h5', '40TB'],
-#     [site + '_50_Clairvoyant_results.h5', '50TB'],
-#     # [site + '_100_Clairvoyant_results.h5', '100TB'],
-#     # [site + '_200_Clairvoyant_results.h5', '200TB'],
-#     # [site + '_400_Clairvoyant_results.h5', '400TB'],
-#     # [site + '_800_Clairvoyant_results.h5', '800TB'],
-#     # [site + '_10000_Clairvoyant_results.h5', 'Inf']
+#     [site + '_1_Clairvoyant_results.parquet', '1TB'],
+#     [site + '_2_Clairvoyant_results.parquet', '2TB'],
+#     [site + '_5_Clairvoyant_results.parquet', '5TB'],
+#     [site + '_10_Clairvoyant_results.parquet', '10TB'],
+#     [site + '_20_Clairvoyant_results.parquet', '20TB'],
+#     [site + '_30_Clairvoyant_results.parquet', '30TB'],
+#     [site + '_40_Clairvoyant_results.parquet', '40TB'],
+#     [site + '_50_Clairvoyant_results.parquet', '50TB'],
+#     # [site + '_100_Clairvoyant_results.parquet', '100TB'],
+#     # [site + '_200_Clairvoyant_results.parquet', '200TB'],
+#     # [site + '_400_Clairvoyant_results.parquet', '400TB'],
+#     # [site + '_800_Clairvoyant_results.parquet', '800TB'],
+#     # [site + '_10000_Clairvoyant_results.parquet', 'Inf']
 # ]
 
 # results = [
-#     [site+ '_5_FS_results.h5', '5TB'],
-#     [site+ '_10_FS_results.h5', '10TB'],
-#     [site+ '_20_FS_results.h5', '20TB'],
-#     [site+ '_30_FS_results.h5', '30TB'],
-#     [site+ '_40_FS_results.h5', '40TB'],
-#     [site+ '_50_FS_results.h5', '50TB'],
-#     [site+ '_10000_FS_results.h5', 'Inf']
+#     [site+ '_5_FS_results.parquet', '5TB'],
+#     [site+ '_10_FS_results.parquet', '10TB'],
+#     [site+ '_20_FS_results.parquet', '20TB'],
+#     [site+ '_30_FS_results.parquet', '30TB'],
+#     [site+ '_40_FS_results.parquet', '40TB'],
+#     [site+ '_50_FS_results.parquet', '50TB'],
+#     [site+ '_10000_FS_results.parquet', 'Inf']
 # ]
 
 df = None
 for r in results:
-    rdf = pd.read_hdf(r[0])
+    fn = results_folder / r[0]
+    rdf = pd.read_parquet(fn)
     rdf.columns = [r[1]]
     print(rdf)
     if df is None:
@@ -75,9 +78,9 @@ plt.figure(figsize=(12, 10))
 plt.suptitle(title, fontsize=18)
 
 ax1 = plt.subplot(221)
-ax1.plot(ind, rt["cache hit rate"], '--bo')
+ax1.plot(ind, rt["cache hit rate"], '--bo', label='cache hit rate')
 ax1.set_ylabel('from cache [%]', color='b')
-ax1.plot(ind, rt["cache data delivery"], '-r+')
+ax1.plot(ind, rt["cache data delivery"], '-r+', label='cache data delivered')
 ax1.legend()
 ax1.grid(axis='y', linestyle='-', linewidth=.5)
 plt.xticks(ind, lab)
@@ -106,7 +109,8 @@ ax5.grid(axis='y', linestyle='-', linewidth=.5)
 plt.xticks(ind, lab)
 plt.xlabel('cache size')
 
-plt.savefig(title + '_analysis.png')
+fn = title + '_analysis.png'
+plt.savefig(plots_folder / fn)
 plt.show()
 #         plt.yscale('log', nonposy='clip')
 #         plt.xscale('log', nonposy='clip')

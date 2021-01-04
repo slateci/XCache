@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import scan
 
@@ -6,17 +7,22 @@ import pandas as pd
 
 from cache import XCache, set_skip_tag, clairvoyant
 
-load_from_disk = False
+load_from_disk = True
 
-start_date = '2018-08-01 00:00:00'
-end_date = '2018-09-01 00:00:00'
+data_folder = Path("data/")
 
-site = 'AGLT2'
+start_date = '2020-10-01 00:00:00'
+end_date = '2020-11-01 00:00:00'
 
-algo = 'LRU'  # LRU, Clairvoyant, FS
+site = 'MWT2'
 
-es = Elasticsearch(['atlas-kibana.mwt2.org:9200'], timeout=60)
-indices = "traces"
+# algo = 'LRU'  # LRU, Clairvoyant, FS
+algo = 'Clairvoyant'
+
+es = Elasticsearch(['atlas-kibana.mwt2.org:9200'],
+                   scheme="https",
+                   http_auth=("rucio_reader", "u8i9o0p-"), timeout=30, max_retries=10, retry_on_timeout=True)
+indices = "rucio_traces"
 
 print("start:", start_date, "end:", end_date)
 start = int(pd.Timestamp(start_date).timestamp())
@@ -42,10 +48,11 @@ my_query = {
 
 # "transfer_start", "transfer_end",
 
-dataset = 'AUG_prod'
+dataset = 'prod_OCT'
 
 if load_from_disk:
-    XCache.all_accesses = pd.read_hdf(site + '_' + dataset + '.h5', key=site, mode='r')
+    fn = site + '_' + dataset + '.parquet'
+    XCache.all_accesses = pd.read_parquet(data_folder / fn)
 else:
     scroll = scan(client=es, index=indices, query=my_query)
     count = 0
@@ -53,7 +60,8 @@ else:
     for res in scroll:
         r = res['_source']
         # requests.append([r['scope'] + r['filename'], r['filesize'], r['time_start'], r['time_end']])
-        requests.append([r['scope'] + ':' + r['filename'], r['filesize'], r['time_start']])
+        requests.append([r['scope'] + ':' + r['filename'],
+                         r['filesize'], r['time_start']])
 
         # if count < 2:
         #     print(res)
@@ -66,7 +74,7 @@ else:
     XCache.all_accesses = pd.DataFrame(requests).sort_values(2)
     XCache.all_accesses.columns = ['filename', 'filesize', 'transfer_start']
     XCache.all_accesses.set_index('filename', drop=True, inplace=True)
-    XCache.all_accesses.to_hdf(site + '_' + dataset + '.h5', key=site, mode='w', complevel=1)
+    XCache.all_accesses.to_parquet(site + '_' + dataset + '.parquet')
 
 # logging.basicConfig(
 #     format='[%(levelname)s] (%(threadName)-10s) %(message)s',

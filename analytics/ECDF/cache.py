@@ -23,7 +23,7 @@ def clairvoyant():
     # count = 0
     for filename, rest in gr:
         # if count > 1000:
-            # break
+        # break
         # count += 1
         r = rest.copy()
         r['filename'] = filename
@@ -73,7 +73,7 @@ class XCache(object):
 
     def run(self):
         """ this function actually does simulation """
-        self.t1 = time.clock()
+        self.t1 = time.perf_counter()
 
         done = 0
         for filename, row in XCache.all_accesses.iterrows():
@@ -107,9 +107,10 @@ class XCache(object):
                 self.cleanups += 1
                 self.clean()
             self.utilization += filesize
-            self.cache[filename] = [filesize, 1, access_time]  # transfer_start, transfer_start]
+            # transfer_start, transfer_start]
+            self.cache[filename] = [filesize, 1, access_time]
 
-        self.t2 = time.clock()
+        self.t2 = time.perf_counter()
         self.logger.debug("done. Walltime:" + str(self.t2 - self.t1))
 
     def clean(self):
@@ -124,11 +125,13 @@ class XCache(object):
             # here access time is first next access. we want to sort descending
             df.sort_values(['access_time'], ascending=[False], inplace=True)
         elif self.algo == 'ALAS':
-            df.sort_values(['accesses', 'access_time', 'filesize'], ascending=[True, True, False], inplace=True)
+            df.sort_values(['accesses', 'access_time', 'filesize'], ascending=[
+                           True, True, False], inplace=True)
         elif self.algo == 'FS':
             df.sort_values(['filesize'], ascending=[False], inplace=True)
         elif self.algo == 'ACC':
-            df.sort_values(['accesses', 'access_time'], ascending=[True, True], inplace=True)
+            df.sort_values(['accesses', 'access_time'],
+                           ascending=[True, True], inplace=True)
 
         df['cum_sum'] = df.filesize.cumsum()
         # print('files in cache:', df.shape[0], end='  ')
@@ -163,7 +166,8 @@ class XCache(object):
         plt.xlabel('accesses (all files)')
         plt.ylabel('count')
         # plt.yscale('log', nonposy='clip')
-        per_file_counts = XCache.all_accesses.groupby(['filename']).size().reset_index(name='counts')
+        per_file_counts = XCache.all_accesses.groupby(
+            ['filename']).size().reset_index(name='counts')
         plt.hist(per_file_counts.counts, 100, log=True)
         # plt.show()
         plt.savefig(self.name + '.png')

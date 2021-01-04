@@ -14,11 +14,11 @@ GB = 1024 * MB
 TB = 1024 * GB
 PB = 1024 * TB
 
-sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
-# sites = ['AGLT2', 'SWT2']
+# sites = ['MWT2', 'AGLT2', 'NET2', 'SWT2', 'BNL']  # , 'OU_OSCER',  'UTA_SWT2',
+sites = ['AGLT2', 'MWT2']
 filetypes = []
 
-periods = ['AUG', 'SEP', 'OCT', 'NOV']  # must be listed in order
+periods = ['OCT', 'NOV']  # must be listed in order
 kinds = ['prod']  # prod
 title = 'Production inputs ' + ','.join(periods) + '\n'
 
@@ -68,7 +68,8 @@ for site in sites:
     # put together in a stacked plot.
     fig, ax = plt.subplots(1, 2, figsize=(15, 8))
     fig.suptitle(title + site, fontsize=18)
-    accdf.transpose().plot(ax=ax[0], kind='bar', stacked=False, logy=False, rot=45)
+    accdf.transpose().plot(ax=ax[0], kind='bar',
+                           stacked=False, logy=False, rot=45)
 
     totdf = totdf.drop(columns=["total", "unique"])
     ax[1].tick_params(axis='x', which='major', labelsize=7)
@@ -85,7 +86,8 @@ all_data = pd.concat(sites_data)
 all_data = all_data.sort_values('transfer_start')
 
 print('---------- Fully merged -----------')
-print(all_data.shape[0], 'files\t\t', all_data.index.unique().shape[0], 'unique files')
+print(all_data.shape[0], 'files\t\t',
+      all_data.index.unique().shape[0], 'unique files')
 print(all_data.filesize.sum() / PB, "PB")
 print(all_data.filesize.mean() / GB, "GB avg. file size")
 
