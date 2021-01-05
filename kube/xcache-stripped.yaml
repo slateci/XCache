@@ -41,12 +41,12 @@ spec:
 
   containers:
     - name: xcache
-      image: ivukotic/xcache:standalone
-      # image: xcache:standalone
+      # image: ivukotic/xcache:standalone
+      image: xcache:standalone
       command: ["sleep"]
       args: ["36500000"]
-      imagePullPolicy: Always
-      # imagePullPolicy: Never
+      # imagePullPolicy: Always
+      imagePullPolicy: Never
       env:
         - name: DISABLE_OSG_MONITORING
           value: "true"
@@ -54,7 +54,7 @@ spec:
           value: "1094"
       volumeMounts:
         - name: x509-data
-          mountPath: "/etc/grid-security/"
+          mountPath: "/etc/proxy/"
           readOnly: false
         - name: x509-certs-volume
           mountPath: "/etc/grid-certs/"
@@ -67,16 +67,16 @@ spec:
         - containerPort: 1094
 
     - name: x509
-      image: ivukotic/xcache:standalone
-      # image: xcache:standalone
-      imagePullPolicy: Always
-      # imagePullPolicy: Never
-      # command: ["/usr/local/sbin/run_x509_updater.sh"]
-      command: ["sleep"]
-      args: ["36500000"]
+      # image: ivukotic/xcache:standalone
+      image: xcache:standalone
+      # imagePullPolicy: Always
+      imagePullPolicy: Never
+      command: ["/usr/local/sbin/run_x509_updater.sh"]
+      # command: ["sleep"]
+      # args: ["36500000"]
       volumeMounts:
         - name: x509-data
-          mountPath: "/etc/grid-security/"
+          mountPath: "/etc/proxy/"
           readOnly: false
         - name: x509-certs-volume
           mountPath: "/etc/grid-certs/"

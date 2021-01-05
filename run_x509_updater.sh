@@ -4,8 +4,6 @@ CERTPATH=/etc/grid-certs
 
 export X509_USER_PROXY=/etc/proxy/x509up
 
-mkdir /etc/grid-security/certificates
-
 while true; do 
   date
 

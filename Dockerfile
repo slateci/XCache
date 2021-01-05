@@ -11,7 +11,6 @@ RUN echo "g /atlas / rl" > /etc/xrootd/auth_db; \
 # not sure this line is needed
 RUN mkdir -p /xrd/var/log /xrd/var/spool /xrd/var/run /tests
 
-
 COPY runme.sh run_x509_updater.sh /usr/local/sbin/
 COPY xcache.cfg /etc/xrootd/
 RUN chmod +x /usr/local/sbin/run_x509_updater.sh
