@@ -1,6 +1,6 @@
 # FROM opensciencegrid/atlas-xcache:fresh
 # FROM opensciencegrid/atlas-xcache:upcoming-fresh
-FROM opensciencegrid/atlas-xcache:20210103-0130
+FROM ivukotic/docker-xcache:latest
 
 LABEL maintainer Ilija Vukotic <ivukotic@cern.ch>
 
